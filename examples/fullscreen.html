@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全屏功能示例</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #fff;
+        }
+        
+        .demo-section {
+            margin-bottom: 40px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+        
+        .demo-section h2 {
+            margin-top: 0;
+            color: #fff;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            background: #4CAF50;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .fullscreen-element {
+            width: 100%;
+            height: 300px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .fullscreen-element:hover {
+            transform: scale(1.02);
+        }
+        
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            font-family: monospace;
+        }
+        
+        .status-item {
+            margin-bottom: 10px;
+        }
+        
+        .status-label {
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        
+        .error {
+            color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        
+        .success {
+            color: #4CAF50;
+            background: rgba(76, 175, 80, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>全屏功能示例</h1>
+        
+        <div class="demo-section">
+            <h2>页面全屏</h2>
+            <p>点击按钮将整个页面设置为全屏模式</p>
+            <div class="button-group">
+                <button id="requestFullscreen">进入全屏</button>
+                <button id="exitFullscreen">退出全屏</button>
+                <button id="toggleFullscreen">切换全屏</button>
+            </div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>元素全屏</h2>
+            <p>点击按钮将下面的元素设置为全屏模式</p>
+            <div class="button-group">
+                <button id="requestElementFullscreen">元素全屏</button>
+                <button id="toggleElementFullscreen">切换元素全屏</button>
+            </div>
+            <div id="fullscreenElement" class="fullscreen-element">
+                <div>
+                    <h3>这是一个可以全屏的元素</h3>
+                    <p>点击元素本身也可以进入全屏模式</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>全屏状态</h2>
+            <div class="status" id="status">
+                <div class="status-item">
+                    <span class="status-label">全屏支持:</span> <span id="isEnabled">检测中...</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">当前全屏状态:</span> <span id="isFullscreen">检测中...</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">全屏元素:</span> <span id="fullscreenElementInfo">检测中...</span>
+                </div>
+            </div>
+        </div>
+        
+        <div id="message"></div>
+    </div>
+
+    <script type="module">
+        // 这里会导入打包后的库
+        // import { fullscreen } from '../dist/index.esm.js';
+        
+        // 为了演示，我们直接使用源码
+        // 在实际使用中，应该导入打包后的文件
+        
+        // 模拟全屏功能（实际项目中会导入真实的库）
+        const fullscreen = {
+            isEnabled: document.fullscreenEnabled || 
+                      document.webkitFullscreenEnabled || 
+                      document.mozFullScreenEnabled || 
+                      document.msFullscreenEnabled,
+            
+            isFullscreen: false,
+            element: null,
+            
+            async request(element) {
+                const targetElement = element || document.documentElement;
+                try {
+                    if (targetElement.requestFullscreen) {
+                        await targetElement.requestFullscreen();
+                    } else if (targetElement.webkitRequestFullscreen) {
+                        await targetElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+                    } else if (targetElement.mozRequestFullScreen) {
+                        await targetElement.mozRequestFullScreen();
+                    } else if (targetElement.msRequestFullscreen) {
+                        await targetElement.msRequestFullscreen();
+                    }
+                } catch (error) {
+                    throw error;
+                }
+            },
+            
+            async exit() {
+                try {
+                    if (document.exitFullscreen) {
+                        await document.exitFullscreen();
+                    } else if (document.webkitExitFullscreen) {
+                        await document.webkitExitFullscreen();
+                    } else if (document.mozCancelFullScreen) {
+                        await document.mozCancelFullScreen();
+                    } else if (document.msExitFullscreen) {
+                        await document.msExitFullscreen();
+                    }
+                } catch (error) {
+                    throw error;
+                }
+            },
+            
+            async toggle(element) {
+                if (this.isFullscreen) {
+                    await this.exit();
+                } else {
+                    await this.request(element);
+                }
+            },
+            
+            on(event, callback) {
+                const eventName = event === 'change' ? 'fullscreenchange' : 'fullscreenerror';
+                document.addEventListener(eventName, callback);
+            }
+        };
+        
+        // 更新状态显示
+        function updateStatus() {
+            document.getElementById('isEnabled').textContent = fullscreen.isEnabled ? '支持' : '不支持';
+            document.getElementById('isFullscreen').textContent = fullscreen.isFullscreen ? '是' : '否';
+            document.getElementById('fullscreenElementInfo').textContent = fullscreen.element ? fullscreen.element.tagName : '无';
+        }
+        
+        // 显示消息
+        function showMessage(message, type = 'success') {
+            const messageEl = document.getElementById('message');
+            messageEl.innerHTML = `<div class="${type}">${message}</div>`;
+            setTimeout(() => {
+                messageEl.innerHTML = '';
+            }, 3000);
+        }
+        
+        // 监听全屏状态变化
+        fullscreen.on('change', () => {
+            fullscreen.isFullscreen = !!(document.fullscreenElement || 
+                                       document.webkitFullscreenElement || 
+                                       document.mozFullScreenElement || 
+                                       document.msFullscreenElement);
+            fullscreen.element = document.fullscreenElement || 
+                                document.webkitFullscreenElement || 
+                                document.mozFullScreenElement || 
+                                document.msFullscreenElement;
+            updateStatus();
+        });
+        
+        // 监听全屏错误
+        fullscreen.on('error', (event) => {
+            showMessage('全屏操作失败: ' + event, 'error');
+        });
+        
+        // 绑定按钮事件
+        document.getElementById('requestFullscreen').addEventListener('click', async () => {
+            try {
+                await fullscreen.request();
+                showMessage('页面已进入全屏模式');
+            } catch (error) {
+                showMessage('进入全屏失败: ' + error.message, 'error');
+            }
+        });
+        
+        document.getElementById('exitFullscreen').addEventListener('click', async () => {
+            try {
+                await fullscreen.exit();
+                showMessage('已退出全屏模式');
+            } catch (error) {
+                showMessage('退出全屏失败: ' + error.message, 'error');
+            }
+        });
+        
+        document.getElementById('toggleFullscreen').addEventListener('click', async () => {
+            try {
+                await fullscreen.toggle();
+                showMessage(fullscreen.isFullscreen ? '页面已进入全屏模式' : '已退出全屏模式');
+            } catch (error) {
+                showMessage('切换全屏失败: ' + error.message, 'error');
+            }
+        });
+        
+        document.getElementById('requestElementFullscreen').addEventListener('click', async () => {
+            try {
+                const element = document.getElementById('fullscreenElement');
+                await fullscreen.request(element);
+                showMessage('元素已进入全屏模式');
+            } catch (error) {
+                showMessage('元素全屏失败: ' + error.message, 'error');
+            }
+        });
+        
+        document.getElementById('toggleElementFullscreen').addEventListener('click', async () => {
+            try {
+                const element = document.getElementById('fullscreenElement');
+                await fullscreen.toggle(element);
+                showMessage(fullscreen.isFullscreen ? '元素已进入全屏模式' : '元素已退出全屏模式');
+            } catch (error) {
+                showMessage('切换元素全屏失败: ' + error.message, 'error');
+            }
+        });
+        
+        // 点击元素进入全屏
+        document.getElementById('fullscreenElement').addEventListener('click', async () => {
+            try {
+                const element = document.getElementById('fullscreenElement');
+                await fullscreen.request(element);
+                showMessage('元素已进入全屏模式');
+            } catch (error) {
+                showMessage('元素全屏失败: ' + error.message, 'error');
+            }
+        });
+        
+        // 初始化状态
+        updateStatus();
+        
+        // 禁用不支持的按钮
+        if (!fullscreen.isEnabled) {
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(button => {
+                button.disabled = true;
+            });
+            showMessage('当前浏览器不支持全屏功能', 'error');
+        }
+    </script>
+</body>
+</html> 
