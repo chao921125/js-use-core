@@ -47,7 +47,39 @@ import { fileToBase64, imgCompress } from 'js-use-core';
 const base64 = await fileToBase64(file);
 const compressed = await imgCompress(file, { quality: 0.8 });
 ```
+### Vue 用法
+```vue
+<script setup>
+import { fileToBase64, imgCompress } from 'js-use-core';
+import { ref } from 'vue';
+const base64Result = ref('');
+const handleFile = async (e) => {
+  const file = e.target.files[0];
+  base64Result.value = await fileToBase64(file);
+};
+</script>
+<template>
+  <input type="file" @change="handleFile" />
+  <div v-if="base64Result">{{ base64Result.substring(0, 50) }}...</div>
+</template>
+```
+### React 用法
+```jsx
+import React, { useState } from 'react';
+import { fileToBase64 } from 'js-use-core';
 
+export default function Demo() {
+  const [base64, setBase64] = useState('');
+  const handleChange = async (e) => {
+    const file = e.target.files[0];
+    setBase64(await fileToBase64(file));
+  };
+  return <>
+    <input type="file" onChange={handleChange} />
+    {base64 && <div>{base64.substring(0, 50)}...</div>}
+  </>;
+}
+```
 ## API 参考
 详见 [API.md](./API.md)
 
