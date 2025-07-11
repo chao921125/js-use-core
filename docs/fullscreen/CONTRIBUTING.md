@@ -1,5 +1,7 @@
 # 贡献指南
 
+[English](./CONTRIBUTING.en.md) | 简体中文
+
 感谢您对 js-use-core 全屏功能的关注！我们欢迎所有形式的贡献。
 
 ## 贡献方式

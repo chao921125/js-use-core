@@ -11,11 +11,34 @@ export type { ClipboardDataType, ClipboardData, CopyOptions, PasteOptions } from
 // 导出工具方法
 export * from './src/utils/dom';
 
+// file 文件操作相关导出
+export * from './src/file';
+export * from './src/image';
+export * from './src/types';
+export * from './src/utils';
+
+// font 字体功能相关导出
+export { default as font } from './src/font';
+export type { FontCheckResult, FontLoadResult, FontOptions } from './src/font';
+export * from './src/utils/font';
+
 // 默认导出
 import fullscreen from './src/fullscreen';
 import clipboard from './src/clipboard';
+import font from './src/font';
+import * as fileFile from './src/file';
+import * as fileImage from './src/image';
+import * as fileUtils from './src/utils';
+import * as fileTypes from './src/types';
 
 export default {
   fullscreen,
-  clipboard
+  clipboard,
+  file: {
+    ...fileFile,
+    ...fileImage,
+    ...fileUtils,
+    ...fileTypes
+  },
+  font
 }; 

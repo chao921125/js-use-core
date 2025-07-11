@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>file 示例</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .section {
+      margin-bottom: 30px;
+      border: 1px solid #eee;
+      padding: 20px;
+      border-radius: 5px;
+    }
+    h1 {
+      color: #333;
+    }
+    h2 {
+      color: #555;
+      margin-top: 0;
+    }
+    button {
+      background-color: #4CAF50;
+      border: none;
+      color: white;
+      padding: 10px 15px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 14px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    input[type="file"] {
+      margin: 10px 0;
+    }
+    .result {
+      margin-top: 10px;
+      padding: 10px;
+      background-color: #f5f5f5;
+      border-radius: 4px;
+      word-break: break-all;
+    }
+    img {
+      max-width: 100%;
+      max-height: 200px;
+      margin-top: 10px;
+      border: 1px solid #ddd;
+    }
+    .flex {
+      display: flex;
+      gap: 10px;
+    }
+    .flex > div {
+      flex: 1;
+    }
+  </style>
+</head>
+<body>
+  <h1>file 示例</h1>
+  
+  <div class="section">
+    <h2>文件转Base64</h2>
+    <input type="file" id="fileToBase64Input">
+    <button id="fileToBase64Btn">转换</button>
+    <div class="result" id="fileToBase64Result"></div>
+  </div>
+
+  <div class="section">
+    <h2>Base64转文件</h2>
+    <textarea id="base64ToFileInput" rows="5" style="width: 100%" placeholder="粘贴Base64字符串"></textarea>
+    <button id="base64ToFileBtn">转换</button>
+    <div class="result" id="base64ToFileResult"></div>
+  </div>
+
+  <div class="section">
+    <h2>图片压缩</h2>
+    <input type="file" id="imgCompressInput" accept="image/*">
+    <div class="flex">
+      <div>
+        <label>质量 (0-1):</label>
+        <input type="number" id="qualityInput" min="0.1" max="1" step="0.1" value="0.8">
+      </div>
+      <div>
+        <label>最大宽度:</label>
+        <input type="number" id="maxWidthInput" min="100" step="100" value="800">
+      </div>
+    </div>
+    <button id="imgCompressBtn">压缩</button>
+    <div class="flex">
+      <div>
+        <h3>原图</h3>
+        <img id="originalImg">
+        <div class="result" id="originalImgInfo"></div>
+      </div>
+      <div>
+        <h3>压缩后</h3>
+        <img id="compressedImg">
+        <div class="result" id="compressedImgInfo"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>图片格式转换</h2>
+    <input type="file" id="imgConvertInput" accept="image/*">
+    <div>
+      <label>目标格式:</label>
+      <select id="formatSelect">
+        <option value="jpeg">JPEG</option>
+        <option value="png">PNG</option>
+        <option value="webp">WebP</option>
+      </select>
+    </div>
+    <button id="imgConvertBtn">转换</button>
+    <div class="flex">
+      <div>
+        <h3>原图</h3>
+        <img id="originalConvertImg">
+        <div class="result" id="originalConvertImgInfo"></div>
+      </div>
+      <div>
+        <h3>转换后</h3>
+        <img id="convertedImg">
+        <div class="result" id="convertedImgInfo"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 引入库 (开发时使用) -->
+  <script src="../dist/index.umd.js"></script>
+  
+  <script>
+    // 文件转Base64
+    document.getElementById('fileToBase64Btn').addEventListener('click', async () => {
+      const fileInput = document.getElementById('fileToBase64Input');
+      const resultDiv = document.getElementById('fileToBase64Result');
+      
+      if (fileInput.files.length === 0) {
+        resultDiv.textContent = '请选择文件';
+        return;
+      }
+      
+      try {
+        const file = fileInput.files[0];
+        const base64 = await jsUseCore.file.fileToBase64(file);
+        resultDiv.textContent = base64.substring(0, 100) + '...';
+      } catch (error) {
+        resultDiv.textContent = '转换失败: ' + error.message;
+      }
+    });
+
+    // Base64转文件
+    document.getElementById('base64ToFileBtn').addEventListener('click', () => {
+      const base64Input = document.getElementById('base64ToFileInput');
+      const resultDiv = document.getElementById('base64ToFileResult');
+      
+      if (!base64Input.value.trim()) {
+        resultDiv.textContent = '请输入Base64字符串';
+        return;
+      }
+      
+      try {
+        const file = jsUseCore.file.base64ToFile(base64Input.value);
+        resultDiv.textContent = `文件创建成功: ${file.name}, 大小: ${file.size} 字节, 类型: ${file.type}`;
+        
+        // 创建下载链接
+        const downloadLink = document.createElement('a');
+        downloadLink.href = URL.createObjectURL(file);
+        downloadLink.download = file.name;
+        downloadLink.textContent = '下载文件';
+        downloadLink.style.display = 'block';
+        downloadLink.style.marginTop = '10px';
+        resultDiv.appendChild(downloadLink);
+      } catch (error) {
+        resultDiv.textContent = '转换失败: ' + error.message;
+      }
+    });
+
+    // 图片压缩
+    document.getElementById('imgCompressInput').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const img = document.getElementById('originalImg');
+        img.src = URL.createObjectURL(file);
+        document.getElementById('originalImgInfo').textContent = 
+          `文件名: ${file.name}, 大小: ${(file.size / 1024).toFixed(2)} KB, 类型: ${file.type}`;
+      }
+    });
+
+    document.getElementById('imgCompressBtn').addEventListener('click', async () => {
+      const fileInput = document.getElementById('imgCompressInput');
+      const qualityInput = document.getElementById('qualityInput');
+      const maxWidthInput = document.getElementById('maxWidthInput');
+      const resultImg = document.getElementById('compressedImg');
+      const resultInfo = document.getElementById('compressedImgInfo');
+      
+      if (fileInput.files.length === 0) {
+        resultInfo.textContent = '请选择图片';
+        return;
+      }
+      
+      try {
+        const file = fileInput.files[0];
+        const quality = parseFloat(qualityInput.value);
+        const maxWidth = parseInt(maxWidthInput.value);
+        
+        const compressedFile = await jsUseCore.file.imgCompress(file, {
+          quality,
+          maxWidth,
+          maxHeight: maxWidth
+        });
+        
+        resultImg.src = URL.createObjectURL(compressedFile);
+        resultInfo.textContent = 
+          `文件名: ${compressedFile.name}, 大小: ${(compressedFile.size / 1024).toFixed(2)} KB, 类型: ${compressedFile.type}`;
+        
+        // 创建下载链接
+        const downloadLink = document.createElement('a');
+        downloadLink.href = URL.createObjectURL(compressedFile);
+        downloadLink.download = compressedFile.name;
+        downloadLink.textContent = '下载压缩后的图片';
+        downloadLink.style.display = 'block';
+        downloadLink.style.marginTop = '10px';
+        resultInfo.appendChild(downloadLink);
+      } catch (error) {
+        resultInfo.textContent = '压缩失败: ' + error.message;
+      }
+    });
+
+    // 图片格式转换
+    document.getElementById('imgConvertInput').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const img = document.getElementById('originalConvertImg');
+        img.src = URL.createObjectURL(file);
+        document.getElementById('originalConvertImgInfo').textContent = 
+          `文件名: ${file.name}, 大小: ${(file.size / 1024).toFixed(2)} KB, 类型: ${file.type}`;
+      }
+    });
+
+    document.getElementById('imgConvertBtn').addEventListener('click', async () => {
+      const fileInput = document.getElementById('imgConvertInput');
+      const formatSelect = document.getElementById('formatSelect');
+      const resultImg = document.getElementById('convertedImg');
+      const resultInfo = document.getElementById('convertedImgInfo');
+      
+      if (fileInput.files.length === 0) {
+        resultInfo.textContent = '请选择图片';
+        return;
+      }
+      
+      try {
+        const file = fileInput.files[0];
+        const format = formatSelect.value;
+        
+        const convertedFile = await jsUseCore.file.imgConvert(file, {
+          format,
+          quality: 0.9
+        });
+        
+        resultImg.src = URL.createObjectURL(convertedFile);
+        resultInfo.textContent = 
+          `文件名: ${convertedFile.name}, 大小: ${(convertedFile.size / 1024).toFixed(2)} KB, 类型: ${convertedFile.type}`;
+        
+        // 创建下载链接
+        const downloadLink = document.createElement('a');
+        downloadLink.href = URL.createObjectURL(convertedFile);
+        downloadLink.download = convertedFile.name;
+        downloadLink.textContent = '下载转换后的图片';
+        downloadLink.style.display = 'block';
+        downloadLink.style.marginTop = '10px';
+        resultInfo.appendChild(downloadLink);
+      } catch (error) {
+        resultInfo.textContent = '转换失败: ' + error.message;
+      }
+    });
+  </script>
+</body>
+</html>

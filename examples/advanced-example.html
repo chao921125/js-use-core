@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>file 高级示例</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #2c3e50;
+    }
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid #ddd;
+      margin-bottom: 20px;
+    }
+    .tab {
+      padding: 10px 20px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      border-bottom: none;
+      border-radius: 4px 4px 0 0;
+      margin-right: 5px;
+      background-color: #f8f9fa;
+    }
+    .tab.active {
+      border-color: #ddd;
+      background-color: white;
+      border-bottom: 1px solid white;
+      margin-bottom: -1px;
+      font-weight: bold;
+      color: #3498db;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .card {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .card-title {
+      font-size: 18px;
+      margin-bottom: 15px;
+      color: #2c3e50;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 10px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+    input[type="file"],
+    input[type="text"],
+    select {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    select {
+      height: 38px;
+    }
+    button {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #2980b9;
+    }
+    button:disabled {
+      background-color: #95a5a6;
+      cursor: not-allowed;
+    }
+    .result {
+      margin-top: 15px;
+      padding: 15px;
+      background-color: #f8f9fa;
+      border-radius: 4px;
+      border: 1px solid #eee;
+      max-height: 300px;
+      overflow-y: auto;
+      word-break: break-all;
+    }
+    .result pre {
+      white-space: pre-wrap;
+    }
+    .preview {
+      max-width: 100%;
+      max-height: 300px;
+      display: block;
+      margin: 15px 0;
+      border: 1px solid #ddd;
+    }
+    .flex-container {
+      display: flex;
+      gap: 20px;
+    }
+    .flex-item {
+      flex: 1;
+    }
+    .comparison {
+      display: flex;
+      gap: 20px;
+    }
+    .comparison-item {
+      flex: 1;
+    }
+    .file-info {
+      font-size: 12px;
+      color: #7f8c8d;
+      margin-top: 5px;
+    }
+    .drag-area {
+      border: 2px dashed #3498db;
+      border-radius: 8px;
+      padding: 30px;
+      text-align: center;
+      margin-bottom: 20px;
+      transition: background-color 0.3s;
+    }
+    .drag-area.active {
+      background-color: rgba(52, 152, 219, 0.1);
+    }
+    .drag-area p {
+      margin-bottom: 10px;
+      color: #7f8c8d;
+    }
+    .drag-area i {
+      font-size: 48px;
+      color: #3498db;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>file 高级示例</h1>
+  
+  <div class="tabs">
+    <div class="tab active" data-tab="file-operations">文件操作</div>
+    <div class="tab" data-tab="image-operations">图片操作</div>
+    <div class="tab" data-tab="batch-operations">批量处理</div>
+    <div class="tab" data-tab="drag-drop">拖放上传</div>
+  </div>
+  
+  <!-- 文件操作 Tab -->
+  <div class="tab-content active" id="file-operations">
+    <div class="card">
+      <h3 class="card-title">文件转 Base64</h3>
+      <div class="form-group">
+        <label for="file-to-base64">选择文件：</label>
+        <input type="file" id="file-to-base64">
+      </div>
+      <button id="convert-file-to-base64">转换</button>
+      <div class="result" id="file-to-base64-result">
+        <p>结果将显示在这里...</p>
+      </div>
+    </div>
+    
+    <div class="card">
+      <h3 class="card-title">Base64 转文件</h3>
+      <div class="form-group">
+        <label for="base64-input">Base64 字符串：</label>
+        <input type="text" id="base64-input" placeholder="输入 Base64 字符串...">
+      </div>
+      <div class="form-group">
+        <label for="filename-input">文件名：</label>
+        <input type="text" id="filename-input" placeholder="example.jpg">
+      </div>
+      <button id="convert-base64-to-file">转换</button>
+      <div class="result" id="base64-to-file-result">
+        <p>结果将显示在这里...</p>
+      </div>
+    </div>
+    
+    <div class="card">
+      <h3 class="card-title">URL 转 Base64</h3>
+      <div class="form-group">
+        <label for="url-input">URL：</label>
+        <input type="text" id="url-input" placeholder="https://example.com/image.jpg">
+      </div>
+      <button id="convert-url-to-base64">转换</button>
+      <div class="result" id="url-to-base64-result">
+        <p>结果将显示在这里...</p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 图片操作 Tab -->
+  <div class="tab-content" id="image-operations">
+    <div class="card">
+      <h3 class="card-title">图片压缩</h3>
+      <div class="form-group">
+        <label for="image-compress">选择图片：</label>
+        <input type="file" id="image-compress" accept="image/*">
+      </div>
+      <div class="flex-container">
+        <div class="flex-item">
+          <div class="form-group">
+            <label for="compress-quality">压缩质量：</label>
+            <input type="range" id="compress-quality" min="0.1" max="1" step="0.1" value="0.8">
+            <span id="quality-value">0.8</span>
+          </div>
+        </div>
+        <div class="flex-item">
+          <div class="form-group">
+            <label for="compress-max-width">最大宽度：</label>
+            <input type="number" id="compress-max-width" placeholder="可选" min="1">
+          </div>
+        </div>
+        <div class="flex-item">
+          <div class="form-group">
+            <label for="compress-max-height">最大高度：</label>
+            <input type="number" id="compress-max-height" placeholder="可选" min="1">
+          </div>
+        </div>
+      </div>
+      <button id="compress-image">压缩</button>
+      <div class="comparison">
+        <div class="comparison-item">
+          <h4>原图</h4>
+          <img id="original-image" class="preview">
+          <div class="file-info" id="original-info"></div>
+        </div>
+        <div class="comparison-item">
+          <h4>压缩后</h4>
+          <img id="compressed-image" class="preview">
+          <div class="file-info" id="compressed-info"></div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <h3 class="card-title">图片格式转换</h3>
+      <div class="form-group">
+        <label for="image-convert">选择图片：</label>
+        <input type="file" id="image-convert" accept="image/*">
+      </div>
+      <div class="flex-container">
+        <div class="flex-item">
+          <div class="form-group">
+            <label for="convert-format">目标格式：</label>
+            <select id="convert-format">
+              <option value="jpeg">JPEG</option>
+              <option value="png">PNG</option>
+              <option value="webp">WebP</option>
+            </select>
+          </div>
+        </div>
+        <div class="flex-item">
+          <div class="form-group">
+            <label for="convert-quality">质量：</label>
+            <input type="range" id="convert-quality" min="0.1" max="1" step="0.1" value="0.9">
+            <span id="convert-quality-value">0.9</span>
+          </div>
+        </div>
+      </div>
+      <button id="convert-image">转换</button>
+      <div class="comparison">
+        <div class="comparison-item">
+          <h4>原图</h4>
+          <img id="original-convert-image" class="preview">
+          <div class="file-info" id="original-convert-info"></div>
+        </div>
+        <div class="comparison-item">
+          <h4>转换后</h4>
+          <img id="converted-image" class="preview">
+          <div class="file-info" id="converted-info"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 批量处理 Tab -->
+  <div class="tab-content" id="batch-operations">
+    <div class="card">
+      <h3 class="card-title">批量图片处理</h3>
+      <div class="form-group">
+        <label for="batch-images">选择多张图片：</label>
+        <input type="file" id="batch-images" accept="image/*" multiple>
+      </div>
+      <div class="flex-container">
+        <div class="flex-item">
+          <div class="form-group">
+            <label>处理类型：</label>
+            <select id="batch-operation-type">
+              <option value="compress">压缩</option>
+              <option value="convert">格式转换</option>
+            </select>
+          </div>
+        </div>
+        <div class="flex-item" id="batch-compress-options">
+          <div class="form-group">
+            <label for="batch-quality">压缩质量：</label>
+            <input type="range" id="batch-quality" min="0.1" max="1" step="0.1" value="0.8">
+            <span id="batch-quality-value">0.8</span>
+          </div>
+        </div>
+        <div class="flex-item" id="batch-convert-options" style="display: none;">
+          <div class="form-group">
+            <label for="batch-format">目标格式：</label>
+            <select id="batch-format">
+              <option value="jpeg">JPEG</option>
+              <option value="png">PNG</option>
+              <option value="webp">WebP</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <button id="process-batch">处理</button>
+      <div class="result" id="batch-result">
+        <p>结果将显示在这里...</p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 拖放上传 Tab -->
+  <div class="tab-content" id="drag-drop">
+    <div class="card">
+      <h3 class="card-title">拖放文件上传</h3>
+      <div class="drag-area" id="drop-area">
+        <i>📁</i>
+        <p>拖放文件到这里或点击选择文件</p>
+        <input type="file" id="drag-file-input" style="display: none;" multiple>
+        <button id="select-files">选择文件</button>
+      </div>
+      <div class="form-group">
+        <label>处理选项：</label>
+        <select id="drag-operation-type">
+          <option value="base64">转换为Base64</option>
+          <option value="preview">预览</option>
+        </select>
+      </div>
+      <div class="result" id="drag-result">
+        <p>结果将显示在这里...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 引入 file 库 -->
+<script src="../dist/index.umd.js"></script>
+  <script>
+    // 确保 DOM 加载完成
+    document.addEventListener('DOMContentLoaded', () => {
+      // 标签切换功能
+      const tabs = document.querySelectorAll('.tab');
+      const tabContents = document.querySelectorAll('.tab-content');
+      
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          const tabId = tab.getAttribute('data-tab');
+          
+          // 移除所有活动标签和内容
+          tabs.forEach(t => t.classList.remove('active'));
+          tabContents.forEach(c => c.classList.remove('active'));
+          
+          // 激活当前标签和内容
+          tab.classList.add('active');
+          document.getElementById(tabId).classList.add('active');
+        });
+      });
+      
+      // 文件操作功能
+      // 文件转 Base64
+      document.getElementById('convert-file-to-base64').addEventListener('click', async () => {
+        const fileInput = document.getElementById('file-to-base64');
+        const resultDiv = document.getElementById('file-to-base64-result');
+        
+        if (fileInput.files.length === 0) {
+          resultDiv.innerHTML = '<p style="color: red;">请选择文件</p>';
+          return;
+        }
+        
+        try {
+          const file = fileInput.files[0];
+          const base64 = await jsUseCore.file.fileToBase64(file);
+          
+          // 截断显示，避免过长
+          const truncatedBase64 = base64.length > 100 
+            ? base64.substring(0, 100) + '... (截断显示)' 
+            : base64;
+          
+          resultDiv.innerHTML = `
+            <p>文件名: ${file.name}</p>
+            <p>文件类型: ${file.type}</p>
+            <p>文件大小: ${(file.size / 1024).toFixed(2)} KB</p>
+            <p>Base64 (截断显示): <pre>${truncatedBase64}</pre></p>
+          `;
+          
+          // 如果是图片，显示预览
+          if (file.type.startsWith('image/')) {
+            const img = document.createElement('img');
+            img.src = base64;
+            img.className = 'preview';
+            resultDiv.appendChild(img);
+          }
+        } catch (error) {
+          resultDiv.innerHTML = `<p style="color: red;">错误: ${error.message}</p>`;
+        }
+      });
+      
+      // Base64 转文件
+      document.getElementById('convert-base64-to-file').addEventListener('click', () => {
+        const base64Input = document.getElementById('base64-input');
+        const filenameInput = document.getElementById('filename-input');
+        const resultDiv = document.getElementById('base64-to-file-result');
+        
+        if (!base64Input.value) {
+          resultDiv.innerHTML = '<p style="color: red;">请输入 Base64 字符串</p>';
+          return;
+        }
+        
+        try {
+          const base64 = base64Input.value;
+          const filename = filenameInput.value || undefined;
+          const file = jsUseCore.file.base64ToFile(base64, filename);
+          
+          resultDiv.innerHTML = `
+            <p>文件已创建:</p>
+            <p>文件名: ${file.name}</p>
+            <p>文件类型: ${file.type}</p>
+            <p>文件大小: ${(file.size / 1024).toFixed(2)} KB</p>
+          `;
+          
+          // 添加下载链接
+          const downloadLink = document.createElement('a');
+          downloadLink.href = URL.createObjectURL(file);
+          downloadLink.download = file.name;
+          downloadLink.textContent = '下载文件';
+          downloadLink.style.display = 'block';
+          downloadLink.style.marginTop = '10px';
+          resultDiv.appendChild(downloadLink);
+          
+          // 如果是图片，显示预览
+          if (file.type.startsWith('image/')) {
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(file);
+            img.className = 'preview';
+            resultDiv.appendChild(img);
+          }
+        } catch (error) {
+          resultDiv.innerHTML = `<p style="color: red;">错误: ${error.message}</p>`;
+        }
+      });
+      
+      // URL 转 Base64
+      document.getElementById('convert-url-to-base64').addEventListener('click', async () => {
+        const urlInput = document.getElementById('url-input');
+        const resultDiv = document.getElementById('url-to-base64-result');
+        
+        if (!urlInput.value) {
+          resultDiv.innerHTML = '<p style="color: red;">请输入 URL</p>';
+          return;
+        }
+        
+        try {
+          resultDiv.innerHTML = '<p>正在转换，请稍候...</p>';
+          const url = urlInput.value;
+          const base64 = await jsUseCore.file.urlToBase64(url);
+          
+          // 截断显示，避免过长
+          const truncatedBase64 = base64.length > 100 
+            ? base64.substring(0, 100) + '... (截断显示)' 
+            : base64;
+          
+          resultDiv.innerHTML = `
+            <p>URL: ${url}</p>
+            <p>Base64 (截断显示): <pre>${truncatedBase64}</pre></p>
+          `;
+          
+          // 如果是图片，显示预览
+          if (base64.startsWith('data:image/')) {
+            const img = document.createElement('img');
+            img.src = base64;
+            img.className = 'preview';
+            resultDiv.appendChild(img);
+          }
+        } catch (error) {
+          resultDiv.innerHTML = `<p style="color: red;">错误: ${error.message}</p>`;
+        }
+      });
+      
+      // 图片操作功能
+      // 图片压缩
+      const compressQualityInput = document.getElementById('compress-quality');
+      const qualityValueSpan = document.getElementById('quality-value');
+      
+      compressQualityInput.addEventListener('input', () => {
+        qualityValueSpan.textContent = compressQualityInput.value;
+      });
+      
+      document.getElementById('image-compress').addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+          const file = e.target.files[0];
+          const originalImage = document.getElementById('original-image');
+          const originalInfo = document.getElementById('original-info');
+          
+          originalImage.src = URL.createObjectURL(file);
+          originalInfo.textContent = `${file.name} (${(file.size / 1024).toFixed(2)} KB)`;
+        }
+      });
+      
+      document.getElementById('compress-image').addEventListener('click', async () => {
+        const fileInput = document.getElementById('image-compress');
+        const compressedImage = document.getElementById('compressed-image');
+        const compressedInfo = document.getElementById('compressed-info');
+        
+        if (fileInput.files.length === 0) {
+          alert('请选择图片');
+          return;
+        }
+        
+        try {
+          const file = fileInput.files[0];
+          const quality = parseFloat(compressQualityInput.value);
+          const maxWidth = document.getElementById('compress-max-width').value 
+            ? parseInt(document.getElementById('compress-max-width').value) 
+            : undefined;
+          const maxHeight = document.getElementById('compress-max-height').value 
+            ? parseInt(document.getElementById('compress-max-height').value) 
+            : undefined;
+          
+          const compressedFile = await jsUseCore.file.imgCompress(file, {
+            quality,
+            maxWidth,
+            maxHeight
+          });
+          
+          compressedImage.src = URL.createObjectURL(compressedFile);
+          compressedInfo.textContent = `${compressedFile.name} (${(compressedFile.size / 1024).toFixed(2)} KB)`;
+          
+          // 计算压缩率
+          const compressionRatio = ((1 - compressedFile.size / file.size) * 100).toFixed(2);
+          compressedInfo.textContent += ` - 压缩率: ${compressionRatio}%`;
+        } catch (error) {
+          alert(`压缩失败: ${error.message}`);
+        }
+      });
+      
+      // 图片格式转换
+      const convertQualityInput = document.getElementById('convert-quality');
+      const convertQualityValueSpan = document.getElementById('convert-quality-value');
+      
+      convertQualityInput.addEventListener('input', () => {
+        convertQualityValueSpan.textContent = convertQualityInput.value;
+      });
+      
+      document.getElementById('image-convert').addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+          const file = e.target.files[0];
+          const originalImage = document.getElementById('original-convert-image');
+          const originalInfo = document.getElementById('original-convert-info');
+          
+          originalImage.src = URL.createObjectURL(file);
+          originalInfo.textContent = `${file.name} (${(file.size / 1024).toFixed(2)} KB)`;
+        }
+      });
+      
+      document.getElementById('convert-image').addEventListener('click', async () => {
+        const fileInput = document.getElementById('image-convert');
+        const convertedImage = document.getElementById('converted-image');
+        const convertedInfo = document.getElementById('converted-info');
+        
+        if (fileInput.files.length === 0) {
+          alert('请选择图片');
+          return;
+        }
+        
+        try {
+          const file = fileInput.files[0];
+          const format = document.getElementById('convert-format').value;
+          const quality = parseFloat(convertQualityInput.value);
+          
+          const convertedFile = await jsUseCore.file.imgConvert(file, {
+            format,
+            quality
+          });
+          
+          convertedImage.src = URL.createObjectURL(convertedFile);
+          convertedInfo.textContent = `${convertedFile.name} (${(convertedFile.size / 1024).toFixed(2)} KB)`;
+        } catch (error) {
+          alert(`转换失败: ${error.message}`);
+        }
+      });
+      
+      // 批量处理功能
+      const batchOperationType = document.getElementById('batch-operation-type');
+      const batchCompressOptions = document.getElementById('batch-compress-options');
+      const batchConvertOptions = document.getElementById('batch-convert-options');
+      
+      batchOperationType.addEventListener('change', () => {
+        if (batchOperationType.value === 'compress') {
+          batchCompressOptions.style.display = 'block';
+          batchConvertOptions.style.display = 'none';
+        } else {
+          batchCompressOptions.style.display = 'none';
+          batchConvertOptions.style.display = 'block';
+        }
+      });
+      
+      const batchQualityInput = document.getElementById('batch-quality');
+      const batchQualityValueSpan = document.getElementById('batch-quality-value');
+      
+      batchQualityInput.addEventListener('input', () => {
+        batchQualityValueSpan.textContent = batchQualityInput.value;
+      });
+      
+      document.getElementById('process-batch').addEventListener('click', async () => {
+        const fileInput = document.getElementById('batch-images');
+        const resultDiv = document.getElementById('batch-result');
+        
+        if (fileInput.files.length === 0) {
+          resultDiv.innerHTML = '<p style="color: red;">请选择图片</p>';
+          return;
+        }
+        
+        try {
+          resultDiv.innerHTML = '<p>处理中，请稍候...</p>';
+          const files = Array.from(fileInput.files);
+          const operationType = batchOperationType.value;
+          
+          let processedFiles = [];
+          
+          if (operationType === 'compress') {
+            const quality = parseFloat(batchQualityInput.value);
+            
+            // 并行处理所有文件
+            processedFiles = await Promise.all(files.map(async (file) => {
+              const compressed = await jsUseCore.file.imgCompress(file, { quality });
+              return {
+                original: file,
+                processed: compressed
+              };
+            }));
+          } else { // convert
+            const format = document.getElementById('batch-format').value;
+            
+            // 并行处理所有文件
+            processedFiles = await Promise.all(files.map(async (file) => {
+              const converted = await jsUseCore.file.imgConvert(file, { format });
+              return {
+                original: file,
+                processed: converted
+              };
+            }));
+          }
+          
+          // 显示结果
+          let resultHTML = '<h4>处理结果:</h4><ul>';
+          
+          processedFiles.forEach(({ original, processed }) => {
+            const compressionRatio = ((1 - processed.size / original.size) * 100).toFixed(2);
+            const sizeChange = compressionRatio > 0 ? '减小' : '增加';
+            
+            resultHTML += `
+              <li>
+                ${original.name} (${(original.size / 1024).toFixed(2)} KB) → 
+                ${processed.name} (${(processed.size / 1024).toFixed(2)} KB)
+                <br>
+                <small>文件大小${sizeChange}: ${Math.abs(compressionRatio)}%</small>
+                <br>
+                <a href="${URL.createObjectURL(processed)}" download="${processed.name}">下载</a>
+              </li>
+            `;
+          });
+          
+          resultHTML += '</ul>';
+          resultDiv.innerHTML = resultHTML;
+        } catch (error) {
+          resultDiv.innerHTML = `<p style="color: red;">处理失败: ${error.message}</p>`;
+        }
+      });
+      
+      // 拖放上传功能
+      const dropArea = document.getElementById('drop-area');
+      const dragFileInput = document.getElementById('drag-file-input');
+      const selectFilesBtn = document.getElementById('select-files');
+      
+      // 点击选择文件按钮
+      selectFilesBtn.addEventListener('click', () => {
+        dragFileInput.click();
+      });
+      
+      // 处理拖放事件
+      ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }, false);
+      });
+      
+      ['dragenter', 'dragover'].forEach(eventName => {
+        dropArea.addEventListener(eventName, () => {
+          dropArea.classList.add('active');
+        }, false);
+      });
+      
+      ['dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, () => {
+          dropArea.classList.remove('active');
+        }, false);
+      });
+      
+      // 处理文件拖放
+      dropArea.addEventListener('drop', (e) => {
+        const files = e.dataTransfer.files;
+        handleFiles(files);
+      });
+      
+      // 处理文件选择
+      dragFileInput.addEventListener('change', () => {
+        handleFiles(dragFileInput.files);
+      });
+      
+      // 处理文件函数
+      async function handleFiles(files) {
+        if (files.length === 0) return;
+        
+        const resultDiv = document.getElementById('drag-result');
+        const operationType = document.getElementById('drag-operation-type').value;
+        
+        try {
+          resultDiv.innerHTML = '<p>处理中，请稍候...</p>';
+          
+          if (operationType === 'base64') {
+            // 转换为Base64
+            const results = await Promise.all(Array.from(files).map(async (file) => {
+              const base64 = await jsUseCore.file.fileToBase64(file);
+              return { file, base64 };
+            }));
+            
+            let resultHTML = '<h4>Base64 转换结果:</h4>';
+            
+            results.forEach(({ file, base64 }) => {
+              // 截断显示，避免过长
+              const truncatedBase64 = base64.length > 100 
+                ? base64.substring(0, 100) + '... (截断显示)' 
+                : base64;
+              
+              resultHTML += `
+                <div style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #eee;">
+                  <p><strong>${file.name}</strong> (${(file.size / 1024).toFixed(2)} KB)</p>
+                  <p>Base64 (截断显示): <pre>${truncatedBase64}</pre></p>
+                </div>
+              `;
+            });
+            
+            resultDiv.innerHTML = resultHTML;
+          } else { // preview
+            // 预览文件
+            let resultHTML = '<h4>文件预览:</h4><div style="display: flex; flex-wrap: wrap; gap: 15px;">';
+            
+            Array.from(files).forEach(file => {
+              const fileURL = URL.createObjectURL(file);
+              
+              if (file.type.startsWith('image/')) {
+                // 图片预览
+                resultHTML += `
+                  <div style="width: 200px;">
+                    <img src="${fileURL}" style="max-width: 100%; max-height: 150px; object-fit: contain;">
+                    <p>${file.name} (${(file.size / 1024).toFixed(2)} KB)</p>
+                  </div>
+                `;
+              } else {
+                // 非图片文件
+                resultHTML += `
+                  <div style="width: 200px; text-align: center;">
+                    <div style="font-size: 48px;">📄</div>
+                    <p>${file.name} (${(file.size / 1024).toFixed(2)} KB)</p>
+                    <a href="${fileURL}" download="${file.name}">下载</a>
+                  </div>
+                `;
+              }
+            });
+            
+            resultHTML += '</div>';
+            resultDiv.innerHTML = resultHTML;
+          }
+        } catch (error) {
+          resultDiv.innerHTML = `<p style="color: red;">处理失败: ${error.message}</p>`;
+        }
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>字体加载检查器 - JavaScript 示例</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .example-section {
+      margin-bottom: 30px;
+      padding: 20px;
+      border-radius: 8px;
+      background-color: #f5f5f5;
+    }
+    
+    .font-item {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      margin-bottom: 10px;
+      background-color: white;
+      border-radius: 4px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .font-sample {
+      font-size: 24px;
+      margin-right: 15px;
+      width: 40px;
+      text-align: center;
+    }
+    
+    .font-name {
+      flex: 1;
+      font-weight: 500;
+    }
+    
+    .font-status {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    
+    .loaded {
+      background-color: #e6f7e6;
+      color: #2e7d32;
+    }
+    
+    .not-loaded {
+      background-color: #ffebee;
+      color: #c62828;
+    }
+    
+    button {
+      background-color: #4CAF50;
+      border: none;
+      color: white;
+      padding: 10px 15px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    
+    input {
+      padding: 8px;
+      margin-right: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      width: 250px;
+    }
+  </style>
+</head>
+<body>
+  <h1>字体加载检查器 - JavaScript 示例</h1>
+  
+  <div class="example-section">
+    <h2>检查指定字体</h2>
+    <div>
+      <input type="text" id="fontInput" placeholder="输入字体名称，多个字体用逗号分隔">
+      <button id="checkFontBtn">检查字体</button>
+    </div>
+    <div id="specificFontResults"></div>
+  </div>
+  
+  <div class="example-section">
+    <h2>检查所有已加载字体</h2>
+    <button id="checkAllFontsBtn">检查所有字体</button>
+    <div id="allFontResults"></div>
+  </div>
+  
+  <!-- 引入字体加载检查器库 (UMD版本) -->
+  <script src="../dist/index.umd.js"></script>
+  
+  <script>
+    // 初始化字体检查器
+    const fontChecker = font.createFont();
+    
+    // 渲染字体结果
+    function renderFontResults(results, containerId) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+      
+      if (!Array.isArray(results)) {
+        results = [results];
+      }
+      
+      results.forEach(font => {
+        const fontItem = document.createElement('div');
+        fontItem.className = 'font-item';
+        
+        const fontSample = document.createElement('span');
+        fontSample.className = 'font-sample';
+        fontSample.style.fontFamily = font.name;
+        fontSample.textContent = 'Aa';
+        
+        const fontName = document.createElement('span');
+        fontName.className = 'font-name';
+        fontName.textContent = font.name;
+        
+        const fontStatus = document.createElement('span');
+        fontStatus.className = `font-status ${font.loaded ? 'loaded' : 'not-loaded'}`;
+        fontStatus.textContent = font.loaded ? '已加载' : '未加载';
+        
+        fontItem.appendChild(fontSample);
+        fontItem.appendChild(fontName);
+        fontItem.appendChild(fontStatus);
+        
+        container.appendChild(fontItem);
+      });
+    }
+    
+    // 检查指定字体
+    document.getElementById('checkFontBtn').addEventListener('click', async () => {
+      const fontInput = document.getElementById('fontInput');
+      const fontNames = fontInput.value.split(',').map(name => name.trim()).filter(name => name);
+      
+      if (fontNames.length === 0) {
+        alert('请输入至少一个字体名称');
+        return;
+      }
+      
+      try {
+        const results = await fontChecker.check(fontNames);
+        renderFontResults(results, 'specificFontResults');
+      } catch (error) {
+        console.error('检查字体时出错:', error);
+        document.getElementById('specificFontResults').innerHTML = 
+          `<div style="color: red;">检查字体时出错: ${error.message}</div>`;
+      }
+    });
+    
+    // 检查所有字体
+    document.getElementById('checkAllFontsBtn').addEventListener('click', async () => {
+      try {
+        const results = await fontChecker.check();
+        renderFontResults(results, 'allFontResults');
+      } catch (error) {
+        console.error('检查所有字体时出错:', error);
+        document.getElementById('allFontResults').innerHTML = 
+          `<div style="color: red;">检查所有字体时出错: ${error.message}</div>`;
+      }
+    });
+  </script>
+</body>
+</html>

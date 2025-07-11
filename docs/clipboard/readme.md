@@ -2,11 +2,7 @@
 
 剪贴板功能提供了跨浏览器兼容的剪贴板 API 封装，支持文本的复制和读取操作，自动处理不同浏览器的兼容性问题。
 
-[![npm version](https://img.shields.io/npm/v/js-use-core.svg)](https://www.npmjs.com/package/js-use-core)
-[![npm downloads](https://img.shields.io/npm/dm/js-use-core.svg)](https://www.npmjs.com/package/js-use-core)
-[![License](https://img.shields.io/npm/l/js-use-core.svg)](https://github.com/your-username/js-use-core/blob/main/LICENSE)
-
-English | 简体中文
+[English](./readme.en.md) | 简体中文
 
 # 特性
 

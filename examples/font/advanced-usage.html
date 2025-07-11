@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Font Load Checker - 高级使用示例</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .section {
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        .section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .button:hover {
+            background: #0056b3;
+        }
+        .button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .result {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .success {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+        .error {
+            border-color: #dc3545;
+            background: #f8d7da;
+        }
+        .loading {
+            color: #007bff;
+        }
+        .font-list {
+            list-style: none;
+            padding: 0;
+        }
+        .font-list li {
+            padding: 5px 10px;
+            margin: 2px 0;
+            border-radius: 4px;
+            background: white;
+        }
+        .font-loaded {
+            background: #d4edda !important;
+        }
+        .font-failed {
+            background: #f8d7da !important;
+        }
+    </style>
+</head>
+<body>
+    <h1>Font Load Checker - 高级使用示例</h1>
+    <p>这个示例展示了 font 库的所有主要功能。</p>
+
+    <div class="container">
+        <!-- 基本字体检查 -->
+        <div class="section">
+            <h3>基本字体检查</h3>
+            <button class="button" onclick="checkSingleFont()">检查单个字体</button>
+            <button class="button" onclick="checkMultipleFonts()">检查多个字体</button>
+            <button class="button" onclick="checkAllFonts()">检查所有字体</button>
+            <div id="basic-result" class="result"></div>
+        </div>
+
+        <!-- 工具函数 -->
+        <div class="section">
+            <h3>工具函数</h3>
+            <button class="button" onclick="useUtilityFunctions()">使用工具函数</button>
+            <button class="button" onclick="syncCheck()">同步检查</button>
+            <button class="button" onclick="waitForFonts()">等待字体加载</button>
+            <div id="utility-result" class="result"></div>
+        </div>
+
+        <!-- 动态字体管理 -->
+        <div class="section">
+            <h3>动态字体管理</h3>
+            <button class="button" onclick="addCustomFont()">添加自定义字体</button>
+            <button class="button" onclick="removeCustomFont()">删除自定义字体</button>
+            <button class="button" onclick="clearAllFonts()">清除所有字体</button>
+            <div id="management-result" class="result"></div>
+        </div>
+
+        <!-- 错误处理 -->
+        <div class="section">
+            <h3>错误处理</h3>
+            <button class="button" onclick="testErrorHandling()">测试错误处理</button>
+            <button class="button" onclick="testTimeout()">测试超时</button>
+            <div id="error-result" class="result"></div>
+        </div>
+
+        <!-- 实时监控 -->
+        <div class="section">
+            <h3>实时字体监控</h3>
+            <button class="button" onclick="startMonitoring()">开始监控</button>
+            <button class="button" onclick="stopMonitoring()">停止监控</button>
+            <div id="monitor-result" class="result"></div>
+        </div>
+
+        <!-- 性能测试 -->
+        <div class="section">
+            <h3>性能测试</h3>
+            <button class="button" onclick="performanceTest()">性能测试</button>
+            <div id="performance-result" class="result"></div>
+        </div>
+    </div>
+
+    <!-- 引入库 -->
+    <script src="../dist/index.umd.js"></script>
+    <script>
+        // 创建字体检查器实例
+        const checker = new FontLoadChecker();
+        let monitoringInterval = null;
+
+        // 基本字体检查
+        async function checkSingleFont() {
+            const resultDiv = document.getElementById('basic-result');
+            resultDiv.innerHTML = '<span class="loading">正在检查 Arial 字体...</span>';
+            
+            try {
+                const result = await checker.check('Arial');
+                resultDiv.innerHTML = `检查结果:\n${JSON.stringify(result, null, 2)}`;
+                resultDiv.className = result.success ? 'result success' : 'result error';
+            } catch (error) {
+                resultDiv.innerHTML = `错误: ${error.message}`;
+                resultDiv.className = 'result error';
+            }
+        }
+
+        async function checkMultipleFonts() {
+            const resultDiv = document.getElementById('basic-result');
+            resultDiv.innerHTML = '<span class="loading">正在检查多个字体...</span>';
+            
+            try {
+                const fonts = ['Arial', 'Helvetica', 'Times New Roman', 'Courier New'];
+                const result = await checker.check(fonts);
+                resultDiv.innerHTML = `检查结果:\n${JSON.stringify(result, null, 2)}`;
+                resultDiv.className = result.success ? 'result success' : 'result error';
+            } catch (error) {
+                resultDiv.innerHTML = `错误: ${error.message}`;
+                resultDiv.className = 'result error';
+            }
+        }
+
+        async function checkAllFonts() {
+            const resultDiv = document.getElementById('basic-result');
+            resultDiv.innerHTML = '<span class="loading">正在检查所有字体...</span>';
+            
+            try {
+                const result = await checker.check();
+                resultDiv.innerHTML = `检查结果:\n${JSON.stringify(result, null, 2)}`;
+                resultDiv.className = 'result success';
+            } catch (error) {
+                resultDiv.innerHTML = `错误: ${error.message}`;
+                resultDiv.className = 'result error';
+            }
+        }
+
+        // 工具函数
+        async function useUtilityFunctions() {
+            const resultDiv = document.getElementById('utility-result');
+            resultDiv.innerHTML = '<span class="loading">正在使用工具函数...</span>';
+            
+            try {
+                const { checkFont, checkFonts, isFontLoaded } = FontLoadChecker;
+                
+                const singleResult = await checkFont('Arial');
+                const multipleResult = await checkFonts(['Arial', 'Helvetica']);
+                const syncResult = isFontLoaded('Arial');
+                
+                resultDiv.innerHTML = `工具函数结果:\n` +
+                    `单个字体检查: ${JSON.stringify(singleResult, null, 2)}\n` +
+                    `多个字体检查: ${JSON.stringify(multipleResult, null, 2)}\n` +
+                    `同步检查: ${syncResult}`;
+                resultDiv.className = 'result success';
+            } catch (error) {
+                resultDiv.innerHTML = `错误: ${error.message}`;
+                resultDiv.className = 'result error';
+            }
+        }
+
+        function syncCheck() {
+            const resultDiv = document.getElementById('utility-result');
+            const { isFontLoaded } = FontLoadChecker;
+            
+            const fonts = ['Arial', 'Helvetica', 'Times New Roman'];
+            const results = fonts.map(font => ({
+                font,
+                loaded: isFontLoaded(font)
+            }));
+            
+            resultDiv.innerHTML = `同步检查结果:\n${JSON.stringify(results, null, 2)}`;
+            resultDiv.className = 'result success';
+        }
+
+        async function waitForFonts() {
+            const resultDiv = document.getElementById('utility-result');
+            resultDiv.innerHTML = '<span class="loading">正在等待字体加载...</span>';
+            
+            try {
+                const { waitForFonts } = FontLoadChecker;
+                const result = await waitForFonts(['Arial', 'Helvetica'], 5000);
+                resultDiv.innerHTML = `等待结果:\n${JSON.stringify(result, null, 2)}`;
+                resultDiv.className = result.success ? 'result success' : 'result error';
+            } catch (error) {
+                resultDiv.innerHTML = `错误: ${error.message}`;
+                resultDiv.className = 'result error';
+            }
+        }
+
+        // 动态字体管理
+        async function addCustomFont() {
+            const resultDiv = document.getElementById('management-result');
+            resultDiv.innerHTML = '<span class="loading">正在添加自定义字体...</span>';
+            
+            try {
+                const fontFace = new FontFace('CustomFont', 'url(https://fonts.gstatic.com/s/roboto/v30/KFOmCnqEu92Fr1Mu4mxK.woff2)');
+                
+                await fontFace.load();
+                const success = checker.addFont(fontFace);
+                
+                resultDiv.innerHTML = `添加字体结果: ${success ? '成功' : '失败'}`;
+                resultDiv.className = success ? 'result success' : 'result error';
+            } catch (error) {
+                resultDiv.innerHTML = `错误: ${error.message}`;
+                resultDiv.className = 'result error';
+            }
+        }
+
+        function removeCustomFont() {
+            const resultDiv = document.getElementById('management-result');
+            resultDiv.innerHTML = '删除字体功能需要保存FontFace实例引用';
+            resultDiv.className = 'result';
+        }
+
+        function clearAllFonts() {
+            const resultDiv = document.getElementById('management-result');
+            const success = checker.clearFonts();
+            
+            resultDiv.innerHTML = `清除字体结果: ${success ? '成功' : '失败'}`;
+            resultDiv.className = success ? 'result success' : 'result error';
+        }
+
+        // 错误处理
+        async function testErrorHandling() {
+            const resultDiv = document.getElementById('error-result');
+            resultDiv.innerHTML = '<span class="loading">正在测试错误处理...</span>';
+            
+            try {
+                const result = await checker.check('NonExistentFont12345');
+                resultDiv.innerHTML = `错误处理测试结果:\n${JSON.stringify(result, null, 2)}`;
+                resultDiv.className = 'result error';
+            } catch (error) {
+                resultDiv.innerHTML = `捕获到错误: ${error.message}`;
+                resultDiv.className = 'result error';
+            }
+        }
+
+        async function testTimeout() {
+            const resultDiv = document.getElementById('error-result');
+            resultDiv.innerHTML = '<span class="loading">正在测试超时...</span>';
+            
+            try {
+                // 创建一个超时很短的检查器
+                const timeoutChecker = new FontLoadChecker({ timeout: 1 });
+                const result = await timeoutChecker.check('Arial');
+                resultDiv.innerHTML = `超时测试结果:\n${JSON.stringify(result, null, 2)}`;
+                resultDiv.className = 'result';
+            } catch (error) {
+                resultDiv.innerHTML = `超时错误: ${error.message}`;
+                resultDiv.className = 'result error';
+            }
+        }
+
+        // 实时监控
+        function startMonitoring() {
+            const resultDiv = document.getElementById('monitor-result');
+            resultDiv.innerHTML = '<span class="loading">开始监控字体状态...</span>';
+            
+            monitoringInterval = setInterval(async () => {
+                try {
+                    const { isFontLoaded } = FontLoadChecker;
+                    const fonts = ['Arial', 'Helvetica', 'Times New Roman'];
+                    const status = fonts.map(font => ({
+                        font,
+                        loaded: isFontLoaded(font),
+                        timestamp: new Date().toLocaleTimeString()
+                    }));
+                    
+                    resultDiv.innerHTML = `实时监控:\n${JSON.stringify(status, null, 2)}`;
+                    resultDiv.className = 'result success';
+                } catch (error) {
+                    resultDiv.innerHTML = `监控错误: ${error.message}`;
+                    resultDiv.className = 'result error';
+                }
+            }, 2000);
+        }
+
+        function stopMonitoring() {
+            if (monitoringInterval) {
+                clearInterval(monitoringInterval);
+                monitoringInterval = null;
+                const resultDiv = document.getElementById('monitor-result');
+                resultDiv.innerHTML = '监控已停止';
+                resultDiv.className = 'result';
+            }
+        }
+
+        // 性能测试
+        async function performanceTest() {
+            const resultDiv = document.getElementById('performance-result');
+            resultDiv.innerHTML = '<span class="loading">正在进行性能测试...</span>';
+            
+            try {
+                const fonts = ['Arial', 'Helvetica', 'Times New Roman', 'Courier New', 'Georgia'];
+                const iterations = 100;
+                
+                // 测试同步检查性能
+                const syncStart = performance.now();
+                for (let i = 0; i < iterations; i++) {
+                    const { isFontLoaded } = FontLoadChecker;
+                    fonts.forEach(font => isFontLoaded(font));
+                }
+                const syncTime = performance.now() - syncStart;
+                
+                // 测试异步检查性能
+                const asyncStart = performance.now();
+                for (let i = 0; i < 10; i++) {
+                    await checker.check(fonts);
+                }
+                const asyncTime = performance.now() - asyncStart;
+                
+                resultDiv.innerHTML = `性能测试结果:\n` +
+                    `同步检查 (${iterations}次): ${syncTime.toFixed(2)}ms\n` +
+                    `异步检查 (10次): ${asyncTime.toFixed(2)}ms\n` +
+                    `平均同步检查: ${(syncTime / iterations).toFixed(2)}ms\n` +
+                    `平均异步检查: ${(asyncTime / 10).toFixed(2)}ms`;
+                resultDiv.className = 'result success';
+            } catch (error) {
+                resultDiv.innerHTML = `性能测试错误: ${error.message}`;
+                resultDiv.className = 'result error';
+            }
+        }
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Font Load Checker 高级示例已加载');
+            console.log('可用的全局变量:', {
+                FontLoadChecker: typeof FontLoadChecker,
+                Font: typeof Font
+            });
+        });
+    </script>
+</body>
+</html> 

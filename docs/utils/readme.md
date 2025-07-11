@@ -2,11 +2,7 @@
 
 工具函数模块提供了常用的 DOM 操作和浏览器兼容性处理函数，为其他功能模块提供基础支持。
 
-[![npm version](https://img.shields.io/npm/v/js-use-core.svg)](https://www.npmjs.com/package/js-use-core)
-[![npm downloads](https://img.shields.io/npm/dm/js-use-core.svg)](https://www.npmjs.com/package/js-use-core)
-[![License](https://img.shields.io/npm/l/js-use-core.svg)](https://github.com/your-username/js-use-core/blob/main/LICENSE)
-
-English | 简体中文
+[English](./readme.en.md) | 简体中文
 
 # 特性
 

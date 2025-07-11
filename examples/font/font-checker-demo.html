@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>字体加载检查器演示</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .demo-section {
+      border: 1px solid #ccc;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 5px;
+    }
+    .demo-title {
+      margin-top: 0;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 10px;
+    }
+    button {
+      padding: 8px 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 10px;
+      margin-bottom: 10px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    pre {
+      background-color: #f8f8f8;
+      border-radius: 4px;
+      padding: 10px;
+      overflow: auto;
+      max-height: 200px;
+    }
+    .success {
+      color: green;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <h1>字体加载检查器演示</h1>
+  
+  <div class="demo-section">
+    <h2 class="demo-title">1. 检查字体</h2>
+    <div>
+      <input type="text" id="fontNameInput" placeholder="输入字体名称，多个用逗号分隔" style="width: 300px;">
+      <button id="checkFontBtn">检查字体</button>
+    </div>
+    <pre id="checkFontResult"></pre>
+  </div>
+
+  <div class="demo-section">
+    <h2 class="demo-title">2. 添加字体</h2>
+    <div>
+      <input type="file" id="fontFileInput" accept=".ttf,.woff,.woff2,.otf">
+      <input type="text" id="fontFamilyName" placeholder="字体名称">
+      <button id="addFontBtn">添加字体</button>
+    </div>
+    <pre id="addFontResult"></pre>
+  </div>
+
+  <div class="demo-section">
+    <h2 class="demo-title">3. 字体管理</h2>
+    <div>
+      <button id="listFontsBtn">列出所有字体</button>
+      <button id="clearFontsBtn">清除添加的字体</button>
+    </div>
+    <pre id="fontsListResult"></pre>
+  </div>
+
+  <script type="module">
+    // 动态导入字体检查器库
+    import font from '../dist/index.esm.js';
+    
+    // 初始化字体检查器
+    const fontChecker = new font({ timeout: 5000 });
+    
+    // 存储添加的字体
+    const addedFonts = new Map();
+    
+    // 检查字体
+    document.getElementById('checkFontBtn').addEventListener('click', async () => {
+      const fontNameInput = document.getElementById('fontNameInput').value;
+      const resultElem = document.getElementById('checkFontResult');
+      
+      if (!fontNameInput) {
+        resultElem.textContent = '请输入字体名称';
+        return;
+      }
+      
+      resultElem.textContent = '正在检查字体...';
+      
+      try {
+        const fontNames = fontNameInput.split(',').map(name => name.trim());
+        const result = await fontChecker.check(fontNames.length === 1 ? fontNames[0] : fontNames);
+        
+        resultElem.textContent = JSON.stringify(result, null, 2);
+        resultElem.className = result.success ? 'success' : 'error';
+      } catch (error) {
+        resultElem.textContent = `检查失败: ${error.message}`;
+        resultElem.className = 'error';
+      }
+    });
+    
+    // 添加字体
+    document.getElementById('addFontBtn').addEventListener('click', async () => {
+      const fileInput = document.getElementById('fontFileInput');
+      const fontName = document.getElementById('fontFamilyName').value;
+      const resultElem = document.getElementById('addFontResult');
+      
+      if (!fileInput.files.length || !fontName) {
+        resultElem.textContent = '请选择字体文件并输入字体名称';
+        return;
+      }
+      
+      resultElem.textContent = '正在添加字体...';
+      
+      try {
+        const file = fileInput.files[0];
+        const fontUrl = URL.createObjectURL(file);
+        const fontFace = new FontFace(fontName, `url(${fontUrl})`);
+        
+        // 加载字体
+        await fontFace.load();
+        
+        // 添加到字体检查器
+        const success = fontChecker.addFont(fontFace);
+        
+        if (success) {
+          // 存储引用以便后续管理
+          addedFonts.set(fontName, fontFace);
+          
+          resultElem.textContent = `字体 "${fontName}" 添加成功!`;
+          resultElem.className = 'success';
+          
+          // 在页面中使用新添加的字体
+          const demoText = document.createElement('div');
+          demoText.style.fontFamily = fontName;
+          demoText.style.fontSize = '24px';
+          demoText.style.marginTop = '10px';
+          demoText.textContent = `这是使用 "${fontName}" 字体的文本样例`;
+          resultElem.parentNode.appendChild(demoText);
+        } else {
+          resultElem.textContent = `字体 "${fontName}" 添加失败!`;
+          resultElem.className = 'error';
+        }
+      } catch (error) {
+        resultElem.textContent = `添加失败: ${error.message}`;
+        resultElem.className = 'error';
+      }
+    });
+    
+    // 列出所有字体
+    document.getElementById('listFontsBtn').addEventListener('click', async () => {
+      const resultElem = document.getElementById('fontsListResult');
+      
+      resultElem.textContent = '正在获取字体列表...';
+      
+      try {
+        const result = await fontChecker.check();
+        resultElem.textContent = `已加载的字体 (${result.success ? '全部加载成功' : '部分加载失败'})\n\n`;
+        
+        // 在检查中使用await，因此我们可以直接获取document.fonts中的字体
+        document.fonts.forEach(font => {
+          resultElem.textContent += `${font.family} - ${font.status}\n`;
+        });
+        
+        resultElem.className = '';
+      } catch (error) {
+        resultElem.textContent = `获取字体列表失败: ${error.message}`;
+        resultElem.className = 'error';
+      }
+    });
+    
+    // 清除添加的字体
+    document.getElementById('clearFontsBtn').addEventListener('click', () => {
+      const resultElem = document.getElementById('fontsListResult');
+      
+      if (addedFonts.size === 0) {
+        resultElem.textContent = '没有自定义添加的字体';
+        return;
+      }
+      
+      try {
+        fontChecker.clearFonts();
+        resultElem.textContent = `已清除 ${addedFonts.size} 个添加的字体`;
+        addedFonts.clear();
+      } catch (error) {
+        resultElem.textContent = `清除字体失败: ${error.message}`;
+        resultElem.className = 'error';
+      }
+    });
+    
+    // 页面加载时检查常见字体
+    window.addEventListener('load', async () => {
+      const commonFonts = ['Arial', 'Times New Roman', 'Courier New', 'Georgia', 'Verdana'];
+      const result = await fontChecker.check(commonFonts);
+      
+      const initialResult = document.getElementById('checkFontResult');
+      initialResult.textContent = `常见字体检查结果:\n${JSON.stringify(result, null, 2)}`;
+      initialResult.className = result.success ? 'success' : 'error';
+      
+      document.getElementById('fontNameInput').value = commonFonts.join(', ');
+    });
+  </script>
+</body>
+</html> 
