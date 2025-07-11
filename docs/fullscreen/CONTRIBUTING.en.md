@@ -1,248 +1,163 @@
-# Contributing Guide
+# Contributing to Fullscreen Module
 
-Thank you for your interest in the js-use-core fullscreen feature! We welcome all forms of contributions.
+[中文](./CONTRIBUTING.md) | English
 
-## Ways to Contribute
+Thank you for your interest in contributing to the Fullscreen module! This document provides guidelines for contributing to this project.
 
-### 🐛 Report Bugs
+## Getting Started
 
-If you find a bug, please report it through the following methods:
+### Prerequisites
 
-1. Create a new issue using [GitHub Issues](https://github.com/your-username/js-use-core/issues)
-2. Add `[fullscreen]` prefix in the title
-3. Provide detailed reproduction steps and error information
+- Node.js (version 16 or higher)
+- npm or yarn
+- Git
 
-**Bug Report Template:**
+### Setup
 
-```markdown
-## Bug Description
-Brief description of the bug
-
-## Reproduction Steps
-1. Open browser
-2. Visit page
-3. Click fullscreen button
-4. Observe error
-
-## Expected Behavior
-Describe the behavior you expect to see
-
-## Actual Behavior
-Describe what actually happened
-
-## Environment Information
-- Browser: Chrome 90.0.4430.212
-- Operating System: macOS 11.4
-- js-use-core version: 1.0.0
-
-## Error Message
-```
-Error: Fullscreen request failed
-```
-
-## Additional Information
-Any other relevant information
-```
-
-### 💡 Feature Requests
-
-If you have new feature ideas, please:
-
-1. Create a new issue using [GitHub Issues](https://github.com/your-username/js-use-core/issues)
-2. Add `[fullscreen]` prefix in the title
-3. Describe the feature requirements and use cases in detail
-
-### 🔧 Code Contributions
-
-#### Development Environment Setup
-
-1. Fork the project
+1. Fork the repository
 2. Clone your fork:
    ```bash
-   git clone https://github.com/your-username/js-use-core.git
-   cd js-use-core
+   git clone https://github.com/your-username/js-core-util.git
+   cd js-core-util
    ```
-
 3. Install dependencies:
    ```bash
    npm install
    ```
 
-4. Create a feature branch:
-   ```bash
-   git checkout -b feature/fullscreen-improvement
-   ```
+## Development
 
-#### Development Process
+### Project Structure
 
-1. **Write Code** - Make modifications in `src/fullscreen.ts`
-2. **Write Tests** - Add test cases in `test/fullscreen.test.ts`
-3. **Run Tests** - Ensure all tests pass:
-   ```bash
-   npm test
-   ```
-4. **Type Check** - Ensure TypeScript types are correct:
-   ```bash
-   npm run type-check
-   ```
-5. **Code Formatting** - Run ESLint:
-   ```bash
-   npm run lint
-   ```
-
-#### Commit Standards
-
-Use [Conventional Commits](https://www.conventionalcommits.org/) standards:
-
-```bash
-# New feature
-git commit -m "feat(fullscreen): add new fullscreen options"
-
-# Bug fix
-git commit -m "fix(fullscreen): fix fullscreen exit on Safari"
-
-# Documentation update
-git commit -m "docs(fullscreen): update API documentation"
-
-# Performance optimization
-git commit -m "perf(fullscreen): optimize event listener management"
+```
+src/fullscreen/
+├── index.ts          # Main fullscreen module
+├── types.ts          # Type definitions
+└── utils.ts          # Utility functions
 ```
 
-#### Submit Pull Request
+### Running Tests
 
-1. Push your branch:
-   ```bash
-   git push origin feature/fullscreen-improvement
-   ```
+```bash
+# Run all tests
+npm test
 
-2. Create a Pull Request on GitHub
-3. Fill out the PR template, describing your changes
-4. Wait for code review
+# Run fullscreen module tests only
+npm test -- --grep "fullscreen"
 
-## Code Standards
+# Run tests in watch mode
+npm run test:watch
+```
 
-### TypeScript Standards
+### Building
 
-- Write all code in TypeScript
-- Provide complete type definitions
-- Use interfaces to define API contracts
-- Avoid using `any` type
+```bash
+# Build the project
+npm run build
 
-### Code Style
+# Build in watch mode
+npm run build:watch
+```
 
-- Use 2-space indentation
-- Use single quotes
-- No semicolons at line endings
-- Use ES6+ syntax
+## Code Style
 
-### Testing Standards
+### TypeScript
 
-- Each new feature should have corresponding tests
-- Test coverage should be no less than 80%
-- Use Jest as the testing framework
-- Test cases should be clear and understandable
+- Use TypeScript for all new code
+- Follow the existing type definitions
+- Add proper JSDoc comments for public APIs
 
-### Documentation Standards
+### Code Formatting
 
-- All public APIs should have JSDoc comments
-- Update examples in README.md
-- Add type definition documentation
+- Use 2 spaces for indentation
+- Use semicolons at the end of statements
+- Use single quotes for strings
+- Follow the existing code style
 
-## Fullscreen Feature Specific Guidelines
+### Naming Conventions
 
-### Browser Compatibility
+- Use camelCase for variables and functions
+- Use PascalCase for classes and interfaces
+- Use UPPER_SNAKE_CASE for constants
 
-- Ensure new features work in all supported browsers
-- Test prefix handling in different browsers
-- Verify the correctness of fallback solutions
+## Testing
 
-### Event Handling
+### Writing Tests
 
-- Properly manage the lifecycle of event listeners
-- Avoid memory leaks
-- Provide event cleanup mechanisms
+- Write tests for all new functionality
+- Use descriptive test names
+- Test both success and error cases
+- Mock external dependencies
 
-### Error Handling
+### Test Structure
 
-- Provide meaningful error messages
-- Implement graceful fallback solutions
-- Handle permission denied situations
+```typescript
+describe('Fullscreen', () => {
+  describe('enter()', () => {
+    it('should enter fullscreen successfully', async () => {
+      // Test implementation
+    });
 
-## Release Process
+    it('should handle fullscreen errors', async () => {
+      // Test implementation
+    });
+  });
+});
+```
 
-### Version Management
+## Documentation
 
-Use [Semantic Versioning](https://semver.org/):
+### API Documentation
 
-- **MAJOR** - Incompatible API changes
-- **MINOR** - Backward-compatible new features
-- **PATCH** - Backward-compatible bug fixes
+- Update API documentation for any new public APIs
+- Include TypeScript type definitions
+- Provide usage examples
 
-### Release Steps
+### README Updates
 
-1. Update version number:
-   ```bash
-   npm version patch|minor|major
-   ```
+- Update README.md for new features
+- Include installation and usage instructions
+- Add examples for common use cases
 
-2. Build the project:
-   ```bash
-   npm run build
-   ```
+## Pull Request Process
 
-3. Run tests:
-   ```bash
-   npm test
-   ```
+1. Create a feature branch from `main`
+2. Make your changes
+3. Add tests for new functionality
+4. Update documentation
+5. Run tests and ensure they pass
+6. Submit a pull request
 
-4. Publish to npm:
-   ```bash
-   npm publish
-   ```
+### Pull Request Guidelines
 
-5. Create a GitHub release with release notes
+- Provide a clear description of changes
+- Include any breaking changes
+- Reference related issues
+- Ensure all tests pass
+- Update documentation as needed
 
-## Code Review Process
+## Issues
 
-### Review Checklist
+### Reporting Bugs
 
-- [ ] Code follows project standards
-- [ ] Tests are included and passing
-- [ ] Documentation is updated
-- [ ] No breaking changes (or properly documented)
-- [ ] Performance impact is considered
-- [ ] Security implications are reviewed
+- Use the bug report template
+- Include steps to reproduce
+- Provide browser and version information
+- Include error messages and stack traces
 
-### Review Guidelines
+### Feature Requests
 
-- Be constructive and respectful
-- Focus on the code, not the person
-- Provide specific suggestions for improvement
-- Consider edge cases and error scenarios
+- Use the feature request template
+- Describe the use case
+- Provide examples if possible
+- Consider implementation complexity
 
-## Community Guidelines
-
-### Communication
+## Code of Conduct
 
 - Be respectful and inclusive
-- Use clear and concise language
-- Provide context when asking questions
-- Help others when possible
-
-### Recognition
-
-- Contributors will be listed in the project README
-- Significant contributions will be acknowledged in release notes
-- Contributors may be invited to join the maintainer team
-
-## Getting Help
-
-If you need help with contributing:
-
-1. Check existing issues and discussions
-2. Read the documentation thoroughly
-3. Ask questions in GitHub Discussions
-4. Contact maintainers directly if needed
+- Focus on the code and technical discussions
+- Help others learn and grow
+- Follow the project's coding standards
 
 ## License
 

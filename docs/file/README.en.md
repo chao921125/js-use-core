@@ -1,75 +1,71 @@
-# font-load-check
+# File
 
-A zero-dependency, modern JavaScript/TypeScript library for detecting, managing, and manipulating fonts, based on the latest Web Font API.
+[中文](./README.md) | English
 
-English | [简体中文](README.md)
-
-## Table of Contents
-- [Features](#features)
-- [Functionality](#functionality)
-- [Installation](#installation)
-- [Usage](#usage)
-  - [JavaScript/TypeScript](#jsts-usage)
-  - [Vue/React](#vuereact-usage)
-- [API Reference](#api-reference)
-- [Examples](#examples)
-- [Contributing](#contributing)
-- [License](#license)
+A comprehensive file management utility for web applications, providing file operations, validation, and processing capabilities.
 
 ## Features
-- 🚀 Lightweight, zero dependencies
-- 🔄 Font loading status detection
-- 📦 Dynamic font management (add, delete, clear)
-- 💻 Browser support
-- 📱 Full TypeScript definitions
-- 🛠️ Rich utility functions
-- 🔧 Multiple import methods (ESM, CommonJS, UMD)
 
-## Functionality
-- Font loading detection and management
-- Dynamically add/delete/clear fonts
-- Utility functions for development
+- **File Operations**: Read, write, and manipulate files
+- **File Validation**: Validate file types, sizes, and formats
+- **File Processing**: Process and transform file content
+- **Download Support**: Download files with progress tracking
+- **Upload Support**: Upload files with validation
+- **TypeScript Support**: Full TypeScript type definitions
+- **Zero Dependencies**: Lightweight with no external dependencies
 
 ## Installation
+
 ```bash
-npm install font-load-check
-# or yarn add font-load-check
-# or pnpm add font-load-check
+npm install js-use-core
 ```
 
-## Usage
+## Quick Start
 
-### JS/TS Usage
-```js
-import FontChecker, { checkFont, isFontLoaded } from 'font-load-check';
-const checker = new FontChecker();
-const result = await checker.check('Arial');
-console.log(result.success); // true/false
+```javascript
+import { File } from 'js-use-core';
+
+// Read file content
+const file = new File('example.txt');
+const content = await file.read();
+
+// Write file content
+await file.write('Hello, World!');
+
+// Download file
+await file.download('https://example.com/file.pdf', 'downloaded-file.pdf');
 ```
 
-### Vue/React Usage
-You can directly import and use FontChecker and utility functions in your components.
+## API
 
-## API Reference
-See [API Documentation](docs/API.en.md)
+See [API Documentation](./api.en.md) for detailed API reference.
 
 ## Examples
-```js
-import { addFont, checkFont } from 'font-load-check';
-addFont('MyFont', '/fonts/myfont.woff2');
-checkFont('MyFont').then(res => console.log(res.loaded));
+
+```javascript
+import { File } from 'js-use-core';
+
+// File validation
+const file = new File('document.pdf');
+if (file.isValid(['pdf', 'doc', 'docx'])) {
+  console.log('File type is valid');
+}
+
+// Read file with encoding
+const content = await file.read('utf-8');
+
+// Write file with options
+await file.write('New content', {
+  encoding: 'utf-8',
+  createIfNotExists: true
+});
+
+// Download with progress
+await file.download('https://example.com/large-file.zip', 'download.zip', {
+  onProgress: (progress) => console.log(`Download: ${progress}%`)
+});
 ```
-For more usage, see [API Documentation](docs/API.en.md)
 
 ## Contributing
-Contributions are welcome! Please read the [Contributing Guide](docs/CONTRIBUTING.en.md)
 
-## License
-MIT
-
-## Related Links
-
-- [User Guide](docs/README.en.md)
-- [API Documentation](docs/API.en.md)
-- [Contributing Guide](docs/CONTRIBUTING.en.md)
-- [中文文档](README.md) 
+See [Contributing Guide](./CONTRIBUTING.en.md) for development guidelines. 

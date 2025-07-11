@@ -1,24 +1,146 @@
-🚩 Supports JS (Browser), Vue (Vue2 Compatible), React, Node.js Multi-platform Environment
+# js-use-core
 
-[![npm version](https://img.shields.io/npm/v/js-use-core.svg)](https://www.npmjs.com/package/js-use-core)
-[![npm downloads](https://img.shields.io/npm/dm/js-use-core.svg)](https://www.npmjs.com/package/js-use-core)
-[![License](https://img.shields.io/npm/l/js-use-core.svg)](https://github.com/chao921125/js-use-core/blob/main/LICENSE)
+[中文](./README.md) | English
 
-## 📦 Installation
+A comprehensive JavaScript utility library providing essential tools for modern web development, including font management, fullscreen operations, clipboard handling, file operations, and utility functions.
+
+## Features
+
+- **Font Management**: Load, validate, and manage web fonts
+- **Fullscreen Operations**: Cross-browser fullscreen API support
+- **Clipboard Handling**: Copy and paste text and images
+- **File Operations**: Read, write, download, and upload files
+- **Utility Functions**: Common helper functions and tools
+- **TypeScript Support**: Full TypeScript type definitions
+- **Zero Dependencies**: Lightweight with no external dependencies
+
+## Installation
 
 ```bash
 npm install js-use-core
 ```
 
-## 📚 Feature Documentation Index
+## Quick Start
 
-- [Fullscreen Feature](./docs/fullscreen/README.en.md)
-- [Clipboard Feature](./docs/clipboard/README.en.md)
-- [Utility Functions](./docs/utils/README.en.md)
-- [File & Image Operations (file)](./docs/file/README.en.md)
-- [Font Feature](./docs/font/README.en.md)
+```javascript
+import { Font, Fullscreen, Clipboard, File, isString, debounce } from 'js-use-core';
 
-## 🌐 Language
+// Font management
+const font = new Font('Roboto', 'https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+await font.load();
 
-- [中文文档](./README.md)
-- [English Documentation](./README.en.md) 
+// Fullscreen operations
+const fullscreen = new Fullscreen(document.getElementById('video'));
+await fullscreen.enter();
+
+// Clipboard operations
+const clipboard = new Clipboard();
+await clipboard.copy('Hello, World!');
+
+// File operations
+const file = new File('example.txt');
+const content = await file.read();
+
+// Utility functions
+if (isString(value)) {
+  console.log('Value is a string');
+}
+
+const debouncedSearch = debounce(searchFunction, 300);
+```
+
+## Modules
+
+### [Font](./docs/font/README.en.md)
+Comprehensive font management utility for web applications.
+
+```javascript
+import { Font } from 'js-use-core';
+
+const font = new Font('Arial', 'https://example.com/fonts/arial.css');
+await font.load();
+```
+
+### [Fullscreen](./docs/fullscreen/README.en.md)
+Cross-browser fullscreen API support with enhanced features.
+
+```javascript
+import { Fullscreen } from 'js-use-core';
+
+const fullscreen = new Fullscreen(element);
+await fullscreen.toggle();
+```
+
+### [Clipboard](./docs/clipboard/README.en.md)
+Clipboard management with text and image support.
+
+```javascript
+import { Clipboard } from 'js-use-core';
+
+const clipboard = new Clipboard();
+await clipboard.copy('Text to copy');
+```
+
+### [File](./docs/file/README.en.md)
+File operations including read, write, download, and upload.
+
+```javascript
+import { File } from 'js-use-core';
+
+const file = new File('document.txt');
+await file.write('Content to write');
+```
+
+### [Utils](./docs/utils/README.en.md)
+Common utility functions for everyday development tasks.
+
+```javascript
+import { isString, deepClone, debounce } from 'js-use-core';
+
+if (isString(value)) {
+  const cloned = deepClone(value);
+}
+```
+
+## API Documentation
+
+- [Font API](./docs/font/api.en.md)
+- [Fullscreen API](./docs/fullscreen/api.en.md)
+- [Clipboard API](./docs/clipboard/api.en.md)
+- [File API](./docs/file/api.en.md)
+- [Utils API](./docs/utils/api.en.md)
+
+## Examples
+
+See individual module documentation for detailed examples:
+
+- [Font Examples](./docs/font/README.en.md#examples)
+- [Fullscreen Examples](./docs/fullscreen/README.en.md#examples)
+- [Clipboard Examples](./docs/clipboard/README.en.md#examples)
+- [File Examples](./docs/file/README.en.md#examples)
+- [Utils Examples](./docs/utils/README.en.md#examples)
+
+## Browser Support
+
+| Browser | Version | Support |
+|---------|---------|---------|
+| Chrome | 66+ | ✅ |
+| Firefox | 63+ | ✅ |
+| Safari | 13.1+ | ✅ |
+| Edge | 79+ | ✅ |
+
+## Contributing
+
+We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.en.md) for details.
+
+### Module-Specific Contributing
+
+- [Font Contributing](./docs/font/CONTRIBUTING.en.md)
+- [Fullscreen Contributing](./docs/fullscreen/CONTRIBUTING.en.md)
+- [Clipboard Contributing](./docs/clipboard/CONTRIBUTING.en.md)
+- [File Contributing](./docs/file/CONTRIBUTING.en.md)
+- [Utils Contributing](./docs/utils/CONTRIBUTING.en.md)
+
+## License
+
+MIT License - see [LICENSE](./LICENSE) file for details. 

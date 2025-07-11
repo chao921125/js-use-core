@@ -1,68 +1,62 @@
-# font
+# Font
 
-A zero-dependency, modern JavaScript/TypeScript library for detecting, managing, and manipulating fonts, based on the latest Web Font API.
+[中文](./README.md) | English
 
-English | [简体中文](./README.md)
-
-## Table of Contents
-- [Features](#features)
-- [Functionality](#functionality)
-- [Installation](#installation)
-- [Usage](#usage)
-  - [JavaScript/TypeScript](#jsts-usage)
-  - [Vue/React](#vuereact-usage)
-- [API Reference](#api-reference)
-- [Examples](#examples)
-- [Contributing](#contributing)
-- [License](#license)
+A comprehensive font management utility for web applications, providing font loading, validation, and optimization capabilities.
 
 ## Features
-- 🚀 Lightweight, zero dependencies
-- 🔄 Font loading status detection
-- 📦 Dynamic font management (add, delete, clear)
-- 💻 Browser support
-- 📱 Full TypeScript definitions
-- 🛠️ Rich utility functions
-- 🔧 Multiple import methods (ESM, CommonJS, UMD)
 
-## Functionality
-- Font loading detection and management
-- Dynamically add/delete/clear fonts
-- Utility functions for development
+- **Font Loading**: Load fonts dynamically with loading status tracking
+- **Font Validation**: Validate font availability and loading status
+- **Font Optimization**: Optimize font loading performance
+- **Cross-browser Support**: Works across all modern browsers
+- **TypeScript Support**: Full TypeScript type definitions
 
 ## Installation
+
 ```bash
 npm install js-use-core
-# or yarn add js-use-core
-# or pnpm add js-use-core
 ```
 
-## Usage
+## Quick Start
 
-### JS/TS Usage
-```js
-import { font, checkFont, isFontLoaded } from 'js-use-core';
-const checker = new font();
-const result = await checker.check('Arial');
-console.log(result.success); // true/false
+```javascript
+import { Font } from 'js-use-core';
+
+// Load a font
+const font = new Font('Roboto', 'https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+await font.load();
+
+// Check if font is loaded
+if (font.isLoaded()) {
+  console.log('Font loaded successfully');
+}
 ```
 
-### Vue/React Usage
-You can directly import and use font and utility functions in your components.
+## API
 
-## API Reference
-See [API Documentation](./API.en.md)
+See [API Documentation](./api.en.md) for detailed API reference.
 
 ## Examples
-```js
-import { addFont, checkFont } from 'js-use-core';
-addFont('MyFont', '/fonts/myfont.woff2');
-checkFont('MyFont').then(res => console.log(res.loaded));
+
+```javascript
+import { Font } from 'js-use-core';
+
+// Basic font loading
+const font = new Font('Arial', 'https://example.com/fonts/arial.css');
+await font.load();
+
+// Font with custom options
+const customFont = new Font('CustomFont', 'https://example.com/fonts/custom.css', {
+  timeout: 5000,
+  fallback: 'sans-serif'
+});
+
+// Check font availability
+const isAvailable = await Font.isFontAvailable('Arial');
+console.log('Arial available:', isAvailable);
 ```
-For more usage, see [API Documentation](./API.en.md)
 
 ## Contributing
-Contributions are welcome! Please read the [Contributing Guide](./CONTRIBUTING.en.md)
 
-## License
-MIT 
+See [Contributing Guide](./CONTRIBUTING.en.md) for development guidelines. 

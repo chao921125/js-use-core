@@ -1,137 +1,164 @@
-# Contributing Guidelines
+# Contributing to File Module
 
-Thank you for considering contributing to the file project! This document provides some guidelines and best practices to help make your contribution process smoother.
+[中文](./CONTRIBUTING.md) | English
 
-## Table of Contents
+Thank you for your interest in contributing to the File module! This document provides guidelines for contributing to this project.
 
-- [Code of Conduct](#code-of-conduct)
-- [How to Contribute](#how-to-contribute)
-  - [Reporting Bugs](#reporting-bugs)
-  - [Feature Requests](#feature-requests)
-  - [Submitting Code](#submitting-code)
-- [Development Process](#development-process)
-  - [Environment Setup](#environment-setup)
-  - [Code Style](#code-style)
-  - [Testing](#testing)
-- [Submitting Pull Requests](#submitting-pull-requests)
-- [Release Process](#release-process)
+## Getting Started
 
-## Code of Conduct
+### Prerequisites
 
-This project adopts an open, respectful, and inclusive attitude. We expect all participants to:
+- Node.js (version 16 or higher)
+- npm or yarn
+- Git
 
-- Use friendly and inclusive language
-- Respect different viewpoints and experiences
-- Gracefully accept constructive criticism
-- Focus on what's best for the community
+### Setup
 
-## How to Contribute
-
-### Reporting Bugs
-
-If you find a bug, please report it through GitHub Issues and include the following information:
-
-1. A brief description of the issue
-2. Steps to reproduce
-3. Expected behavior
-4. Actual behavior
-5. Environment information (browser, operating system, Node.js version, etc.)
-6. If possible, provide a minimal reproduction example
-
-### Feature Requests
-
-If you'd like to add a new feature or improve an existing one, please submit a feature request through GitHub Issues, including:
-
-1. Detailed description of the feature
-2. Use cases and motivation
-3. Possible implementation approach (if any)
-
-### Submitting Code
-
-1. Fork the project repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## Development Process
-
-### Environment Setup
-
-1. Clone the repository:
+1. Fork the repository
+2. Clone your fork:
    ```bash
-   git clone https://github.com/yourusername/file.git
-   cd file
+   git clone https://github.com/your-username/js-core-util.git
+   cd js-core-util
    ```
-
-2. Install dependencies:
+3. Install dependencies:
    ```bash
    npm install
    ```
 
-3. Build the project:
-   ```bash
-   npm run build
-   ```
+## Development
 
-### Code Style
+### Project Structure
 
-We use ESLint and TypeScript to maintain code quality and consistency. Before submitting code, please ensure:
+```
+src/file/
+├── index.ts          # Main file module
+├── types.ts          # Type definitions
+└── utils.ts          # Utility functions
+```
 
-1. Run lint checks:
-   ```bash
-   npm run lint
-   ```
+### Running Tests
 
-2. Fix automatically fixable issues:
-   ```bash
-   npm run lint:fix
-   ```
+```bash
+# Run all tests
+npm test
 
-### Testing
+# Run file module tests only
+npm test -- --grep "file"
 
-To ensure code quality, please add appropriate tests for your changes:
+# Run tests in watch mode
+npm run test:watch
+```
 
-1. Run tests:
-   ```bash
-   npm test
-   ```
+### Building
 
-2. Check test coverage:
-   ```bash
-   npm run test:coverage
-   ```
+```bash
+# Build the project
+npm run build
 
-## Submitting Pull Requests
+# Build in watch mode
+npm run build:watch
+```
 
-1. Ensure your code passes all tests
-2. Update documentation to reflect your changes (if applicable)
-3. When submitting a Pull Request, please provide a clear description:
-   - What problem you solved
-   - How you implemented it
-   - Any areas that need special attention from reviewers
+## Code Style
 
-## Release Process
+### TypeScript
 
-Project maintainers are responsible for releasing new versions. If you are a maintainer, follow these steps to release:
+- Use TypeScript for all new code
+- Follow the existing type definitions
+- Add proper JSDoc comments for public APIs
 
-1. Update the version number (following [Semantic Versioning](https://semver.org/)):
-   ```bash
-   npm version patch|minor|major
-   ```
+### Code Formatting
 
-2. Build the project:
-   ```bash
-   npm run build
-   ```
+- Use 2 spaces for indentation
+- Use semicolons at the end of statements
+- Use single quotes for strings
+- Follow the existing code style
 
-3. Publish to npm:
-   ```bash
-   npm publish
-   ```
+### Naming Conventions
 
-4. Create a GitHub Release with version release notes
+- Use camelCase for variables and functions
+- Use PascalCase for classes and interfaces
+- Use UPPER_SNAKE_CASE for constants
 
----
+## Testing
 
-Thank you again for your contribution! If you have any questions, feel free to ask in the Issues section. 
+### Writing Tests
+
+- Write tests for all new functionality
+- Use descriptive test names
+- Test both success and error cases
+- Mock external dependencies
+
+### Test Structure
+
+```typescript
+describe('File', () => {
+  describe('read()', () => {
+    it('should read file content successfully', async () => {
+      // Test implementation
+    });
+
+    it('should handle read errors', async () => {
+      // Test implementation
+    });
+  });
+});
+```
+
+## Documentation
+
+### API Documentation
+
+- Update API documentation for any new public APIs
+- Include TypeScript type definitions
+- Provide usage examples
+
+### README Updates
+
+- Update README.md for new features
+- Include installation and usage instructions
+- Add examples for common use cases
+
+## Pull Request Process
+
+1. Create a feature branch from `main`
+2. Make your changes
+3. Add tests for new functionality
+4. Update documentation
+5. Run tests and ensure they pass
+6. Submit a pull request
+
+### Pull Request Guidelines
+
+- Provide a clear description of changes
+- Include any breaking changes
+- Reference related issues
+- Ensure all tests pass
+- Update documentation as needed
+
+## Issues
+
+### Reporting Bugs
+
+- Use the bug report template
+- Include steps to reproduce
+- Provide browser and version information
+- Include error messages and stack traces
+
+### Feature Requests
+
+- Use the feature request template
+- Describe the use case
+- Provide examples if possible
+- Consider implementation complexity
+
+## Code of Conduct
+
+- Be respectful and inclusive
+- Focus on the code and technical discussions
+- Help others learn and grow
+- Follow the project's coding standards
+
+## License
+
+By contributing to this project, you agree that your contributions will be licensed under the MIT License. 

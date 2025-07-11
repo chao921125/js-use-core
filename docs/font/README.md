@@ -1,4 +1,4 @@
-# font-load-check
+# font
 
 > 🚩 一个零依赖、支持 JS、Vue、React 检测、管理和操作字体的现代 JavaScript/TypeScript 库，基于最新的 Web Font API。
 
@@ -32,37 +32,37 @@
 
 ## 安装
 ```bash
-npm install font-load-check
-# 或 yarn add font-load-check
-# 或 pnpm add font-load-check
+npm install js-use-core
+# 或 yarn add js-use-core
+# 或 pnpm add js-use-core
 ```
 
 ## 使用说明
 
 ### JS/TS 用法
 ```js
-import FontChecker, { checkFont, isFontLoaded } from 'font-load-check';
-const checker = new FontChecker();
+import { font, checkFont, isFontLoaded } from 'js-use-core';
+const checker = new font();
 const result = await checker.check('Arial');
 console.log(result.success); // true/false
 ```
 
 ### Vue/React 用法
-可直接在组件中引入并调用 FontChecker 及工具函数。
+可直接在组件中引入并调用 font 及工具函数。
 
 ## API 参考
-详见 [API 文档](docs/API.md)
+详见 [API.md](./API.md)
 
 ## 示例
 ```js
-import { addFont, checkFont } from 'font-load-check';
+import { addFont, checkFont } from 'js-use-core';
 addFont('MyFont', '/fonts/myfont.woff2');
 checkFont('MyFont').then(res => console.log(res.loaded));
 ```
-更多用法见 [API 文档](docs/API.md)
+更多用法见 [API.md](./API.md)
 
 ## 贡献指南
-欢迎贡献！请阅读 [贡献指南](docs/CONTRIBUTING.md)
+欢迎贡献！请阅读 [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 ## License
 MIT

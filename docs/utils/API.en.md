@@ -1,278 +1,203 @@
-# Utility Functions API Documentation
+# Utils API
 
-## Overview
+[中文](./api.md) | English
 
-The utility functions module provides common DOM operations and browser compatibility handling functions, providing foundational support for other feature modules.
+## Type Checking Functions
 
-## Core API
-
-### Methods
-
-#### `isSupported(feature)`
-
-Check if the browser supports the specified feature.
-
-**Parameters:**
-- `feature`: `string` - Feature name, such as 'fullscreen', 'clipboard'
-
-**Returns:** `boolean`
-
-**Example:**
-```javascript
-// Check fullscreen support
-if (utils.isSupported('fullscreen')) {
-  console.log('Browser supports fullscreen functionality');
-}
-
-// Check clipboard support
-if (utils.isSupported('clipboard')) {
-  console.log('Browser supports clipboard functionality');
-}
-```
-
-#### `getPrefixedProperty(property)`
-
-Get property name with browser prefix.
-
-**Parameters:**
-- `property`: `string` - Property name
-
-**Returns:** `string | undefined`
-
-**Example:**
-```javascript
-// Get fullscreen element property name
-const fullscreenElement = utils.getPrefixedProperty('fullscreenElement');
-// Returns: 'fullscreenElement' or 'webkitFullscreenElement' etc.
-
-// Get fullscreen method name
-const requestFullscreen = utils.getPrefixedProperty('requestFullscreen');
-// Returns: 'requestFullscreen' or 'webkitRequestFullscreen' etc.
-```
-
-#### `getPrefixedMethod(element, method)`
-
-Get method with browser prefix.
-
-**Parameters:**
-- `element`: `Element` - DOM element
-- `method`: `string` - Method name
-
-**Returns:** `Function | undefined`
-
-**Example:**
-```javascript
-const element = document.documentElement;
-const requestFullscreen = utils.getPrefixedMethod(element, 'requestFullscreen');
-
-if (requestFullscreen) {
-  requestFullscreen.call(element);
-}
-```
-
-#### `addEventListener(element, event, handler, options?)`
-
-Add event listener, supports prefixed event names.
-
-**Parameters:**
-- `element`: `EventTarget` - Event target
-- `event`: `string` - Event name
-- `handler`: `EventListener` - Event handler function
-- `options` (optional): `AddEventListenerOptions` - Event options
-
-**Returns:** `void`
-
-**Example:**
-```javascript
-// Listen for fullscreen change event
-utils.addEventListener(document, 'fullscreenchange', () => {
-  console.log('Fullscreen state changed');
-});
-
-// Listen for clipboard change event
-utils.addEventListener(navigator.clipboard, 'clipboardchange', () => {
-  console.log('Clipboard content changed');
-});
-```
-
-#### `removeEventListener(element, event, handler, options?)`
-
-Remove event listener, supports prefixed event names.
-
-**Parameters:**
-- `element`: `EventTarget` - Event target
-- `event`: `string` - Event name
-- `handler`: `EventListener` - Event handler function
-- `options` (optional): `EventListenerOptions` - Event options
-
-**Returns:** `void`
-
-**Example:**
-```javascript
-const handler = () => console.log('Fullscreen changed');
-utils.addEventListener(document, 'fullscreenchange', handler);
-utils.removeEventListener(document, 'fullscreenchange', handler);
-```
-
-#### `createEventEmitter()`
-
-Create an event emitter instance.
-
-**Returns:** `EventEmitter`
-
-**Example:**
-```javascript
-const emitter = utils.createEventEmitter();
-
-// Add event listener
-emitter.on('customEvent', (data) => {
-  console.log('Custom event received:', data);
-});
-
-// Emit event
-emitter.emit('customEvent', { message: 'Hello World' });
-
-// Remove event listener
-emitter.off('customEvent', handler);
-```
-
-## Type Definitions
+### `isString(value)`
+Check if value is a string.
 
 ```typescript
-interface UtilsAPI {
-  isSupported(feature: string): boolean;
-  getPrefixedProperty(property: string): string | undefined;
-  getPrefixedMethod(element: Element, method: string): Function | undefined;
-  addEventListener(element: EventTarget, event: string, handler: EventListener, options?: AddEventListenerOptions): void;
-  removeEventListener(element: EventTarget, event: string, handler: EventListener, options?: EventListenerOptions): void;
-  createEventEmitter(): EventEmitter;
-}
-
-interface EventEmitter {
-  on(event: string, listener: Function): void;
-  off(event: string, listener: Function): void;
-  emit(event: string, ...args: any[]): void;
-  once(event: string, listener: Function): void;
-  removeAllListeners(event?: string): void;
-}
+isString(value: any): value is string
 ```
 
-## Browser Compatibility
+### `isNumber(value)`
+Check if value is a number.
 
-| Browser | Version | Support | Notes |
-|---------|---------|---------|-------|
-| Chrome | 15+ | ✅ | Full support |
-| Firefox | 10+ | ✅ | Full support |
-| Safari | 5.1+ | ✅ | Full support |
-| Edge | 12+ | ✅ | Full support |
-| IE | 11+ | ✅ | Limited support |
-
-**Important Notes:**
-- Feature detection works across all supported browsers
-- Prefix handling is automatic and transparent
-- Event emitter is framework-agnostic
-
-## Performance Considerations
-
-### Memory Management
-
-```javascript
-// Good practice: Clean up event listeners
-useEffect(() => {
-  const handleChange = () => {
-    setIsFullscreen(fullscreen.isFullscreen);
-  };
-  
-  utils.addEventListener(document, 'fullscreenchange', handleChange);
-  
-  return () => {
-    utils.removeEventListener(document, 'fullscreenchange', handleChange);
-  };
-}, []);
+```typescript
+isNumber(value: any): value is number
 ```
 
-### Feature Detection Optimization
+### `isBoolean(value)`
+Check if value is a boolean.
 
-```javascript
-// Cache feature detection results
-const featureCache = new Map();
-
-function isFeatureSupported(feature) {
-  if (!featureCache.has(feature)) {
-    featureCache.set(feature, utils.isSupported(feature));
-  }
-  return featureCache.get(feature);
-}
+```typescript
+isBoolean(value: any): value is boolean
 ```
 
-## Migration Guide
+### `isArray(value)`
+Check if value is an array.
 
-### From Native APIs
-
-```javascript
-// Old way (native API)
-if (document.fullscreenEnabled) {
-  document.documentElement.requestFullscreen();
-}
-
-// New way (utils)
-if (utils.isSupported('fullscreen')) {
-  const element = document.documentElement;
-  const requestFullscreen = utils.getPrefixedMethod(element, 'requestFullscreen');
-  if (requestFullscreen) {
-    requestFullscreen.call(element);
-  }
-}
+```typescript
+isArray(value: any): value is any[]
 ```
 
-### From Other Libraries
+### `isObject(value)`
+Check if value is an object.
 
-```javascript
-// Old way (screenfull)
-import screenfull from 'screenfull';
-if (screenfull.isEnabled) {
-  screenfull.toggle();
-}
-
-// New way (utils)
-import { utils } from 'js-use-core';
-if (utils.isSupported('fullscreen')) {
-  // Use utils for cross-browser compatibility
-}
+```typescript
+isObject(value: any): value is object
 ```
 
-## Troubleshooting
+### `isFunction(value)`
+Check if value is a function.
 
-### Common Issues
+```typescript
+isFunction(value: any): value is Function
+```
 
-1. **Feature detection returning false**
-   - Check if the feature name is correct
-   - Verify browser support for the feature
-   - Some features require HTTPS
+## Data Validation Functions
 
-2. **Event listeners not working**
-   - Ensure the event name is correct
-   - Check if the element supports the event
-   - Verify the handler function is properly defined
+### `isEmpty(value)`
+Check if value is empty (null, undefined, empty string, empty array, empty object).
 
-3. **Prefix handling issues**
-   - The utility automatically handles prefixes
-   - Check if the property/method exists in the browser
-   - Some older browsers may not support certain features
+```typescript
+isEmpty(value: any): boolean
+```
 
-### Debug Mode
+### `isValid(value, validator)`
+Validate value using a custom validator function.
+
+```typescript
+isValid(value: any, validator: (value: any) => boolean): boolean
+```
+
+## String Functions
+
+### `formatDate(date, format)`
+Format date according to specified format.
+
+```typescript
+formatDate(date: Date, format: string): string
+```
+
+### `generateId()`
+Generate a unique identifier.
+
+```typescript
+generateId(): string
+```
+
+### `camelCase(str)`
+Convert string to camelCase.
+
+```typescript
+camelCase(str: string): string
+```
+
+### `kebabCase(str)`
+Convert string to kebab-case.
+
+```typescript
+kebabCase(str: string): string
+```
+
+## Array Functions
+
+### `unique(array)`
+Remove duplicates from array.
+
+```typescript
+unique<T>(array: T[]): T[]
+```
+
+### `chunk(array, size)`
+Split array into chunks of specified size.
+
+```typescript
+chunk<T>(array: T[], size: number): T[][]
+```
+
+### `flatten(array)`
+Flatten nested array.
+
+```typescript
+flatten<T>(array: any[]): T[]
+```
+
+## Object Functions
+
+### `deepClone(obj)`
+Create a deep clone of an object.
+
+```typescript
+deepClone<T>(obj: T): T
+```
+
+### `merge(target, ...sources)`
+Deep merge objects.
+
+```typescript
+merge(target: object, ...sources: object[]): object
+```
+
+### `pick(obj, keys)`
+Pick specified keys from object.
+
+```typescript
+pick<T, K extends keyof T>(obj: T, keys: K[]): Pick<T, K>
+```
+
+### `omit(obj, keys)`
+Omit specified keys from object.
+
+```typescript
+omit<T, K extends keyof T>(obj: T, keys: K[]): Omit<T, K>
+```
+
+## Function Utilities
+
+### `debounce(func, delay)`
+Create a debounced function.
+
+```typescript
+debounce<T extends (...args: any[]) => any>(func: T, delay: number): (...args: Parameters<T>) => void
+```
+
+### `throttle(func, delay)`
+Create a throttled function.
+
+```typescript
+throttle<T extends (...args: any[]) => any>(func: T, delay: number): (...args: Parameters<T>) => void
+```
+
+### `once(func)`
+Create a function that can only be called once.
+
+```typescript
+once<T extends (...args: any[]) => any>(func: T): (...args: Parameters<T>) => ReturnType<T>
+```
+
+## Examples
 
 ```javascript
-// Enable debug mode for development
-if (process.env.NODE_ENV === 'development') {
-  console.log('Feature support:', {
-    fullscreen: utils.isSupported('fullscreen'),
-    clipboard: utils.isSupported('clipboard')
-  });
-  
-  console.log('Prefixed properties:', {
-    fullscreenElement: utils.getPrefixedProperty('fullscreenElement'),
-    requestFullscreen: utils.getPrefixedProperty('requestFullscreen')
-  });
+import { 
+  isString, 
+  isEmpty, 
+  deepClone, 
+  debounce, 
+  formatDate,
+  generateId 
+} from 'js-use-core';
+
+// Type checking
+if (isString(value)) {
+  console.log('Value is a string');
 }
+
+// Data validation
+if (isEmpty(array)) {
+  console.log('Array is empty');
+}
+
+// Object manipulation
+const original = { a: 1, b: { c: 2 } };
+const cloned = deepClone(original);
+
+// Function utilities
+const debouncedSearch = debounce(searchFunction, 300);
+
+// String utilities
+const formatted = formatDate(new Date(), 'YYYY-MM-DD');
+const id = generateId();
 ``` 
