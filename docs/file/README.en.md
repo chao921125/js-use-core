@@ -1,5 +1,3 @@
-# File
-
 [中文](./README.md) | English
 
 A comprehensive file management utility for web applications, providing file operations, validation, and processing capabilities.
