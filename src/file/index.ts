@@ -1,7 +1,7 @@
 /**
  * 文件操作相关函数
  */
-import { getExtensionFromMimeType, getMimeTypeFromDataURL, generateRandomFileName } from '../utils';
+import { getExtensionFromMimeType, getMimeTypeFromDataURL, generateRandomFileName } from '../utils/file';
 
 /**
  * URL转Base64

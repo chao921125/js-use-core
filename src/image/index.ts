@@ -2,7 +2,7 @@
  * 图片操作相关函数
  */
 import { ImageCompressOptions, ImageConvertOptions, ImageFormat } from '../types';
-import { getExtensionFromMimeType, getMimeTypeFromExtension, generateRandomFileName } from '../utils';
+import { getExtensionFromMimeType, getMimeTypeFromExtension, generateRandomFileName } from '../utils/file';
 import { base64ToBlob, blobToFile } from '../file';
 
 /**
