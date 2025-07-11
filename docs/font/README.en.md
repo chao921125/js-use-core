@@ -1,5 +1,3 @@
-# Font
-
 [中文](./README.md) | English
 
 A comprehensive font management utility for web applications, providing font loading, validation, and optimization capabilities.
