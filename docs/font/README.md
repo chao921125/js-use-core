@@ -1,5 +1,3 @@
-# font
-
 > 🚩 一个零依赖、支持 JS、Vue、React 检测、管理和操作字体的现代 JavaScript/TypeScript 库，基于最新的 Web Font API。
 
 [English](README.en.md) | 简体中文
