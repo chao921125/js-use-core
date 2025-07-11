@@ -1,5 +1,3 @@
-# file
-
 > 🚩 文件和图片操作工具方法，支持多种格式转换（Base64、Blob、File、DataURL）、图片压缩与格式转换，适用于多端环境。
 
 [English](README.en.md) | 简体中文
