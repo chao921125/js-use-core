@@ -1,6 +1,6 @@
 {
 	"name": "js-use-core",
-	"version": "1.1.0",
+	"version": "1.1.1",
 	"description": "JavaScript 综合类型工具库，包含全屏、复制粘贴等功能",
 	"keywords": [
 		"javascript",
@@ -47,7 +47,7 @@
 	"type": "module",
 	"main": "dist/index.js",
 	"module": "dist/index.esm.js",
-	"types": "dist/types/index.d.ts",
+	"types": "dist/index.d.ts",
 	"unpkg": "dist/index.umd.js",
 	"jsdelivr": "dist/index.umd.js",
 	"files": [
