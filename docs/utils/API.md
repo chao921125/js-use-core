@@ -462,4 +462,54 @@ emitter.emit('custom-event', { message: 'Hello' });
 
 // 清理资源
 emitter.destroy();
-``` 
+```
+
+# 核心工具函数
+
+## isMobile(opts)
+
+判断当前设备是否为移动设备。
+
+**参数：**
+- `opts`: `object` (可选) - 配置选项
+  - `ua`: `string | { headers: { 'user-agent': string } }` (可选) - 自定义用户代理字符串
+  - `tablet`: `boolean` (可选) - 是否将平板视为移动设备
+  - `featureDetect`: `boolean` (可选) - 是否使用特性检测（如触摸点检测）
+
+**返回值：** `boolean` - 是否为移动设备
+
+**示例：**
+```javascript
+// 检查当前设备是否为移动设备
+if (utils.isMobile()) {
+  console.log('当前设备是移动设备');
+}
+
+// 自定义用户代理
+const isPhone = utils.isMobile({
+  ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X)...'
+});
+
+// 将平板视为移动设备
+const isMobileOrTablet = utils.isMobile({ tablet: true });
+```
+
+## urlToObj(url)
+
+将URL字符串转换为对象。
+
+**参数：**
+- `url`: `string` - URL字符串
+
+**返回值：** `Record<string, string>` - 解析后的对象
+
+**示例：**
+```javascript
+// 解析URL参数
+const params = utils.urlToObj('https://example.com?name=test&id=123#section');
+// 返回: { name: 'test', id: '123', HASH: 'section' }
+
+// 只解析查询参数
+const queryParams = utils.urlToObj('?user=admin&role=editor');
+// 返回: { user: 'admin', role: 'editor' }
+```

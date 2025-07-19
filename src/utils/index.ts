@@ -9,4 +9,7 @@ export * from './dom';
 export * from './font';
 
 // 导出文件相关工具函数
-export * from './file'; 
+export * from './file';
+
+// 导出核心工具函数
+export * from './core';

@@ -180,24 +180,57 @@ import {
   generateId 
 } from 'js-use-core';
 
-// Type checking
-if (isString(value)) {
-  console.log('Value is a string');
+# Core Utility Functions
+
+## isMobile(opts)
+
+Detects if the current device is a mobile device.
+
+**Parameters:**
+- `opts`: `object` (optional) - Configuration options
+  - `ua`: `string | { headers: { 'user-agent': string } }` (optional) - Custom user agent string
+  - `tablet`: `boolean` (optional) - Whether to consider tablets as mobile devices
+  - `featureDetect`: `boolean` (optional) - Whether to use feature detection (like touch points)
+
+**Returns:** `boolean` - Whether the device is a mobile device
+
+**Example:**
+```javascript
+// Check if current device is mobile
+if (utils.isMobile()) {
+  console.log('Current device is mobile');
 }
 
-// Data validation
-if (isEmpty(array)) {
-  console.log('Array is empty');
-}
+// Custom user agent
+const isPhone = utils.isMobile({
+  ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X)...'
+});
 
-// Object manipulation
-const original = { a: 1, b: { c: 2 } };
-const cloned = deepClone(original);
+// Consider tablets as mobile devices
+const isMobileOrTablet = utils.isMobile({ tablet: true });
+```
 
-// Function utilities
-const debouncedSearch = debounce(searchFunction, 300);
+## urlToObj(url)
+
+Converts a URL string to an object.
+
+**Parameters:**
+- `url`: `string` - URL string
+
+**Returns:** `Record<string, string>` - Parsed object
+
+**Example:**
+```javascript
+// Parse URL parameters
+const params = utils.urlToObj('https://example.com?name=test&id=123#section');
+// Returns: { name: 'test', id: '123', HASH: 'section' }
+
+// Parse only query parameters
+const queryParams = utils.urlToObj('?user=admin&role=editor');
+// Returns: { user: 'admin', role: 'editor' }
+```
 
 // String utilities
 const formatted = formatDate(new Date(), 'YYYY-MM-DD');
 const id = generateId();
-``` 
+```
