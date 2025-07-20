@@ -102,6 +102,27 @@ if (isString(value)) {
 }
 ```
 
+### [URL](./docs/url/README.en.md)
+Comprehensive URL parsing, manipulation, and related functionality.
+
+```javascript
+import { getUrl, UrlManager } from 'js-use-core';
+
+const { url, origin } = getUrl();
+const manager = new UrlManager('https://example.com').addQuery({ page: 1 });
+```
+
+### [Device](./docs/device/README.en.md)
+Comprehensive device detection, operating system identification, and browser detection.
+
+```javascript
+import { getDeviceInfo, isMobile, isTablet } from 'js-use-core';
+
+const deviceInfo = getDeviceInfo();
+console.log('Is mobile:', isMobile());
+console.log('Is tablet:', isTablet());
+```
+
 ## API Documentation
 
 - [Font API](./docs/font/api.en.md)

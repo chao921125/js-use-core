@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL 功能示例</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #fff;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+        
+        .section h2 {
+            margin-top: 0;
+            color: #fff;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 10px;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        input[type="text"], input[type="url"], textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        
+        textarea {
+            height: 80px;
+            resize: vertical;
+        }
+        
+        button {
+            background: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background: #45a049;
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .info-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            color: #4CAF50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>URL 功能示例</h1>
+        
+        <div class="section">
+            <h2>当前页面 URL 信息</h2>
+            <div id="currentUrlInfo"></div>
+            <button onclick="refreshCurrentUrl()">刷新信息</button>
+        </div>
+        
+        <div class="section">
+            <h2>URL 解析</h2>
+            <div class="input-group">
+                <label for="parseUrlInput">输入 URL:</label>
+                <input type="url" id="parseUrlInput" value="https://example.com:8080/path/to/page?name=test&id=123&tags[]=js&tags[]=web#section" placeholder="输入要解析的 URL">
+            </div>
+            <button onclick="parseUrl()">解析 URL</button>
+            <div class="result" id="parseUrlResult"></div>
+        </div>
+        
+        <div class="grid">
+            <div class="section">
+                <h2>查询参数处理</h2>
+                <div class="input-group">
+                    <label for="queryInput">查询字符串:</label>
+                    <input type="text" id="queryInput" value="?name=test&age=25&tags[]=js&tags[]=web&active=true" placeholder="输入查询字符串">
+                </div>
+                <div class="button-group">
+                    <button onclick="parseQuery()">解析查询参数</button>
+                    <button onclick="stringifyQuery()">构建查询字符串</button>
+                </div>
+                <div class="result" id="queryResult"></div>
+            </div>
+            
+            <div class="section">
+                <h2>URL 构建</h2>
+                <div class="input-group">
+                    <label for="baseUrlInput">基础 URL:</label>
+                    <input type="text" id="baseUrlInput" value="https://api.example.com" placeholder="基础 URL">
+                </div>
+                <div class="input-group">
+                    <label for="pathnameInput">路径:</label>
+                    <input type="text" id="pathnameInput" value="/users" placeholder="路径">
+                </div>
+                <div class="input-group">
+                    <label for="queryParamsInput">查询参数 (JSON):</label>
+                    <textarea id="queryParamsInput" placeholder='{"page": 1, "limit": 10}'>{"page": 1, "limit": 10, "sort": "created_at"}</textarea>
+                </div>
+                <div class="input-group">
+                    <label for="hashInput">哈希值:</label>
+                    <input type="text" id="hashInput" value="results" placeholder="哈希值">
+                </div>
+                <button onclick="buildUrl()">构建 URL</button>
+                <div class="result" id="buildUrlResult"></div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>URL 管理器</h2>
+            <div class="input-group">
+                <label for="managerUrlInput">初始 URL:</label>
+                <input type="url" id="managerUrlInput" value="https://example.com" placeholder="初始 URL">
+            </div>
+            <div class="button-group">
+                <button onclick="createManager()">创建管理器</button>
+                <button onclick="addQueryToManager()">添加查询参数</button>
+                <button onclick="setPathToManager()">设置路径</button>
+                <button onclick="setHashToManager()">设置哈希</button>
+                <button onclick="resetManager()">重置</button>
+            </div>
+            <div class="result" id="managerResult"></div>
+        </div>
+        
+        <div class="grid">
+            <div class="section">
+                <h2>URL 验证</h2>
+                <div class="input-group">
+                    <label for="validateUrlInput">URL:</label>
+                    <input type="text" id="validateUrlInput" value="https://example.com" placeholder="输入要验证的 URL">
+                </div>
+                <div class="input-group">
+                    <label for="protocolsInput">允许的协议 (逗号分隔):</label>
+                    <input type="text" id="protocolsInput" value="http:,https:" placeholder="http:,https:">
+                </div>
+                <div class="input-group">
+                    <label>
+                        <input type="checkbox" id="allowLocalhostCheck" checked> 允许本地主机
+                    </label>
+                </div>
+                <div class="input-group">
+                    <label>
+                        <input type="checkbox" id="allowIpCheck" checked> 允许 IP 地址
+                    </label>
+                </div>
+                <button onclick="validateUrl()">验证 URL</button>
+                <div class="result" id="validateResult"></div>
+            </div>
+            
+            <div class="section">
+                <h2>URL 工具</h2>
+                <div class="input-group">
+                    <label for="toolUrlInput">URL:</label>
+                    <input type="url" id="toolUrlInput" value="https://example.com/path/to/file.pdf?param=value" placeholder="输入 URL">
+                </div>
+                <div class="button-group">
+                    <button onclick="getFileExtension()">获取扩展名</button>
+                    <button onclick="getFileName()">获取文件名</button>
+                    <button onclick="checkUrlType()">检查 URL 类型</button>
+                    <button onclick="normalizeUrl()">规范化 URL</button>
+                </div>
+                <div class="result" id="toolResult"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入库 -->
+    <script src="../dist/index.umd.js"></script>
+    
+    <script>
+        let urlManager = null;
+        
+        // 刷新当前页面 URL 信息
+        function refreshCurrentUrl() {
+            try {
+                const urlInfo = jsUseCore.url.getUrl();
+                const query = jsUseCore.url.getQuery();
+                const hash = jsUseCore.url.getHash();
+                
+                document.getElementById('currentUrlInfo').innerHTML = `
+                    <div class="info-item"><span class="info-label">完整 URL:</span> ${urlInfo.url}</div>
+                    <div class="info-item"><span class="info-label">协议:</span> ${urlInfo.protocol}</div>
+                    <div class="info-item"><span class="info-label">主机名:</span> ${urlInfo.hostname}</div>
+                    <div class="info-item"><span class="info-label">端口:</span> ${urlInfo.port || '默认'}</div>
+                    <div class="info-item"><span class="info-label">源:</span> ${urlInfo.origin}</div>
+                    <div class="info-item"><span class="info-label">路径:</span> ${urlInfo.pathname}</div>
+                    <div class="info-item"><span class="info-label">查询字符串:</span> ${urlInfo.search || '无'}</div>
+                    <div class="info-item"><span class="info-label">哈希值:</span> ${urlInfo.hash || '无'}</div>
+                    <div class="info-item"><span class="info-label">查询参数:</span> ${JSON.stringify(query, null, 2)}</div>
+                    <div class="info-item"><span class="info-label">哈希值 (不含#):</span> ${hash || '无'}</div>
+                `;
+            } catch (error) {
+                document.getElementById('currentUrlInfo').textContent = '获取失败: ' + error.message;
+            }
+        }
+        
+        // 解析 URL
+        function parseUrl() {
+            const url = document.getElementById('parseUrlInput').value;
+            const resultDiv = document.getElementById('parseUrlResult');
+            
+            if (!url) {
+                resultDiv.textContent = '请输入 URL';
+                return;
+            }
+            
+            try {
+                const urlInfo = jsUseCore.url.getUrl(url);
+                const urlToObjResult = jsUseCore.url.urlToObj(url);
+                
+                resultDiv.textContent = `URL 信息:\n${JSON.stringify(urlInfo, null, 2)}\n\nurlToObj 结果:\n${JSON.stringify(urlToObjResult, null, 2)}`;
+            } catch (error) {
+                resultDiv.textContent = '解析失败: ' + error.message;
+            }
+        }
+        
+        // 解析查询参数
+        function parseQuery() {
+            const query = document.getElementById('queryInput').value;
+            const resultDiv = document.getElementById('queryResult');
+            
+            try {
+                const params = jsUseCore.url.parseQuery(query);
+                resultDiv.textContent = `解析结果:\n${JSON.stringify(params, null, 2)}`;
+            } catch (error) {
+                resultDiv.textContent = '解析失败: ' + error.message;
+            }
+        }
+        
+        // 构建查询字符串
+        function stringifyQuery() {
+            const resultDiv = document.getElementById('queryResult');
+            
+            try {
+                const params = {
+                    name: 'test',
+                    age: 25,
+                    tags: ['js', 'web'],
+                    active: true
+                };
+                
+                const queryString = jsUseCore.url.stringifyQuery(params);
+                resultDiv.textContent = `构建结果:\n${queryString}\n\n原始对象:\n${JSON.stringify(params, null, 2)}`;
+            } catch (error) {
+                resultDiv.textContent = '构建失败: ' + error.message;
+            }
+        }
+        
+        // 构建 URL
+        function buildUrl() {
+            const base = document.getElementById('baseUrlInput').value;
+            const pathname = document.getElementById('pathnameInput').value;
+            const queryParamsText = document.getElementById('queryParamsInput').value;
+            const hash = document.getElementById('hashInput').value;
+            const resultDiv = document.getElementById('buildUrlResult');
+            
+            try {
+                let query = {};
+                if (queryParamsText.trim()) {
+                    query = JSON.parse(queryParamsText);
+                }
+                
+                const url = jsUseCore.url.buildUrl({
+                    base,
+                    pathname,
+                    query,
+                    hash
+                });
+                
+                resultDiv.textContent = `构建的 URL:\n${url}`;
+            } catch (error) {
+                resultDiv.textContent = '构建失败: ' + error.message;
+            }
+        }
+        
+        // 创建 URL 管理器
+        function createManager() {
+            const url = document.getElementById('managerUrlInput').value;
+            const resultDiv = document.getElementById('managerResult');
+            
+            try {
+                urlManager = new jsUseCore.url.UrlManager(url);
+                const info = urlManager.getUrlInfo();
+                resultDiv.textContent = `管理器已创建:\n${JSON.stringify(info, null, 2)}`;
+            } catch (error) {
+                resultDiv.textContent = '创建失败: ' + error.message;
+            }
+        }
+        
+        // 添加查询参数到管理器
+        function addQueryToManager() {
+            const resultDiv = document.getElementById('managerResult');
+            
+            if (!urlManager) {
+                resultDiv.textContent = '请先创建管理器';
+                return;
+            }
+            
+            try {
+                urlManager.addQuery({ page: 1, limit: 10, timestamp: Date.now() });
+                resultDiv.textContent = `添加查询参数后:\n${urlManager.toString()}`;
+            } catch (error) {
+                resultDiv.textContent = '操作失败: ' + error.message;
+            }
+        }
+        
+        // 设置路径到管理器
+        function setPathToManager() {
+            const resultDiv = document.getElementById('managerResult');
+            
+            if (!urlManager) {
+                resultDiv.textContent = '请先创建管理器';
+                return;
+            }
+            
+            try {
+                urlManager.setPathname('/api/v1/users');
+                resultDiv.textContent = `设置路径后:\n${urlManager.toString()}`;
+            } catch (error) {
+                resultDiv.textContent = '操作失败: ' + error.message;
+            }
+        }
+        
+        // 设置哈希到管理器
+        function setHashToManager() {
+            const resultDiv = document.getElementById('managerResult');
+            
+            if (!urlManager) {
+                resultDiv.textContent = '请先创建管理器';
+                return;
+            }
+            
+            try {
+                urlManager.setHash('section-' + Math.floor(Math.random() * 100));
+                resultDiv.textContent = `设置哈希后:\n${urlManager.toString()}`;
+            } catch (error) {
+                resultDiv.textContent = '操作失败: ' + error.message;
+            }
+        }
+        
+        // 重置管理器
+        function resetManager() {
+            const resultDiv = document.getElementById('managerResult');
+            
+            if (!urlManager) {
+                resultDiv.textContent = '请先创建管理器';
+                return;
+            }
+            
+            try {
+                urlManager.reset('https://newsite.com/reset');
+                resultDiv.textContent = `重置后:\n${urlManager.toString()}`;
+            } catch (error) {
+                resultDiv.textContent = '操作失败: ' + error.message;
+            }
+        }
+        
+        // 验证 URL
+        function validateUrl() {
+            const url = document.getElementById('validateUrlInput').value;
+            const protocolsText = document.getElementById('protocolsInput').value;
+            const allowLocalhost = document.getElementById('allowLocalhostCheck').checked;
+            const allowIp = document.getElementById('allowIpCheck').checked;
+            const resultDiv = document.getElementById('validateResult');
+            
+            try {
+                const protocols = protocolsText.split(',').map(p => p.trim()).filter(p => p);
+                
+                const isValid = jsUseCore.url.isValidUrl(url, {
+                    protocols,
+                    allowLocalhost,
+                    allowIp
+                });
+                
+                resultDiv.textContent = `验证结果: ${isValid ? '有效' : '无效'}\n\n验证选项:\n${JSON.stringify({
+                    protocols,
+                    allowLocalhost,
+                    allowIp
+                }, null, 2)}`;
+            } catch (error) {
+                resultDiv.textContent = '验证失败: ' + error.message;
+            }
+        }
+        
+        // 获取文件扩展名
+        function getFileExtension() {
+            const url = document.getElementById('toolUrlInput').value;
+            const resultDiv = document.getElementById('toolResult');
+            
+            try {
+                const ext = jsUseCore.url.getFileExtensionFromUrl(url);
+                resultDiv.textContent = `文件扩展名: ${ext || '无'}`;
+            } catch (error) {
+                resultDiv.textContent = '获取失败: ' + error.message;
+            }
+        }
+        
+        // 获取文件名
+        function getFileName() {
+            const url = document.getElementById('toolUrlInput').value;
+            const resultDiv = document.getElementById('toolResult');
+            
+            try {
+                const fileName = jsUseCore.url.getFileNameFromUrl(url);
+                const fileNameWithoutExt = jsUseCore.url.getFileNameFromUrl(url, false);
+                resultDiv.textContent = `完整文件名: ${fileName}\n不含扩展名: ${fileNameWithoutExt}`;
+            } catch (error) {
+                resultDiv.textContent = '获取失败: ' + error.message;
+            }
+        }
+        
+        // 检查 URL 类型
+        function checkUrlType() {
+            const url = document.getElementById('toolUrlInput').value;
+            const resultDiv = document.getElementById('toolResult');
+            
+            try {
+                const isRelative = jsUseCore.url.isRelativeUrl(url);
+                const isAbsolute = jsUseCore.url.isAbsoluteUrl(url);
+                
+                resultDiv.textContent = `URL 类型检查:\n相对 URL: ${isRelative}\n绝对 URL: ${isAbsolute}`;
+            } catch (error) {
+                resultDiv.textContent = '检查失败: ' + error.message;
+            }
+        }
+        
+        // 规范化 URL
+        function normalizeUrl() {
+            const url = document.getElementById('toolUrlInput').value;
+            const resultDiv = document.getElementById('toolResult');
+            
+            try {
+                const normalized = jsUseCore.url.normalizeUrl(url);
+                resultDiv.textContent = `原始 URL: ${url}\n规范化后: ${normalized}`;
+            } catch (error) {
+                resultDiv.textContent = '规范化失败: ' + error.message;
+            }
+        }
+        
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            refreshCurrentUrl();
+        });
+    </script>
+</body>
+</html>

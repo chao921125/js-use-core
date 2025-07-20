@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设备检测功能示例</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #fff;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+        
+        .section h2 {
+            margin-top: 0;
+            color: #fff;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 10px;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .info-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .info-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        
+        .info-value {
+            color: #fff;
+            text-align: right;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-online {
+            background-color: #4CAF50;
+        }
+        
+        .status-offline {
+            background-color: #f44336;
+        }
+        
+        .status-unknown {
+            background-color: #ff9800;
+        }
+        
+        button {
+            background: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background: #45a049;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            transition: width 0.3s ease;
+        }
+        
+        .log-container {
+            max-height: 200px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 2px 0;
+        }
+        
+        .log-timestamp {
+            color: #888;
+            margin-right: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>设备检测功能示例</h1>
+        
+        <div class="section">
+            <h2>基本设备信息</h2>
+            <div class="grid">
+                <div class="info-card">
+                    <h3>设备类型</h3>
+                    <div id="deviceTypeInfo"></div>
+                </div>
+                <div class="info-card">
+                    <h3>操作系统</h3>
+                    <div id="osInfo"></div>
+                </div>
+                <div class="info-card">
+                    <h3>浏览器信息</h3>
+                    <div id="browserInfo"></div>
+                </div>
+                <div class="info-card">
+                    <h3>屏幕信息</h3>
+                    <div id="screenInfo"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>设备功能检测</h2>
+            <div class="grid">
+                <div class="info-card">
+                    <h3>基础功能</h3>
+                    <div id="basicFeatures"></div>
+                </div>
+                <div class="info-card">
+                    <h3>Web 技术支持</h3>
+                    <div id="webFeatures"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>网络状态</h2>
+            <div class="grid">
+                <div class="info-card">
+                    <h3>连接信息</h3>
+                    <div id="networkInfo"></div>
+                </div>
+                <div class="info-card">
+                    <h3>网络监控</h3>
+                    <div class="button-group">
+                        <button onclick="startNetworkMonitoring()">开始监控</button>
+                        <button onclick="stopNetworkMonitoring()">停止监控</button>
+                        <button onclick="clearNetworkLog()">清除日志</button>
+                    </div>
+                    <div class="log-container" id="networkLog"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>硬件信息</h2>
+            <div class="grid">
+                <div class="info-card">
+                    <h3>电池状态</h3>
+                    <div id="batteryInfo">
+                        <button onclick="getBatteryStatus()">获取电池信息</button>
+                        <div id="batteryResult"></div>
+                    </div>
+                </div>
+                <div class="info-card">
+                    <h3>内存使用</h3>
+                    <div id="memoryInfo"></div>
+                </div>
+                <div class="info-card">
+                    <h3>GPU 信息</h3>
+                    <div id="gpuInfo"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>图片格式支持检测</h2>
+            <div class="grid">
+                <div class="info-card">
+                    <h3>格式支持</h3>
+                    <div class="button-group">
+                        <button onclick="checkImageFormats()">检测图片格式支持</button>
+                    </div>
+                    <div id="imageFormatResult"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>方向监控</h2>
+            <div class="info-card">
+                <h3>屏幕方向</h3>
+                <div class="button-group">
+                    <button onclick="startOrientationMonitoring()">开始监控方向</button>
+                    <button onclick="stopOrientationMonitoring()">停止监控</button>
+                    <button onclick="clearOrientationLog()">清除日志</button>
+                </div>
+                <div class="log-container" id="orientationLog"></div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>完整设备信息</h2>
+            <div class="button-group">
+                <button onclick="showFullDeviceInfo()">获取完整设备信息</button>
+                <button onclick="refreshDeviceInfo()">刷新信息</button>
+            </div>
+            <div class="result" id="fullDeviceInfo"></div>
+        </div>
+    </div>
+
+    <!-- 引入库 -->
+    <script src="../dist/index.umd.js"></script>
+    
+    <script>
+        let networkMonitorUnsubscribe = null;
+        let orientationMonitorUnsubscribe = null;
+        
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            loadBasicDeviceInfo();
+            loadDeviceFeatures();
+            loadNetworkInfo();
+            loadHardwareInfo();
+        });
+        
+        // 加载基本设备信息
+        function loadBasicDeviceInfo() {
+            try {
+                const deviceInfo = jsUseCore.device.getDeviceInfo();
+                
+                // 设备类型信息
+                document.getElementById('deviceTypeInfo').innerHTML = `
+                    <div class="info-item">
+                        <span class="info-label">设备类型:</span>
+                        <span class="info-value">${deviceInfo.type}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">移动设备:</span>
+                        <span class="info-value">${deviceInfo.isMobile ? '是' : '否'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">平板设备:</span>
+                        <span class="info-value">${deviceInfo.isTablet ? '是' : '否'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">桌面设备:</span>
+                        <span class="info-value">${deviceInfo.isDesktop ? '是' : '否'}</span>
+                    </div>
+                `;
+                
+                // 操作系统信息
+                document.getElementById('osInfo').innerHTML = `
+                    <div class="info-item">
+                        <span class="info-label">操作系统:</span>
+                        <span class="info-value">${deviceInfo.os}</span>
+                    </div>
+                `;
+                
+                // 浏览器信息
+                document.getElementById('browserInfo').innerHTML = `
+                    <div class="info-item">
+                        <span class="info-label">浏览器:</span>
+                        <span class="info-value">${deviceInfo.browser}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">用户代理:</span>
+                        <span class="info-value" style="font-size: 10px; word-break: break-all;">${deviceInfo.userAgent.substring(0, 50)}...</span>
+                    </div>
+                `;
+                
+                // 屏幕信息
+                document.getElementById('screenInfo').innerHTML = `
+                    <div class="info-item">
+                        <span class="info-label">屏幕宽度:</span>
+                        <span class="info-value">${deviceInfo.screen.width}px</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">屏幕高度:</span>
+                        <span class="info-value">${deviceInfo.screen.height}px</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">像素比:</span>
+                        <span class="info-value">${deviceInfo.screen.pixelRatio}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">当前方向:</span>
+                        <span class="info-value">${jsUseCore.device.getScreenOrientation()}</span>
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('加载基本设备信息失败:', error);
+            }
+        }
+        
+        // 加载设备功能
+        function loadDeviceFeatures() {
+            try {
+                const deviceInfo = jsUseCore.device.getDeviceInfo();
+                
+                // 基础功能
+                document.getElementById('basicFeatures').innerHTML = `
+                    <div class="info-item">
+                        <span class="info-label">触摸设备:</span>
+                        <span class="info-value">${deviceInfo.isTouchDevice ? '是' : '否'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">高分辨率屏幕:</span>
+                        <span class="info-value">${jsUseCore.device.isRetinaDisplay() ? '是' : '否'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">暗色主题:</span>
+                        <span class="info-value">${jsUseCore.device.isDarkMode() ? '是' : '否'}</span>
+                    </div>
+                `;
+                
+                // Web 技术支持
+                document.getElementById('webFeatures').innerHTML = `
+                    <div class="info-item">
+                        <span class="info-label">Service Worker:</span>
+                        <span class="info-value">${jsUseCore.device.supportsServiceWorker() ? '支持' : '不支持'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Web Workers:</span>
+                        <span class="info-value">${jsUseCore.device.supportsWebWorkers() ? '支持' : '不支持'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">WebAssembly:</span>
+                        <span class="info-value">${jsUseCore.device.supportsWebAssembly() ? '支持' : '不支持'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">WebGL:</span>
+                        <span class="info-value">${jsUseCore.device.supportsWebGL() ? '支持' : '不支持'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">WebGL2:</span>
+                        <span class="info-value">${jsUseCore.device.supportsWebGL2() ? '支持' : '不支持'}</span>
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('加载设备功能失败:', error);
+            }
+        }
+        
+        // 加载网络信息
+        function loadNetworkInfo() {
+            try {
+                const networkType = jsUseCore.device.getNetworkType();
+                const networkSpeed = jsUseCore.device.getNetworkSpeed();
+                const isOnline = jsUseCore.device.isOnline();
+                
+                document.getElementById('networkInfo').innerHTML = `
+                    <div class="info-item">
+                        <span class="info-label">在线状态:</span>
+                        <span class="info-value">
+                            <span class="status-indicator ${isOnline ? 'status-online' : 'status-offline'}"></span>
+                            ${isOnline ? '在线' : '离线'}
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">连接类型:</span>
+                        <span class="info-value">${networkType}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">下载速度:</span>
+                        <span class="info-value">${networkSpeed.downlink} Mbps</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">延迟:</span>
+                        <span class="info-value">${networkSpeed.rtt} ms</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">有效类型:</span>
+                        <span class="info-value">${networkSpeed.effectiveType}</span>
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('加载网络信息失败:', error);
+            }
+        }
+        
+        // 加载硬件信息
+        function loadHardwareInfo() {
+            try {
+                // 内存信息
+                const memory = jsUseCore.device.getMemoryInfo();
+                if (memory) {
+                    const usedMB = (memory.usedJSHeapSize / 1024 / 1024).toFixed(2);
+                    const totalMB = (memory.totalJSHeapSize / 1024 / 1024).toFixed(2);
+                    const limitMB = (memory.jsHeapSizeLimit / 1024 / 1024).toFixed(2);
+                    const usagePercent = ((memory.usedJSHeapSize / memory.totalJSHeapSize) * 100).toFixed(1);
+                    
+                    document.getElementById('memoryInfo').innerHTML = `
+                        <div class="info-item">
+                            <span class="info-label">已使用:</span>
+                            <span class="info-value">${usedMB} MB</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">总计:</span>
+                            <span class="info-value">${totalMB} MB</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">限制:</span>
+                            <span class="info-value">${limitMB} MB</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">使用率:</span>
+                            <span class="info-value">${usagePercent}%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${usagePercent}%"></div>
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('memoryInfo').innerHTML = '<p>内存信息不可用</p>';
+                }
+                
+                // GPU 信息
+                const gpu = jsUseCore.device.getGPUInfo();
+                if (gpu) {
+                    document.getElementById('gpuInfo').innerHTML = `
+                        <div class="info-item">
+                            <span class="info-label">厂商:</span>
+                            <span class="info-value">${gpu.vendor}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">渲染器:</span>
+                            <span class="info-value" style="font-size: 12px;">${gpu.renderer}</span>
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('gpuInfo').innerHTML = '<p>GPU 信息不可用</p>';
+                }
+                
+            } catch (error) {
+                console.error('加载硬件信息失败:', error);
+            }
+        }
+        
+        // 获取电池状态
+        async function getBatteryStatus() {
+            try {
+                const battery = await jsUseCore.device.getBatteryInfo();
+                const resultDiv = document.getElementById('batteryResult');
+                
+                if (battery) {
+                    const level = (battery.level * 100).toFixed(1);
+                    const chargingTime = battery.chargingTime === Infinity ? '未知' : `${Math.floor(battery.chargingTime / 60)} 分钟`;
+                    const dischargingTime = battery.dischargingTime === Infinity ? '未知' : `${Math.floor(battery.dischargingTime / 60)} 分钟`;
+                    
+                    resultDiv.innerHTML = `
+                        <div class="info-item">
+                            <span class="info-label">电量:</span>
+                            <span class="info-value">${level}%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${level}%"></div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">充电状态:</span>
+                            <span class="info-value">${battery.charging ? '充电中' : '未充电'}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">充电时间:</span>
+                            <span class="info-value">${chargingTime}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">放电时间:</span>
+                            <span class="info-value">${dischargingTime}</span>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = '<p>电池信息不可用</p>';
+                }
+            } catch (error) {
+                document.getElementById('batteryResult').innerHTML = '<p>获取电池信息失败: ' + error.message + '</p>';
+            }
+        }
+        
+        // 检测图片格式支持
+        async function checkImageFormats() {
+            const resultDiv = document.getElementById('imageFormatResult');
+            resultDiv.innerHTML = '<p>检测中...</p>';
+            
+            try {
+                const webpSupported = await jsUseCore.device.supportsWebP();
+                const avifSupported = await jsUseCore.device.supportsAVIF();
+                
+                resultDiv.innerHTML = `
+                    <div class="info-item">
+                        <span class="info-label">WebP:</span>
+                        <span class="info-value">${webpSupported ? '支持' : '不支持'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">AVIF:</span>
+                        <span class="info-value">${avifSupported ? '支持' : '不支持'}</span>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = '<p>检测失败: ' + error.message + '</p>';
+            }
+        }
+        
+        // 开始网络监控
+        function startNetworkMonitoring() {
+            if (networkMonitorUnsubscribe) {
+                stopNetworkMonitoring();
+            }
+            
+            networkMonitorUnsubscribe = jsUseCore.device.onNetworkChange((isOnline) => {
+                addNetworkLog(`网络状态变化: ${isOnline ? '在线' : '离线'}`);
+                loadNetworkInfo(); // 刷新网络信息
+            });
+            
+            addNetworkLog('开始监控网络状态');
+        }
+        
+        // 停止网络监控
+        function stopNetworkMonitoring() {
+            if (networkMonitorUnsubscribe) {
+                networkMonitorUnsubscribe();
+                networkMonitorUnsubscribe = null;
+                addNetworkLog('停止监控网络状态');
+            }
+        }
+        
+        // 添加网络日志
+        function addNetworkLog(message) {
+            const logContainer = document.getElementById('networkLog');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            logEntry.innerHTML = `<span class="log-timestamp">[${timestamp}]</span>${message}`;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        
+        // 清除网络日志
+        function clearNetworkLog() {
+            document.getElementById('networkLog').innerHTML = '';
+        }
+        
+        // 开始方向监控
+        function startOrientationMonitoring() {
+            if (orientationMonitorUnsubscribe) {
+                stopOrientationMonitoring();
+            }
+            
+            orientationMonitorUnsubscribe = jsUseCore.device.onOrientationChange((orientation) => {
+                addOrientationLog(`屏幕方向变化: ${orientation}`);
+                loadBasicDeviceInfo(); // 刷新屏幕信息
+            });
+            
+            addOrientationLog('开始监控屏幕方向');
+        }
+        
+        // 停止方向监控
+        function stopOrientationMonitoring() {
+            if (orientationMonitorUnsubscribe) {
+                orientationMonitorUnsubscribe();
+                orientationMonitorUnsubscribe = null;
+                addOrientationLog('停止监控屏幕方向');
+            }
+        }
+        
+        // 添加方向日志
+        function addOrientationLog(message) {
+            const logContainer = document.getElementById('orientationLog');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            logEntry.innerHTML = `<span class="log-timestamp">[${timestamp}]</span>${message}`;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        
+        // 清除方向日志
+        function clearOrientationLog() {
+            document.getElementById('orientationLog').innerHTML = '';
+        }
+        
+        // 显示完整设备信息
+        function showFullDeviceInfo() {
+            try {
+                const deviceInfo = jsUseCore.device.getDeviceInfo();
+                document.getElementById('fullDeviceInfo').textContent = JSON.stringify(deviceInfo, null, 2);
+            } catch (error) {
+                document.getElementById('fullDeviceInfo').textContent = '获取设备信息失败: ' + error.message;
+            }
+        }
+        
+        // 刷新设备信息
+        function refreshDeviceInfo() {
+            loadBasicDeviceInfo();
+            loadDeviceFeatures();
+            loadNetworkInfo();
+            loadHardwareInfo();
+            showFullDeviceInfo();
+        }
+        
+        // 页面卸载时清理监听器
+        window.addEventListener('beforeunload', function() {
+            stopNetworkMonitoring();
+            stopOrientationMonitoring();
+        });
+    </script>
+</body>
+</html>
