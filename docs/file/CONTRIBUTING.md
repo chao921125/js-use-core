@@ -59,12 +59,14 @@
 ### 环境设置
 
 1. 克隆仓库：
+
    ```bash
    git clone https://github.com/yourusername/file.git
    cd file
    ```
 
 2. 安装依赖：
+
    ```bash
    npm install
    ```
@@ -79,6 +81,7 @@
 我们使用 ESLint 和 TypeScript 来保持代码质量和一致性。在提交代码前，请确保：
 
 1. 运行 lint 检查：
+
    ```bash
    npm run lint
    ```
@@ -93,6 +96,7 @@
 为确保代码质量，请为您的更改添加适当的测试：
 
 1. 运行测试：
+
    ```bash
    npm test
    ```
@@ -116,16 +120,19 @@
 项目维护者负责发布新版本。如果您是维护者，请按照以下步骤发布：
 
 1. 更新版本号（遵循 [语义化版本控制](https://semver.org/lang/zh-CN/)）：
+
    ```bash
    npm version patch|minor|major
    ```
 
 2. 构建项目：
+
    ```bash
    npm run build
    ```
 
 3. 发布到 npm：
+
    ```bash
    npm publish
    ```
@@ -134,4 +141,4 @@
 
 ---
 
-再次感谢您的贡献！如果您有任何问题，请随时在 Issues 中提问。 
+再次感谢您的贡献！如果您有任何问题，请随时在 Issues 中提问。
