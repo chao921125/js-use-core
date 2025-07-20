@@ -39,12 +39,17 @@ export * from "./src/url";
 export { default as device } from "./src/device";
 export * from "./src/device";
 
+// ua User Agent功能相关导出
+export { default as ua } from "./src/ua";
+export * from "./src/ua";
+
 // 默认导出
 import fullscreen from "./src/fullscreen";
 import clipboard from "./src/clipboard";
 import font from "./src/font";
 import url from "./src/url";
 import device from "./src/device";
+import ua from "./src/ua";
 import * as fileFile from "./src/file";
 import * as fileImage from "./src/image";
 import * as fileUtils from "./src/utils";
@@ -62,4 +67,5 @@ export default {
   font,
   url,
   device,
+  ua,
 };

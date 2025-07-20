@@ -31,9 +31,9 @@ export interface OSInfo {
 }
 
 /**
- * 设备信息
+ * UA 设备信息
  */
-export interface DeviceInfo {
+export interface UADeviceInfo {
   readonly type: 'desktop' | 'mobile' | 'tablet' | 'tv' | 'wearable';
   readonly vendor?: string;
   readonly model?: string;
@@ -53,7 +53,7 @@ export interface ParsedUA {
   readonly browser: BrowserInfo;
   readonly engine: EngineInfo;
   readonly os: OSInfo;
-  readonly device: DeviceInfo;
+  readonly device: UADeviceInfo;
   readonly cpu: CPUInfo;
   readonly isBot: boolean;
   readonly isWebView: boolean;
@@ -86,7 +86,7 @@ export interface UAGenerateSpec {
   browser?: Partial<BrowserInfo>;
   engine?: Partial<EngineInfo>;
   os?: Partial<OSInfo>;
-  device?: Partial<DeviceInfo>;
+  device?: Partial<UADeviceInfo>;
   cpu?: Partial<CPUInfo>;
 }
 

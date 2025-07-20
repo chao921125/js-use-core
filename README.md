@@ -19,6 +19,7 @@ npm install js-use-core
 - [字体功能 font](./docs/font/README.md)
 - [URL 功能 url](./docs/url/README.md)
 - [设备检测 device](./docs/device/README.md)
+- [User Agent 解析 ua](./docs/ua/README.md)
 
 ## 🌐 语言
 

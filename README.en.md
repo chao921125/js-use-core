@@ -123,6 +123,17 @@ console.log('Is mobile:', isMobile());
 console.log('Is tablet:', isTablet());
 ```
 
+### [User Agent](./docs/ua/README.en.md)
+Comprehensive User Agent parsing, generation, comparison, and caching functionality.
+
+```javascript
+import { UA, parseUserAgent, getCurrentUA } from 'js-use-core';
+
+const current = getCurrentUA();
+const isModern = UA.satisfies(current, 'Chrome >= 100');
+console.log('Browser:', current.browser.name);
+```
+
 ## API Documentation
 
 - [Font API](./docs/font/api.en.md)

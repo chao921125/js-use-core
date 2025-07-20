@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Agent 解析功能示例</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #fff;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+        
+        .section h2 {
+            margin-top: 0;
+            color: #fff;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 10px;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        input[type="text"], textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        
+        textarea {
+            height: 80px;
+            resize: vertical;
+            font-family: monospace;
+        }
+        
+        button {
+            background: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background: #45a049;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .info-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .info-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        
+        .info-value {
+            color: #fff;
+            text-align: right;
+            max-width: 60%;
+            word-break: break-word;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-true {
+            background-color: #4CAF50;
+        }
+        
+        .status-false {
+            background-color: #f44336;
+        }
+        
+        .preset-ua {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .preset-ua:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .preset-ua-title {
+            font-weight: bold;
+            color: #4CAF50;
+            margin-bottom: 5px;
+        }
+        
+        .preset-ua-content {
+            font-family: monospace;
+            font-size: 12px;
+            color: #ccc;
+            word-break: break-all;
+        }
+        
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>User Agent 解析功能示例</h1>
+        
+        <div class="section">
+            <h2>当前浏览器 UA 信息</h2>
+            <div class="grid">
+                <div class="info-card">
+                    <h3>浏览器信息</h3>
+                    <div id="currentBrowserInfo"></div>
+                </div>
+                <div class="info-card">
+                    <h3>系统信息</h3>
+                    <div id="currentSystemInfo"></div>
+                </div>
+                <div class="info-card">
+                    <h3>设备信息</h3>
+                    <div id="currentDeviceInfo"></div>
+                </div>
+                <div class="info-card">
+                    <h3>特殊标识</h3>
+                    <div id="currentSpecialInfo"></div>
+                </div>
+            </div>
+            <button onclick="refreshCurrentUA()">刷新当前 UA 信息</button>
+        </div>
+        
+        <div class="section">
+            <h2>UA 字符串解析</h2>
+            <div class="input-group">
+                <label for="uaInput">输入 UA 字符串:</label>
+                <textarea id="uaInput" placeholder="粘贴 User Agent 字符串进行解析"></textarea>
+            </div>
+            <div class="button-group">
+                <button onclick="parseUA()">解析 UA</button>
+                <button onclick="clearUAInput()">清空输入</button>
+            </div>
+            <div class="result" id="parseResult"></div>
+        </div>
+        
+        <div class="section">
+            <h2>预设 UA 示例</h2>
+            <div class="grid">
+                <div>
+                    <h3>桌面浏览器</h3>
+                    <div class="preset-ua" onclick="loadPresetUA('chrome-win')">
+                        <div class="preset-ua-title">Chrome 120 Windows 11</div>
+                        <div class="preset-ua-content">Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36...</div>
+                    </div>
+                    <div class="preset-ua" onclick="loadPresetUA('firefox-linux')">
+                        <div class="preset-ua-title">Firefox 120 Linux</div>
+                        <div class="preset-ua-content">Mozilla/5.0 (X11; Linux x86_64; rv:120.0) Gecko/20100101...</div>
+                    </div>
+                    <div class="preset-ua" onclick="loadPresetUA('safari-mac')">
+                        <div class="preset-ua-title">Safari 17 macOS</div>
+                        <div class="preset-ua-content">Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit...</div>
+                    </div>
+                </div>
+                <div>
+                    <h3>移动浏览器</h3>
+                    <div class="preset-ua" onclick="loadPresetUA('safari-ios')">
+                        <div class="preset-ua-title">Safari iOS 17</div>
+                        <div class="preset-ua-content">Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)...</div>
+                    </div>
+                    <div class="preset-ua" onclick="loadPresetUA('chrome-android')">
+                        <div class="preset-ua-title">Chrome Android 14</div>
+                        <div class="preset-ua-content">Mozilla/5.0 (Linux; Android 14; SM-G991B) AppleWebKit...</div>
+                    </div>
+                    <div class="preset-ua" onclick="loadPresetUA('samsung-browser')">
+                        <div class="preset-ua-title">Samsung Internet 23</div>
+                        <div class="preset-ua-content">Mozilla/5.0 (Linux; Android 14; SM-G991B) AppleWebKit...</div>
+                    </div>
+                </div>
+                <div>
+                    <h3>特殊环境</h3>
+                    <div class="preset-ua" onclick="loadPresetUA('wechat')">
+                        <div class="preset-ua-title">微信 WebView</div>
+                        <div class="preset-ua-content">Mozilla/5.0 (Linux; Android 14) AppleWebKit... MicroMessenger...</div>
+                    </div>
+                    <div class="preset-ua" onclick="loadPresetUA('electron')">
+                        <div class="preset-ua-title">Electron 28</div>
+                        <div class="preset-ua-content">Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit... Electron...</div>
+                    </div>
+                    <div class="preset-ua" onclick="loadPresetUA('headless')">
+                        <div class="preset-ua-title">Headless Chrome</div>
+                        <div class="preset-ua-content">Mozilla/5.0 (X11; Linux x86_64) AppleWebKit... HeadlessChrome...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>版本比较测试</h2>
+            <div class="input-group">
+                <label for="versionUA">UA 字符串:</label>
+                <input type="text" id="versionUA" value="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" placeholder="输入 UA 字符串">
+            </div>
+            <div class="input-group">
+                <label for="versionRange">版本范围:</label>
+                <input type="text" id="versionRange" value="Chrome >= 100" placeholder="例如: Chrome >= 100">
+            </div>
+            <div class="button-group">
+                <button onclick="testVersionSatisfies()">测试版本兼容性</button>
+                <button onclick="testModernBrowser()">测试现代浏览器</button>
+            </div>
+            <div class="result" id="versionResult"></div>
+        </div>
+        
+        <div class="section">
+            <h2>UA 生成器</h2>
+            <div class="grid">
+                <div class="input-group">
+                    <label for="genBrowser">浏览器:</label>
+                    <select id="genBrowser">
+                        <option value="Chrome">Chrome</option>
+                        <option value="Edge">Edge</option>
+                        <option value="Firefox">Firefox</option>
+                        <option value="Safari">Safari</option>
+                        <option value="Opera">Opera</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="genVersion">版本:</label>
+                    <input type="text" id="genVersion" value="120.0.0.0" placeholder="120.0.0.0">
+                </div>
+                <div class="input-group">
+                    <label for="genOS">操作系统:</label>
+                    <select id="genOS">
+                        <option value="Windows">Windows</option>
+                        <option value="macOS">macOS</option>
+                        <option value="Linux">Linux</option>
+                        <option value="iOS">iOS</option>
+                        <option value="Android">Android</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="genOSVersion">系统版本:</label>
+                    <input type="text" id="genOSVersion" value="11" placeholder="11">
+                </div>
+                <div class="input-group">
+                    <label for="genDevice">设备类型:</label>
+                    <select id="genDevice">
+                        <option value="desktop">桌面</option>
+                        <option value="mobile">手机</option>
+                        <option value="tablet">平板</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="genArch">CPU 架构:</label>
+                    <select id="genArch">
+                        <option value="amd64">amd64</option>
+                        <option value="arm64">arm64</option>
+                        <option value="arm">arm</option>
+                        <option value="ia32">ia32</option>
+                    </select>
+                </div>
+            </div>
+            <button onclick="generateUA()">生成 UA 字符串</button>
+            <div class="result" id="generateResult"></div>
+        </div>
+        
+        <div class="section">
+            <h2>缓存统计</h2>
+            <div class="button-group">
+                <button onclick="showCacheStats()">查看缓存统计</button>
+                <button onclick="clearCache()">清除缓存</button>
+            </div>
+            <div class="result" id="cacheResult"></div>
+        </div>
+    </div>
+
+    <!-- 引入库 -->
+    <script src="../dist/index.umd.js"></script>
+    
+    <script>
+        // 预设 UA 字符串
+        const presetUAs = {
+            'chrome-win': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'firefox-linux': 'Mozilla/5.0 (X11; Linux x86_64; rv:120.0) Gecko/20100101 Firefox/120.0',
+            'safari-mac': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15',
+            'safari-ios': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
+            'chrome-android': 'Mozilla/5.0 (Linux; Android 14; SM-G991B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36',
+            'samsung-browser': 'Mozilla/5.0 (Linux; Android 14; SM-G991B) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/23.0 Chrome/115.0.0.0 Mobile Safari/537.36',
+            'wechat': 'Mozilla/5.0 (Linux; Android 14; SM-G991B) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/116.0.0.0 Mobile Safari/537.36 MicroMessenger/8.0.42.2340(0x28002A37) Process/tools WeChat/arm64 Weixin NetType/WIFI Language/zh_CN ABI/arm64',
+            'electron': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Electron/28.1.0 Safari/537.36',
+            'headless': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/120.0.0.0 Safari/537.36'
+        };
+        
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            refreshCurrentUA();
+        });
+        
+        // 刷新当前 UA 信息
+        function refreshCurrentUA() {
+            try {
+                const current = jsUseCore.ua.getCurrentUA();
+                
+                // 浏览器信息
+                document.getElementById('currentBrowserInfo').innerHTML = `
+                    <div class="info-item">
+                        <span class="info-label">浏览器:</span>
+                        <span class="info-value">${current.browser.name}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">版本:</span>
+                        <span class="info-value">${current.browser.version}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">主版本:</span>
+                        <span class="info-value">${current.browser.major}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">渠道:</span>
+                        <span class="info-value">${current.browser.channel || 'stable'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">引擎:</span>
+                        <span class="info-value">${current.engine.name} ${current.engine.version}</span>
+                    </div>
+                `;
+                
+                // 系统信息
+                document.getElementById('currentSystemInfo').innerHTML = `
+                    <div class="info-item">
+                        <span class="info-label">操作系统:</span>
+                        <span class="info-value">${current.os.name}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">系统版本:</span>
+                        <span class="info-value">${current.os.version || '未知'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">CPU 架构:</span>
+                        <span class="info-value">${current.cpu.architecture}</span>
+                    </div>
+                `;
+                
+                // 设备信息
+                document.getElementById('currentDeviceInfo').innerHTML = `
+                    <div class="info-item">
+                        <span class="info-label">设备类型:</span>
+                        <span class="info-value">${current.device.type}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">设备厂商:</span>
+                        <span class="info-value">${current.device.vendor || '未知'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">设备型号:</span>
+                        <span class="info-value">${current.device.model || '未知'}</span>
+                    </div>
+                `;
+                
+                // 特殊标识
+                document.getElementById('currentSpecialInfo').innerHTML = `
+                    <div class="info-item">
+                        <span class="info-label">爬虫:</span>
+                        <span class="info-value">
+                            <span class="status-indicator ${current.isBot ? 'status-true' : 'status-false'}"></span>
+                            ${current.isBot ? '是' : '否'}
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">WebView:</span>
+                        <span class="info-value">
+                            <span class="status-indicator ${current.isWebView ? 'status-true' : 'status-false'}"></span>
+                            ${current.isWebView ? '是' : '否'}
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Headless:</span>
+                        <span class="info-value">
+                            <span class="status-indicator ${current.isHeadless ? 'status-true' : 'status-false'}"></span>
+                            ${current.isHeadless ? '是' : '否'}
+                        </span>
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('刷新当前 UA 信息失败:', error);
+            }
+        }
+        
+        // 解析 UA
+        function parseUA() {
+            const ua = document.getElementById('uaInput').value.trim();
+            const resultDiv = document.getElementById('parseResult');
+            
+            if (!ua) {
+                resultDiv.textContent = '请输入 UA 字符串';
+                return;
+            }
+            
+            try {
+                const result = jsUseCore.ua.parseUserAgent(ua);
+                resultDiv.textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                resultDiv.textContent = '解析失败: ' + error.message;
+            }
+        }
+        
+        // 清空 UA 输入
+        function clearUAInput() {
+            document.getElementById('uaInput').value = '';
+            document.getElementById('parseResult').textContent = '';
+        }
+        
+        // 加载预设 UA
+        function loadPresetUA(key) {
+            const ua = presetUAs[key];
+            if (ua) {
+                document.getElementById('uaInput').value = ua;
+                parseUA();
+            }
+        }
+        
+        // 测试版本兼容性
+        function testVersionSatisfies() {
+            const ua = document.getElementById('versionUA').value.trim();
+            const range = document.getElementById('versionRange').value.trim();
+            const resultDiv = document.getElementById('versionResult');
+            
+            if (!ua || !range) {
+                resultDiv.textContent = '请输入 UA 字符串和版本范围';
+                return;
+            }
+            
+            try {
+                const satisfies = jsUseCore.ua.UA.satisfies(ua, range);
+                const parsed = jsUseCore.ua.parseUserAgent(ua);
+                
+                resultDiv.textContent = `版本兼容性测试结果:
+UA: ${ua}
+范围: ${range}
+浏览器: ${parsed.browser.name} ${parsed.browser.version}
+结果: ${satisfies ? '✅ 兼容' : '❌ 不兼容'}`;
+            } catch (error) {
+                resultDiv.textContent = '测试失败: ' + error.message;
+            }
+        }
+        
+        // 测试现代浏览器
+        function testModernBrowser() {
+            const ua = document.getElementById('versionUA').value.trim();
+            const resultDiv = document.getElementById('versionResult');
+            
+            if (!ua) {
+                resultDiv.textContent = '请输入 UA 字符串';
+                return;
+            }
+            
+            try {
+                const parsed = jsUseCore.ua.parseUserAgent(ua);
+                const basic = jsUseCore.ua.UA.isModern(parsed);
+                const es2020 = jsUseCore.ua.UA.isModern(parsed, { es2020: true });
+                const webgl2 = jsUseCore.ua.UA.isModern(parsed, { webgl2: true });
+                const fullFeatures = jsUseCore.ua.UA.isModern(parsed, {
+                    es2020: true,
+                    webgl2: true,
+                    webassembly: true,
+                    serviceWorker: true
+                });
+                
+                resultDiv.textContent = `现代浏览器测试结果:
+浏览器: ${parsed.browser.name} ${parsed.browser.version}
+基础现代浏览器: ${basic ? '✅ 是' : '❌ 否'}
+ES2020 支持: ${es2020 ? '✅ 是' : '❌ 否'}
+WebGL2 支持: ${webgl2 ? '✅ 是' : '❌ 否'}
+完整特性支持: ${fullFeatures ? '✅ 是' : '❌ 否'}`;
+            } catch (error) {
+                resultDiv.textContent = '测试失败: ' + error.message;
+            }
+        }
+        
+        // 生成 UA
+        function generateUA() {
+            const browser = document.getElementById('genBrowser').value;
+            const version = document.getElementById('genVersion').value;
+            const os = document.getElementById('genOS').value;
+            const osVersion = document.getElementById('genOSVersion').value;
+            const device = document.getElementById('genDevice').value;
+            const arch = document.getElementById('genArch').value;
+            const resultDiv = document.getElementById('generateResult');
+            
+            try {
+                const spec = {
+                    browser: { name: browser, version: version },
+                    os: { name: os, version: osVersion },
+                    device: { type: device },
+                    cpu: { architecture: arch }
+                };
+                
+                const generatedUA = jsUseCore.ua.UA.stringify(spec);
+                
+                resultDiv.textContent = `生成的 UA 字符串:
+${generatedUA}
+
+生成规格:
+${JSON.stringify(spec, null, 2)}`;
+            } catch (error) {
+                resultDiv.textContent = '生成失败: ' + error.message;
+            }
+        }
+        
+        // 显示缓存统计
+        function showCacheStats() {
+            const resultDiv = document.getElementById('cacheResult');
+            
+            try {
+                const cacheSize = jsUseCore.ua.UA.getCacheSize();
+                resultDiv.textContent = `缓存统计信息:
+缓存条目数: ${cacheSize}
+内存使用: 约 ${(cacheSize * 2).toFixed(1)} KB (估算)`;
+            } catch (error) {
+                resultDiv.textContent = '获取缓存统计失败: ' + error.message;
+            }
+        }
+        
+        // 清除缓存
+        function clearCache() {
+            const resultDiv = document.getElementById('cacheResult');
+            
+            try {
+                const oldSize = jsUseCore.ua.UA.getCacheSize();
+                jsUseCore.ua.UA.clearCache();
+                const newSize = jsUseCore.ua.UA.getCacheSize();
+                
+                resultDiv.textContent = `缓存清除完成:
+清除前: ${oldSize} 条目
+清除后: ${newSize} 条目`;
+            } catch (error) {
+                resultDiv.textContent = '清除缓存失败: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>
