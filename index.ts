@@ -1,3 +1,6 @@
+// 导出核心基础架构
+export * from "./src/core";
+
 // 导出全屏功能
 export { default as fullscreen } from "./src/fullscreen";
 export { FullscreenManager } from "./src/fullscreen";
@@ -44,6 +47,7 @@ export { default as ua } from "./src/ua";
 export * from "./src/ua";
 
 // 默认导出
+import * as core from "./src/core";
 import fullscreen from "./src/fullscreen";
 import clipboard from "./src/clipboard";
 import font from "./src/font";
@@ -56,6 +60,7 @@ import * as fileUtils from "./src/utils";
 import * as fileTypes from "./src/types";
 
 export default {
+  core,
   fullscreen,
   clipboard,
   file: {

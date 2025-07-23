@@ -10,3 +10,6 @@ export * from './font';
 
 // 导出文件相关工具函数
 export * from './file';
+
+// 导出浏览器适配器工具函数
+export * from './browser';

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>浏览器适配器示例</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .feature-item {
+            padding: 8px;
+            border-radius: 3px;
+            font-size: 14px;
+        }
+        .supported {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .not-supported {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .info-label {
+            font-weight: bold;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #output {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>浏览器适配器示例</h1>
+    <p>这个示例展示了如何使用 BrowserAdapter 来检测浏览器特性、处理兼容性和获取浏览器信息。</p>
+
+    <div class="section">
+        <h2>浏览器信息</h2>
+        <div class="info-grid" id="browser-info">
+            <!-- 浏览器信息将在这里显示 -->
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>常用特征检测</h2>
+        <div class="feature-list" id="feature-detection">
+            <!-- 特征检测结果将在这里显示 -->
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>CSS 特性检测</h2>
+        <div class="feature-list" id="css-features">
+            <!-- CSS特性检测结果将在这里显示 -->
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>JavaScript API 检测</h2>
+        <div class="feature-list" id="js-apis">
+            <!-- JavaScript API检测结果将在这里显示 -->
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>交互式测试</h2>
+        <div>
+            <button onclick="testCustomFeature()">测试自定义特征</button>
+            <button onclick="testPrefixedProperties()">测试前缀属性</button>
+            <button onclick="testEventCompatibility()">测试事件兼容性</button>
+            <button onclick="showCacheStats()">显示缓存统计</button>
+            <button onclick="clearCache()">清除缓存</button>
+        </div>
+        <div id="output"></div>
+    </div>
+
+    <script type="module">
+        import { 
+            BrowserAdapter, 
+            getBrowserAdapter,
+            isFeatureSupported,
+            getPrefixedProperty,
+            getPrefixedCSSProperty,
+            getBrowserInfo,
+            addEventListenerCompat,
+            FeatureDetection
+        } from '../src/utils/browser.js';
+
+        // 创建适配器实例
+        const adapter = getBrowserAdapter({
+            enableCache: true,
+            debug: true
+        });
+
+        // 显示浏览器信息
+        function displayBrowserInfo() {
+            const info = getBrowserInfo();
+            const container = document.getElementById('browser-info');
+            
+            container.innerHTML = `
+                <div class="info-label">浏览器名称:</div>
+                <div>${info.name}</div>
+                <div class="info-label">版本:</div>
+                <div>${info.version}</div>
+                <div class="info-label">渲染引擎:</div>
+                <div>${info.engine}</div>
+                <div class="info-label">操作系统:</div>
+                <div>${info.os}</div>
+                <div class="info-label">移动设备:</div>
+                <div>${info.mobile ? '是' : '否'}</div>
+            `;
+        }
+
+        // 显示特征检测结果
+        function displayFeatureDetection() {
+            const features = [
+                'localStorage',
+                'sessionStorage',
+                'JSON',
+                'fetch',
+                'Promise',
+                'Worker',
+                'serviceWorker',
+                'geolocation',
+                'vibrate'
+            ];
+
+            const container = document.getElementById('feature-detection');
+            container.innerHTML = features.map(feature => {
+                const supported = isFeatureSupported(feature);
+                return `
+                    <div class="feature-item ${supported ? 'supported' : 'not-supported'}">
+                        ${feature}: ${supported ? '✓ 支持' : '✗ 不支持'}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 显示CSS特性检测
+        function displayCSSFeatures() {
+            const cssFeatures = [
+                'flexbox',
+                'grid',
+                'transforms',
+                'transitions',
+                'animations'
+            ];
+
+            const container = document.getElementById('css-features');
+            container.innerHTML = cssFeatures.map(feature => {
+                const supported = FeatureDetection[feature];
+                return `
+                    <div class="feature-item ${supported ? 'supported' : 'not-supported'}">
+                        ${feature}: ${supported ? '✓ 支持' : '✗ 不支持'}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 显示JavaScript API检测
+        function displayJSAPIs() {
+            const jsAPIs = [
+                'canvas',
+                'video',
+                'audio',
+                'webGL',
+                'webWorkers',
+                'mediaDevices',
+                'webRTC'
+            ];
+
+            const container = document.getElementById('js-apis');
+            container.innerHTML = jsAPIs.map(api => {
+                const supported = FeatureDetection[api];
+                return `
+                    <div class="feature-item ${supported ? 'supported' : 'not-supported'}">
+                        ${api}: ${supported ? '✓ 支持' : '✗ 不支持'}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 测试自定义特征
+        window.testCustomFeature = function() {
+            const output = document.getElementById('output');
+            
+            // 测试自定义检测器
+            const customDetector = () => {
+                return 'customProperty' in window;
+            };
+            
+            const result = adapter.detectFeature('customTest', 'custom', customDetector);
+            
+            output.textContent = `自定义特征检测结果:\n${JSON.stringify(result, null, 2)}`;
+        };
+
+        // 测试前缀属性
+        window.testPrefixedProperties = function() {
+            const output = document.getElementById('output');
+            const properties = ['transform', 'transition', 'animation', 'userSelect'];
+            
+            const results = properties.map(prop => {
+                const prefixed = getPrefixedCSSProperty(prop);
+                return `${prop}: ${prefixed || '不支持'}`;
+            });
+            
+            output.textContent = `前缀属性测试结果:\n${results.join('\n')}`;
+        };
+
+        // 测试事件兼容性
+        window.testEventCompatibility = function() {
+            const output = document.getElementById('output');
+            const testElement = document.createElement('div');
+            
+            let eventFired = false;
+            const removeListener = addEventListenerCompat(testElement, 'click', () => {
+                eventFired = true;
+            });
+            
+            // 触发事件
+            testElement.dispatchEvent(new Event('click'));
+            
+            output.textContent = `事件兼容性测试:\n事件是否触发: ${eventFired ? '是' : '否'}`;
+            
+            // 清理
+            removeListener();
+        };
+
+        // 显示缓存统计
+        window.showCacheStats = function() {
+            const output = document.getElementById('output');
+            const stats = adapter.getCacheStats();
+            
+            output.textContent = `缓存统计信息:\n${JSON.stringify(stats, null, 2)}`;
+        };
+
+        // 清除缓存
+        window.clearCache = function() {
+            const output = document.getElementById('output');
+            adapter.clearCache();
+            output.textContent = '缓存已清除';
+        };
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', () => {
+            displayBrowserInfo();
+            displayFeatureDetection();
+            displayCSSFeatures();
+            displayJSAPIs();
+        });
+    </script>
+</body>
+</html>
