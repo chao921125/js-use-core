@@ -29,7 +29,9 @@ export enum ErrorType {
   /** 内部错误 - 内部逻辑错误 */
   INTERNAL_ERROR = 'INTERNAL_ERROR',
   /** 外部错误 - 第三方服务错误 */
-  EXTERNAL_ERROR = 'EXTERNAL_ERROR'
+  EXTERNAL_ERROR = 'EXTERNAL_ERROR',
+  /** 未知错误 - 无法分类的错误 */
+  UNKNOWN_ERROR = 'UNKNOWN_ERROR'
 }
 
 /**

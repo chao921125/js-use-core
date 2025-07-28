@@ -6,7 +6,7 @@
  * @date 2024-07-20
  */
 
-import { ErrorType, ErrorContext, ProcessedError } from './types';
+import { ErrorType, ErrorSeverity, ErrorContext, ProcessedError } from '../types/errors';
 import { Logger } from './Logger';
 
 /**
@@ -80,12 +80,17 @@ export class ErrorHandler {
 
     const processedError: ProcessedError = {
       type: errorType,
-      message: this.getUserFriendlyMessage(error, errorType),
+      severity: this.getErrorSeverity(errorType),
+      message: error.message,
+      userMessage: this.getUserFriendlyMessage(error, errorType),
       originalError: error,
       context: fullContext,
-      solution: this.getErrorSolution(error) || undefined,
+      code: this.getErrorCode(error) || this.generateErrorCode(errorType),
       recoverable: this.isRecoverableError(error),
-      code: this.getErrorCode(error)
+      solutions: this.getErrorSolutions(error),
+      id: this.generateErrorId(),
+      processedAt: Date.now(),
+      relatedErrors: []
     };
 
     // 记录错误日志
@@ -175,6 +180,67 @@ export class ErrorHandler {
 
     const errorType = this.classifyError(error);
     return this.getDefaultSolution(errorType);
+  }
+
+  /**
+   * 获取错误解决方案列表
+   * @param error 错误对象
+   * @returns 解决方案列表
+   */
+  getErrorSolutions(error: Error): Array<{ description: string; steps: string[]; links?: string[]; automatic?: boolean; priority?: number }> {
+    const solution = this.getErrorSolution(error);
+    if (solution) {
+      return [{
+        description: solution,
+        steps: [solution],
+        automatic: false,
+        priority: 1
+      }];
+    }
+    return [];
+  }
+
+  /**
+   * 获取错误严重级别
+   * @param errorType 错误类型
+   * @returns 错误严重级别
+   */
+  private getErrorSeverity(errorType: ErrorType): ErrorSeverity {
+    switch (errorType) {
+      case ErrorType.USER_ERROR:
+      case ErrorType.CONFIG_ERROR:
+        return ErrorSeverity.LOW;
+      case ErrorType.NETWORK_ERROR:
+      case ErrorType.TIMEOUT_ERROR:
+        return ErrorSeverity.MEDIUM;
+      case ErrorType.PERMISSION_ERROR:
+      case ErrorType.VALIDATION_ERROR:
+        return ErrorSeverity.HIGH;
+      case ErrorType.SYSTEM_ERROR:
+      case ErrorType.INTERNAL_ERROR:
+        return ErrorSeverity.CRITICAL;
+      default:
+        return ErrorSeverity.MEDIUM;
+    }
+  }
+
+  /**
+   * 生成错误代码
+   * @param errorType 错误类型
+   * @returns 错误代码
+   */
+  private generateErrorCode(errorType: ErrorType): string {
+    const timestamp = Date.now().toString(36);
+    const random = Math.random().toString(36).substr(2, 5);
+    return `${errorType}_${timestamp}_${random}`.toUpperCase();
+  }
+
+  /**
+   * 生成错误ID
+   * @returns 错误ID
+   */
+  private generateErrorId(): string {
+    return `error_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 
   /**
