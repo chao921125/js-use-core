@@ -42,6 +42,9 @@ class MockImage {
 // 使用 as any 绕过类型检查
 global.HTMLImageElement = MockImage as any;
 
+// 模拟 CanvasRenderingContext2D
+global.CanvasRenderingContext2D = function() {} as any;
+
 // 模拟canvas
 const mockContext = {
   drawImage: jest.fn(),

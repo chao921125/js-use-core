@@ -99,6 +99,9 @@ global.btoa = (str: string) => Buffer.from(str, 'binary').toString('base64');
 // 模拟fetch函数
 global.fetch = jest.fn().mockImplementation((url) => {
   return Promise.resolve({
+    ok: true,
+    status: 200,
+    statusText: 'OK',
     blob: () => Promise.resolve(new Blob(['test'], { type: 'image/jpeg' }))
   });
 });

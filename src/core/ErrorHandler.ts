@@ -272,8 +272,8 @@ export class ErrorHandler {
       return error.type;
     }
 
-    const message = error.message.toLowerCase();
-    const name = error.name.toLowerCase();
+    const message = (error.message || '').toLowerCase();
+    const name = (error.name || '').toLowerCase();
 
     // 网络相关错误
     if (

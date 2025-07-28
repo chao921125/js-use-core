@@ -205,7 +205,7 @@ export interface FileTypeResult {
   /** 是否为视频 */
   isVideo: boolean;
   /** 是否为文档 */
-  isDocument: boolean;
+  isDocument?: boolean;
   /** 文件类型 */
   type: FileType;
   /** 文件MIME类型 */
@@ -213,7 +213,7 @@ export interface FileTypeResult {
   /** 文件扩展名 */
   extension: string;
   /** 是否为支持的格式 */
-  isSupported: boolean;
+  isSupported?: boolean;
 }
 
 /**

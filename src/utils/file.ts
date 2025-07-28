@@ -1,7 +1,7 @@
 /**
  * 文件操作工具函数
  */
-import { FileTypeResult } from '../types';
+import { FileTypeResult, FileType } from '../types';
 
 /**
  * 检查是否为Base64字符串
@@ -132,13 +132,35 @@ export function checkFileType(file: File | string): FileTypeResult {
   const isImage = mimeType.startsWith('image/');
   const isAudio = mimeType.startsWith('audio/');
   const isVideo = mimeType.startsWith('video/');
+  const isDocument = mimeType.startsWith('application/') || mimeType.startsWith('text/');
+  
+  // 确定文件类型
+  let type: FileType;
+  if (isImage) {
+    type = FileType.IMAGE;
+  } else if (isAudio) {
+    type = FileType.AUDIO;
+  } else if (isVideo) {
+    type = FileType.VIDEO;
+  } else if (isDocument) {
+    type = FileType.DOCUMENT;
+  } else if (mimeType.includes('zip') || mimeType.includes('rar') || mimeType.includes('tar')) {
+    type = FileType.ARCHIVE;
+  } else if (mimeType.includes('javascript') || mimeType.includes('json') || extension === 'js' || extension === 'ts') {
+    type = FileType.CODE;
+  } else {
+    type = FileType.OTHER;
+  }
   
   return {
     isImage,
     isAudio,
     isVideo,
+    isDocument,
+    type,
     mimeType,
-    extension
+    extension,
+    isSupported: true // 默认支持所有类型
   };
 }
 
