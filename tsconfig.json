@@ -1,25 +1,72 @@
 {
   "compilerOptions": {
-    "target": "ES2018",
+    // 基础配置
+    "target": "ES2020",
     "module": "ESNext",
-    "lib": ["ES2018", "DOM", "DOM.Iterable"],
+    "lib": ["ES2020", "DOM", "DOM.Iterable", "ES6"],
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    
+    // 严格模式配置
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": false,
+    "noImplicitThis": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": false,
+    "exactOptionalPropertyTypes": false,
+    
+    // 代码质量检查
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noImplicitOverride": false,
+    "noPropertyAccessFromIndexSignature": false,
+    
+    // 输出配置
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
     "outDir": "./dist",
     "rootDir": "./",
-    "strict": true,
-    "esModuleInterop": true,
+    "removeComments": false,
+    "importHelpers": true,
+    
+    // 性能优化
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
+    "incremental": true,
+    "tsBuildInfoFile": "./dist/.tsbuildinfo",
+    
+    // 路径映射
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@/core/*": ["src/core/*"],
+      "@/types/*": ["src/types/*"],
+      "@/utils/*": ["src/utils/*"],
+      "@/clipboard/*": ["src/clipboard/*"],
+      "@/device/*": ["src/device/*"],
+      "@/file/*": ["src/file/*"],
+      "@/font/*": ["src/font/*"],
+      "@/fullscreen/*": ["src/fullscreen/*"],
+      "@/image/*": ["src/image/*"],
+      "@/ua/*": ["src/ua/*"],
+      "@/url/*": ["src/url/*"]
+    },
+    
+    // 其他配置
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
     "noEmit": false,
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "newLine": "lf"
   },
   "include": [
     "src/**/*",
@@ -29,6 +76,12 @@
     "node_modules",
     "dist",
     "test",
-    "examples"
-  ]
+    "examples",
+    "coverage",
+    "**/*.test.ts",
+    "**/*.spec.ts"
+  ],
+  "ts-node": {
+    "esm": true
+  }
 } 

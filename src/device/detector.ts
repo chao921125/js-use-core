@@ -297,3 +297,108 @@ export function supportsAVIF(): Promise<boolean> {
     avif.src = 'data:image/avif;base64,AAAAIGZ0eXBhdmlmAAAAAGF2aWZtaWYxbWlhZk1BMUIAAADybWV0YQAAAAAAAAAoaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAGxpYmF2aWYAAAAADnBpdG0AAAAAAAEAAAAeaWxvYwAAAABEAAABAAEAAAABAAABGgAAAB0AAAAoaWluZgAAAAAAAQAAABppbmZlAgAAAAABAABhdjAxQ29sb3IAAAAAamlwcnAAAABLaXBjbwAAABRpc3BlAAAAAAAAAAIAAAACAAAAEHBpeGkAAAAAAwgICAAAAAxhdjFDgQ0MAAAAABNjb2xybmNseAACAAIAAYAAAAAXaXBtYQAAAAAAAAABAAEEAQKDBAAAACVtZGF0EgAKCBgABogQEAwgMg8f8D///8WfhwB8+ErK42A=';
   });
 }
+
+/**
+ * 清除检测缓存
+ */
+export function clearDetectionCache(): void {
+  detectionCache.clear();
+}
+
+/**
+ * 获取缓存统计信息
+ */
+export function getCacheStats(): { size: number; keys: string[] } {
+  cleanupCache();
+  return {
+    size: detectionCache.size,
+    keys: Array.from(detectionCache.keys())
+  };
+}
+
+/**
+ * 改进的移动设备检测逻辑
+ * 结合用户代理和特征检测
+ */
+export function enhancedMobileDetection(opts?: MobileDetectOptions): {
+  isMobile: boolean;
+  isTablet: boolean;
+  confidence: number;
+  method: 'userAgent' | 'featureDetection' | 'hybrid';
+} {
+  if (!opts) opts = {};
+  
+  let ua = opts.ua;
+  if (!ua && typeof navigator !== "undefined") ua = navigator.userAgent;
+  if (ua && typeof ua === 'object' && ua.headers && typeof ua.headers["user-agent"] === "string") {
+    ua = ua.headers["user-agent"];
+  }
+  if (typeof ua !== "string") {
+    return { isMobile: false, isTablet: false, confidence: 0, method: 'userAgent' };
+  }
+
+  // 基于用户代理的检测
+  const uaResult = {
+    isMobile: isMobile(opts),
+    isTablet: isTablet(opts)
+  };
+
+  // 如果不启用特征检测，直接返回用户代理结果
+  if (!opts.featureDetect || typeof window === 'undefined') {
+    return {
+      ...uaResult,
+      confidence: 0.8,
+      method: 'userAgent'
+    };
+  }
+
+  // 特征检测
+  const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  const screenWidth = window.screen.width;
+  const screenHeight = window.screen.height;
+  const minDimension = Math.min(screenWidth, screenHeight);
+  const maxDimension = Math.max(screenWidth, screenHeight);
+  const pixelRatio = window.devicePixelRatio || 1;
+
+  // 基于屏幕尺寸的判断
+  let featureResult = {
+    isMobile: false,
+    isTablet: false
+  };
+
+  if (hasTouch) {
+    // 手机尺寸范围
+    if (minDimension <= 480 && maxDimension <= 896) {
+      featureResult.isMobile = true;
+    }
+    // 平板尺寸范围
+    else if (minDimension >= 768 && minDimension <= 1024) {
+      featureResult.isTablet = true;
+    }
+    // 大屏手机或小平板的边界情况
+    else if (minDimension > 480 && minDimension < 768) {
+      // 根据像素密度判断
+      if (pixelRatio >= 2) {
+        featureResult.isMobile = true;
+      } else {
+        featureResult.isTablet = true;
+      }
+    }
+  }
+
+  // 混合判断
+  const finalResult = {
+    isMobile: uaResult.isMobile || featureResult.isMobile,
+    isTablet: uaResult.isTablet || featureResult.isTablet,
+    confidence: 0.9,
+    method: 'hybrid' as const
+  };
+
+  // 如果用户代理和特征检测结果一致，提高置信度
+  if (uaResult.isMobile === featureResult.isMobile && 
+      uaResult.isTablet === featureResult.isTablet) {
+    finalResult.confidence = 0.95;
+  }
+
+  return finalResult;
+}

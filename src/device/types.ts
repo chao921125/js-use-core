@@ -111,3 +111,56 @@ export enum NetworkType {
   ETHERNET = 'ethernet',
   UNKNOWN = 'unknown'
 }
+
+/**
+ * 设备性能信息
+ */
+export interface DevicePerformanceInfo {
+  /** 性能等级 */
+  level: 'low' | 'medium' | 'high' | 'unknown';
+  /** 性能分数 */
+  score: number;
+  /** 内存大小（GB） */
+  memory: number;
+  /** CPU核心数 */
+  cores: number;
+  /** GPU信息 */
+  gpu: {
+    vendor: string;
+    renderer: string;
+  } | null;
+}
+
+/**
+ * 设备能力信息
+ */
+export interface DeviceCapabilities {
+  /** 触摸支持 */
+  touch: boolean;
+  /** WebGL支持 */
+  webgl: boolean;
+  /** WebGL2支持 */
+  webgl2: boolean;
+  /** WebAssembly支持 */
+  webassembly: boolean;
+  /** Service Worker支持 */
+  serviceWorker: boolean;
+  /** Web Workers支持 */
+  webWorkers: boolean;
+  /** 地理位置支持 */
+  geolocation: boolean;
+  /** 摄像头支持 */
+  camera: boolean;
+  /** 麦克风支持 */
+  microphone: boolean;
+  /** 通知支持 */
+  notifications: boolean;
+  /** 震动支持 */
+  vibration: boolean;
+  /** 电池API支持 */
+  battery: boolean;
+  /** 设备运动支持 */
+  deviceMotion: boolean;
+  /** 设备方向支持 */
+  deviceOrientation: boolean;
+}

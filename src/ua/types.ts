@@ -103,3 +103,16 @@ export interface VersionRange {
   operator: VersionOperator;
   version: string;
 }
+
+/**
+ * UA 管理器选项
+ */
+export interface UAManagerOptions {
+  debug?: boolean;
+  timeout?: number;
+  retries?: number;
+  cache?: boolean;
+  enablePlugins?: boolean;
+  maxCacheSize?: number;
+  parseTimeout?: number;
+}

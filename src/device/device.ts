@@ -281,13 +281,37 @@ export class DeviceDetector extends BaseManager<DeviceDetectorOptions> {
 }
 
 /**
- * 获取设备信息
+ * 获取设备信息（异步版本）
  * @param options 检测选项
  * @returns 设备信息对象
  */
-export function getDeviceInfo(options?: MobileDetectOptions): DeviceInfo {
+export async function getDeviceInfo(options?: DeviceDetectorOptions): Promise<DeviceInfo> {
   const detector = new DeviceDetector(options);
+  await detector.initialize();
   return detector.getDeviceInfo();
+}
+
+/**
+ * 获取设备信息（同步版本，用于向后兼容）
+ * @param options 检测选项
+ * @returns 设备信息对象
+ */
+export function getDeviceInfoSync(options?: MobileDetectOptions): DeviceInfo {
+  const userAgent = typeof options?.ua === 'string' ? options.ua : 
+    (typeof navigator !== 'undefined' ? navigator.userAgent : '');
+  const screen = getScreenSize();
+  
+  return {
+    type: getDeviceType(options),
+    os: detectOS(userAgent),
+    browser: detectBrowser(userAgent),
+    isMobile: isMobile(options),
+    isTablet: isTablet(options),
+    isDesktop: isDesktop(options),
+    isTouchDevice: isTouchDevice(),
+    userAgent,
+    screen
+  };
 }
 
 /**
@@ -295,13 +319,34 @@ export function getDeviceInfo(options?: MobileDetectOptions): DeviceInfo {
  * @param options 检测选项
  * @returns 设备检测器实例
  */
-export function createDeviceDetector(options?: MobileDetectOptions): DeviceDetector {
+export function createDeviceDetector(options?: DeviceDetectorOptions): DeviceDetector {
   return new DeviceDetector(options);
+}
+
+/**
+ * 快速检测设备类型
+ * @param type 要检测的设备类型
+ * @param options 检测选项
+ * @returns 是否匹配指定类型
+ */
+export function isDeviceType(type: 'mobile' | 'tablet' | 'desktop', options?: MobileDetectOptions): boolean {
+  switch (type) {
+    case 'mobile':
+      return isMobile(options) && !isTablet(options);
+    case 'tablet':
+      return isTablet(options);
+    case 'desktop':
+      return isDesktop(options);
+    default:
+      return false;
+  }
 }
 
 // 默认导出
 export default {
   DeviceDetector,
   getDeviceInfo,
-  createDeviceDetector
+  getDeviceInfoSync,
+  createDeviceDetector,
+  isDeviceType
 };

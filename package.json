@@ -67,24 +67,100 @@
 	},
 	"license": "BSD-3-Clause",
 	"type": "module",
-	"main": "dist/index.js",
-	"module": "dist/index.esm.js",
+	"main": "dist/index.cjs.js",
+	"module": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"unpkg": "dist/index.umd.js",
 	"jsdelivr": "dist/index.umd.js",
+	"browser": "dist/index.umd.js",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js",
+			"require": "./dist/index.cjs.js",
+			"browser": "./dist/index.umd.js",
+			"default": "./dist/index.js"
+		},
+		"./core": {
+			"types": "./dist/core.d.ts",
+			"import": "./dist/core.js",
+			"require": "./dist/core.cjs.js"
+		},
+		"./clipboard": {
+			"types": "./dist/clipboard.d.ts",
+			"import": "./dist/clipboard.js",
+			"require": "./dist/clipboard.cjs.js"
+		},
+		"./device": {
+			"types": "./dist/device.d.ts",
+			"import": "./dist/device.js",
+			"require": "./dist/device.cjs.js"
+		},
+		"./file": {
+			"types": "./dist/file.d.ts",
+			"import": "./dist/file.js",
+			"require": "./dist/file.cjs.js"
+		},
+		"./font": {
+			"types": "./dist/font.d.ts",
+			"import": "./dist/font.js",
+			"require": "./dist/font.cjs.js"
+		},
+		"./fullscreen": {
+			"types": "./dist/fullscreen.d.ts",
+			"import": "./dist/fullscreen.js",
+			"require": "./dist/fullscreen.cjs.js"
+		},
+		"./image": {
+			"types": "./dist/image.d.ts",
+			"import": "./dist/image.js",
+			"require": "./dist/image.cjs.js"
+		},
+		"./ua": {
+			"types": "./dist/ua.d.ts",
+			"import": "./dist/ua.js",
+			"require": "./dist/ua.cjs.js"
+		},
+		"./url": {
+			"types": "./dist/url.d.ts",
+			"import": "./dist/url.js",
+			"require": "./dist/url.cjs.js"
+		},
+		"./utils": {
+			"types": "./dist/utils.d.ts",
+			"import": "./dist/utils.js",
+			"require": "./dist/utils.cjs.js"
+		}
+	},
 	"files": [
 		"dist"
 	],
 	"scripts": {
 		"build": "rollup -c",
+		"build:prod": "npm run clean && rollup -c --environment NODE_ENV:production",
+		"build:with-types": "npm run type-check:build && rollup -c",
+		"build:analyze": "npm run build:prod && npm run analyze:bundle",
 		"dev": "rollup -c -w",
-		"test": "jest",
-		"test:watch": "jest --watch",
-		"lint": "eslint src --ext .ts",
-		"lint:fix": "eslint src --ext .ts --fix",
-		"type-check": "tsc --noEmit",
-		"clean": "rimraf dist",
-		"prebuild": "npm run clean"
+		"analyze:bundle": "npx rollup-plugin-visualizer dist/stats.html --open",
+		"test": "jest --config jest.config.js",
+		"test:watch": "jest --watch --config jest.config.js",
+		"test:coverage": "jest --coverage --config jest.config.js",
+		"lint": "eslint src --ext .ts,.tsx",
+		"lint:fix": "eslint src --ext .ts,.tsx --fix",
+		"type-check": "tsc --noEmit --project tsconfig.json",
+		"type-check:build": "tsc --noEmit --project tsconfig.build.json",
+		"type-check:test": "tsc --noEmit --project tsconfig.test.json",
+		"type-check:watch": "tsc --noEmit --watch --project tsconfig.json",
+		"validate": "npm run lint && npm run type-check && npm run test",
+		"validate:ci": "npm run lint && npm run type-check:build && npm run type-check:test && npm run test:coverage",
+		"clean": "rimraf dist coverage .tsbuildinfo",
+		"prebuild": "npm run clean",
+		"prepack": "npm run build:prod",
+		"release:patch": "npm version patch && npm run build:prod && npm publish",
+		"release:minor": "npm version minor && npm run build:prod && npm publish",
+		"release:major": "npm version major && npm run build:prod && npm publish",
+		"size": "npm run build:prod && bundlesize",
+		"size:why": "npm run build:prod && npx whybundled dist/index.js"
 	},
 	"devDependencies": {
 		"@babel/core": "^7.28.0",
@@ -101,14 +177,16 @@
 		"@types/node": "^24.0.13",
 		"@typescript-eslint/eslint-plugin": "^6.21.0",
 		"@typescript-eslint/parser": "^6.21.0",
+		"bundlesize": "^0.18.2",
 		"eslint": "^8.57.1",
 		"jest": "^29.7.0",
 		"jest-environment-jsdom": "^30.0.4",
 		"rimraf": "^5.0.10",
 		"rollup": "^3.29.5",
+		"rollup-plugin-bundle-analyzer": "^1.0.3",
 		"rollup-plugin-dts": "^6.2.1",
-		"rollup-plugin-terser": "^7.0.2",
 		"rollup-plugin-typescript2": "^0.35.0",
+		"rollup-plugin-visualizer": "^5.14.0",
 		"ts-jest": "^29.4.0",
 		"tslib": "^2.8.1",
 		"typescript": "^5.8.3"
@@ -136,5 +214,22 @@
 	],
 	"publishConfig": {
 		"access": "public"
-	}
+	},
+	"bundlesize": [
+		{
+			"path": "./dist/index.js",
+			"maxSize": "50 kB",
+			"compression": "gzip"
+		},
+		{
+			"path": "./dist/index.umd.js",
+			"maxSize": "80 kB",
+			"compression": "gzip"
+		},
+		{
+			"path": "./dist/core.js",
+			"maxSize": "15 kB",
+			"compression": "gzip"
+		}
+	]
 }
