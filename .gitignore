@@ -21,6 +21,7 @@ lerna-debug.log*
 
 # Editor directories
 .DS_Store
+.kiro
 .hbuilderx
 .vscode/*
 !.vscode/extensions.json
