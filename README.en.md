@@ -2,157 +2,206 @@
 
 [中文](./README.md) | English
 
-A comprehensive JavaScript utility library providing essential tools for modern web development, including font management, fullscreen operations, clipboard handling, file operations, and utility functions.
+A modern JavaScript comprehensive utility library providing fullscreen, clipboard, file processing, font management, URL operations, device detection, and User Agent parsing capabilities. Built with unified architecture design, TypeScript support, comprehensive error handling, and performance monitoring.
 
-## Features
+## ✨ Features
 
-- **Font Management**: Load, validate, and manage web fonts
-- **Fullscreen Operations**: Cross-browser fullscreen API support
-- **Clipboard Handling**: Copy and paste text and images
-- **File Operations**: Read, write, download, and upload files
-- **Utility Functions**: Common helper functions and tools
-- **TypeScript Support**: Full TypeScript type definitions
-- **Zero Dependencies**: Lightweight with no external dependencies
+- 🏗️ **Unified Architecture** - Based on BaseManager unified management architecture
+- 🔧 **TypeScript Support** - Complete type definitions and intelligent hints
+- 🛡️ **Error Handling** - Unified error handling and fallback solutions
+- 📊 **Performance Monitoring** - Built-in performance monitoring and caching mechanisms
+- 🔌 **Plugin System** - Extensible plugin architecture
+- 📱 **Cross-platform** - Support for browser and Node.js environments
+- 🚀 **Zero Dependencies** - Lightweight with no external dependencies
 
-## Installation
+## 📦 Installation
 
 ```bash
 npm install js-use-core
 ```
 
-## Quick Start
+## 🚀 Quick Start
 
 ```javascript
-import { Font, Fullscreen, Clipboard, File, isString, debounce } from 'js-use-core';
+import { 
+  FullscreenManager, 
+  ClipboardManager, 
+  FontManager,
+  UrlManager,
+  DeviceDetector,
+  UA
+} from 'js-use-core';
 
-// Font management
-const font = new Font('Roboto', 'https://fonts.googleapis.com/css2?family=Roboto&display=swap');
-await font.load();
-
-// Fullscreen operations
-const fullscreen = new Fullscreen(document.getElementById('video'));
-await fullscreen.enter();
+// Fullscreen management
+const fullscreen = new FullscreenManager();
+await fullscreen.initialize();
+await fullscreen.request();
 
 // Clipboard operations
-const clipboard = new Clipboard();
-await clipboard.copy('Hello, World!');
+const clipboard = new ClipboardManager();
+await clipboard.initialize();
+await clipboard.copyText('Hello World!');
 
-// File operations
-const file = new File('example.txt');
-const content = await file.read();
+// Font management
+const fontManager = new FontManager();
+await fontManager.initialize();
+const result = await fontManager.check('Arial');
 
-// Utility functions
-if (isString(value)) {
-  console.log('Value is a string');
-}
+// URL operations
+const urlManager = new UrlManager('https://example.com');
+urlManager.addQuery({ page: 1, size: 10 });
 
-const debouncedSearch = debounce(searchFunction, 300);
+// Device detection
+const device = new DeviceDetector();
+await device.initialize();
+console.log(device.isMobile);
+
+// User Agent parsing
+const ua = UA.parse(navigator.userAgent);
+console.log(ua.browser.name, ua.browser.version);
 ```
 
-## Modules
-
-### [Font](./docs/font/README.en.md)
-Comprehensive font management utility for web applications.
-
-```javascript
-import { Font } from 'js-use-core';
-
-const font = new Font('Arial', 'https://example.com/fonts/arial.css');
-await font.load();
-```
+## 📚 Modules
 
 ### [Fullscreen](./docs/fullscreen/README.en.md)
-Cross-browser fullscreen API support with enhanced features.
+Cross-browser compatible fullscreen API with element fullscreen, state monitoring, and error handling.
 
 ```javascript
-import { Fullscreen } from 'js-use-core';
+import { FullscreenManager } from 'js-use-core';
 
-const fullscreen = new Fullscreen(element);
-await fullscreen.toggle();
+const fullscreen = new FullscreenManager({
+  enablePerformanceMonitoring: true,
+  timeout: 5000
+});
+
+await fullscreen.initialize();
+await fullscreen.request(document.getElementById('video'));
 ```
 
 ### [Clipboard](./docs/clipboard/README.en.md)
-Clipboard management with text and image support.
+Support for text, HTML, and file copy/paste with permission management and fallback handling.
 
 ```javascript
-import { Clipboard } from 'js-use-core';
+import { ClipboardManager } from 'js-use-core';
 
-const clipboard = new Clipboard();
-await clipboard.copy('Text to copy');
+const clipboard = new ClipboardManager({
+  enablePermissionCheck: true,
+  enableFallback: true
+});
+
+await clipboard.initialize();
+await clipboard.copyText('Text to copy');
+const text = await clipboard.readText();
+```
+
+### [Font](./docs/font/README.en.md)
+Font loading detection, dynamic font management, and cross-origin handling.
+
+```javascript
+import { FontManager } from 'js-use-core';
+
+const fontManager = new FontManager({
+  timeout: 3000,
+  enableCache: true
+});
+
+await fontManager.initialize();
+fontManager.addFont('CustomFont', '/fonts/custom.woff2');
+const result = await fontManager.check(['Arial', 'CustomFont']);
 ```
 
 ### [File](./docs/file/README.en.md)
-File operations including read, write, download, and upload.
+File read, write, download, and upload functionality.
 
 ```javascript
-import { File } from 'js-use-core';
+import { FileManager } from 'js-use-core';
 
-const file = new File('document.txt');
-await file.write('Content to write');
-```
-
-### [Utils](./docs/utils/README.en.md)
-Common utility functions for everyday development tasks.
-
-```javascript
-import { isString, deepClone, debounce } from 'js-use-core';
-
-if (isString(value)) {
-  const cloned = deepClone(value);
-}
+const fileManager = new FileManager();
+await fileManager.initialize();
+const content = await fileManager.readAsText(file);
 ```
 
 ### [URL](./docs/url/README.en.md)
-Comprehensive URL parsing, manipulation, and related functionality.
+URL parsing, building, and query parameter handling.
 
 ```javascript
-import { getUrl, UrlManager } from 'js-use-core';
+import { UrlManager } from 'js-use-core';
 
-const { url, origin } = getUrl();
-const manager = new UrlManager('https://example.com').addQuery({ page: 1 });
+const url = new UrlManager('https://example.com/api');
+url.addQuery({ page: 1, filter: 'active' });
+console.log(url.toString());
 ```
 
 ### [Device](./docs/device/README.en.md)
-Comprehensive device detection, operating system identification, and browser detection.
+Device type detection, operating system identification, and browser detection.
 
 ```javascript
-import { getDeviceInfo, isMobile, isTablet } from 'js-use-core';
+import { DeviceDetector } from 'js-use-core';
 
-const deviceInfo = getDeviceInfo();
-console.log('Is mobile:', isMobile());
-console.log('Is tablet:', isTablet());
+const device = new DeviceDetector();
+await device.initialize();
+console.log({
+  isMobile: device.isMobile,
+  isTablet: device.isTablet,
+  os: device.os,
+  browser: device.browser
+});
 ```
 
 ### [User Agent](./docs/ua/README.en.md)
-Comprehensive User Agent parsing, generation, comparison, and caching functionality.
+User Agent string parsing, version comparison, and generation.
 
 ```javascript
-import { UA, parseUserAgent, getCurrentUA } from 'js-use-core';
+import { UA } from 'js-use-core';
 
-const current = getCurrentUA();
-const isModern = UA.satisfies(current, 'Chrome >= 100');
-console.log('Browser:', current.browser.name);
+const ua = UA.parse(navigator.userAgent);
+const isModern = UA.satisfies(ua, 'Chrome >= 100');
+console.log(ua.browser.name, ua.browser.version);
 ```
 
-## API Documentation
+### [Utils](./docs/utils/README.en.md)
+DOM operations, browser compatibility, and common utility functions.
 
-- [Font API](./docs/font/api.en.md)
-- [Fullscreen API](./docs/fullscreen/api.en.md)
-- [Clipboard API](./docs/clipboard/api.en.md)
-- [File API](./docs/file/api.en.md)
-- [Utils API](./docs/utils/api.en.md)
+```javascript
+import { isElement, debounce, throttle } from 'js-use-core';
 
-## Examples
+if (isElement(element)) {
+  // DOM operations
+}
 
-See individual module documentation for detailed examples:
+const debouncedFn = debounce(callback, 300);
+const throttledFn = throttle(callback, 100);
+```
 
-- [Font Examples](./docs/font/README.en.md#examples)
-- [Fullscreen Examples](./docs/fullscreen/README.en.md#examples)
-- [Clipboard Examples](./docs/clipboard/README.en.md#examples)
-- [File Examples](./docs/file/README.en.md#examples)
-- [Utils Examples](./docs/utils/README.en.md#examples)
+## 🏗️ Architecture Design
 
-## Browser Support
+### Core Architecture
+- **BaseManager**: Base class for all managers, providing unified lifecycle management
+- **ErrorHandler**: Unified error handling mechanism
+- **EventEmitter**: Lightweight event system
+- **Logger**: Unified logging functionality
+- **Cache**: Intelligent cache management
+
+### Design Principles
+- **Consistency**: All modules adopt the same architectural pattern
+- **Extensibility**: Support for plugins and custom extensions
+- **Robustness**: Comprehensive error handling and fallback solutions
+- **Performance**: Built-in caching and performance monitoring
+- **Type Safety**: Complete TypeScript support
+
+## 📖 API Documentation
+
+- [Core Architecture API](./docs/core/README.en.md)
+- [Fullscreen API](./docs/fullscreen/API.en.md)
+- [Clipboard API](./docs/clipboard/API.en.md)
+- [Font API](./docs/font/API.en.md)
+- [File API](./docs/file/API.en.md)
+- [URL API](./docs/url/API.en.md)
+- [Device Detection API](./docs/device/API.en.md)
+- [User Agent API](./docs/ua/API.en.md)
+- [Utils API](./docs/utils/API.en.md)
+
+## 🌐 Browser Support
 
 | Browser | Version | Support |
 |---------|---------|---------|
@@ -160,19 +209,68 @@ See individual module documentation for detailed examples:
 | Firefox | 63+ | ✅ |
 | Safari | 13.1+ | ✅ |
 | Edge | 79+ | ✅ |
+| IE | Not supported | ❌ |
 
-## Contributing
+## 🔧 Configuration Options
+
+All managers support unified basic configuration:
+
+```javascript
+const options = {
+  debug: false,           // Debug mode
+  timeout: 5000,         // Operation timeout
+  retries: 2,            // Retry count
+  cache: true,           // Enable caching
+  cacheTTL: 30000       // Cache expiration time
+};
+```
+
+## 📝 Migration Guide
+
+### Migrating from 1.x
+
+1. **Import Changes**:
+```javascript
+// Old version
+import { fullscreen } from 'js-use-core';
+
+// New version
+import { FullscreenManager } from 'js-use-core';
+const fullscreen = new FullscreenManager();
+await fullscreen.initialize();
+```
+
+2. **API Changes**:
+- All features now require initialization
+- Unified error handling mechanism
+- New performance monitoring and caching features
+
+3. **Configuration Options**:
+- Unified configuration option format
+- More customization options added
+
+For detailed migration guide, see [MIGRATION.en.md](./MIGRATION.en.md)
+
+## 🤝 Contributing
 
 We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.en.md) for details.
 
-### Module-Specific Contributing
+### Development Setup
 
-- [Font Contributing](./docs/font/CONTRIBUTING.en.md)
-- [Fullscreen Contributing](./docs/fullscreen/CONTRIBUTING.en.md)
-- [Clipboard Contributing](./docs/clipboard/CONTRIBUTING.en.md)
-- [File Contributing](./docs/file/CONTRIBUTING.en.md)
-- [Utils Contributing](./docs/utils/CONTRIBUTING.en.md)
+```bash
+# Clone the project
+git clone https://github.com/chao921125/js-use-core.git
 
-## License
+# Install dependencies
+npm install
 
-MIT License - see [LICENSE](./LICENSE) file for details. 
+# Run tests
+npm test
+
+# Build project
+npm run build
+```
+
+## 📄 License
+
+MIT License - see [LICENSE](./LICENSE) file for details 

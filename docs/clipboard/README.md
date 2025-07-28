@@ -1,72 +1,132 @@
+# 剪贴板功能 (Clipboard)
+
 🚩 支持 JS（浏览器）、Vue（兼容 Vue2）、React、Node.js 多端环境
 
-剪贴板功能提供了跨浏览器兼容的剪贴板 API 封装，支持文本的复制和读取操作，自动处理不同浏览器的兼容性问题。
+剪贴板功能提供了基于统一架构的跨浏览器兼容剪贴板 API 封装，支持文本、HTML、文件的复制和读取操作，具有完善的权限管理、数据验证和降级处理。
 
-[English](./readme.en.md) | 简体中文
+[English](./README.en.md) | 简体中文
 
-# 特性
+## ✨ 特性
 
+- 🏗️ **统一架构** - 基于 BaseManager 的统一管理架构
 - 🚀 **跨浏览器兼容** - 自动处理不同浏览器的兼容性问题
 - 📦 **模块化设计** - 支持按需导入，减少打包体积
 - 🔧 **TypeScript 支持** - 完整的类型定义和智能提示
 - 🎯 **简单易用** - 简洁的 API 设计，快速上手
-- 🛡️ **权限管理** - 完善的权限检查和请求机制
+- 🛡️ **权限管理** - 智能权限检查和请求机制
+- 📊 **数据支持** - 支持文本、HTML、文件等多种数据类型
+- 🔄 **降级处理** - 完善的降级方案和错误处理
 - 📱 **移动端支持** - 兼容主流移动浏览器
+- 🔍 **数据验证** - 内置数据验证和清理机制
 
-# 功能
+## 🚀 功能
 
-- 文本复制到剪贴板
-- 从剪贴板读取文本
-- 权限管理和检查
+- 文本、HTML、文件复制到剪贴板
+- 从剪贴板读取各种格式数据
+- 智能权限管理和检查
 - 剪贴板变化监听
-- 错误处理和降级方案
+- 数据格式转换和验证
+- HTML 内容清理和安全处理
+- 多种降级策略
+- 性能监控和缓存
 
-# 使用
-
-## 安装
+## 📦 安装
 
 ```bash
 npm install js-use-core
 ```
 
-## 使用示例
+## 🔧 使用方法
 
 ### ES6 模块导入
 
 ```javascript
-// 导入剪贴板功能
-import { clipboard } from 'js-use-core';
+// 导入剪贴板管理器
+import { ClipboardManager } from 'js-use-core';
 
-// 或者单独导入
-import clipboard from 'js-use-core/src/clipboard';
+// 或者导入便捷函数
+import { 
+  copyText, 
+  readText, 
+  copyHTML,
+  readHTML 
+} from 'js-use-core';
+
+// 或者导入默认实例
+import { clipboard } from 'js-use-core';
 ```
 
 ### CommonJS 导入
 
 ```javascript
-// 导入剪贴板功能
-const { clipboard } = require('js-use-core');
+// 导入剪贴板管理器
+const { ClipboardManager } = require('js-use-core');
 
-// 或者单独导入
-const clipboard = require('js-use-core/src/clipboard').default;
+// 或者导入默认实例
+const { clipboard } = require('js-use-core');
 ```
 
 ### 基本用法
 
 ```javascript
-import { clipboard } from 'js-use-core';
+import { ClipboardManager } from 'js-use-core';
+
+// 创建剪贴板管理器实例
+const clipboard = new ClipboardManager({
+  enablePermissionCheck: true,
+  enableFallback: true,
+  enableDataValidation: true,
+  debug: false
+});
+
+// 初始化管理器
+await clipboard.initialize();
 
 // 检查是否支持剪贴板
-if (clipboard.isEnabled) {
+if (clipboard.isSupported) {
   // 复制文本到剪贴板
-  await clipboard.writeText('要复制的文本');
+  await clipboard.copyText('要复制的文本');
   
   // 从剪贴板读取文本
   const text = await clipboard.readText();
   
-  // 检查剪贴板权限
-  const hasPermission = await clipboard.hasPermission();
+  // 复制 HTML 内容
+  await clipboard.copyHTML('<p>HTML 内容</p>');
+  
+  // 读取 HTML 内容
+  const html = await clipboard.readHTML();
 }
+```
+
+### 使用便捷函数
+
+```javascript
+import { 
+  copyText, 
+  readText, 
+  copyHTML,
+  readHTML,
+  copyFiles,
+  readFiles
+} from 'js-use-core';
+
+// 复制文本
+await copyText('Hello World!');
+
+// 读取文本
+const text = await readText();
+
+// 复制 HTML
+await copyHTML('<h1>标题</h1>');
+
+// 读取 HTML
+const html = await readHTML();
+
+// 复制文件
+await copyFiles([file1, file2]);
+
+// 读取文件
+const files = await readFiles();
 ```
 
 # API

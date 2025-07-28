@@ -228,109 +228,162 @@
         <div id="message"></div>
     </div>
 
+    <!-- 引入 js-use-core 库 -->
+    <script src="../dist/index.umd.js"></script>
+    
     <script type="module">
-        // 这里会导入打包后的库
-        // import { clipboard } from '../dist/index.esm.js';
+        // 导入新的剪贴板管理器
+        // 在实际项目中使用以下导入方式：
+        // import { ClipboardManager } from '../dist/index.esm.js';
         
-        // 为了演示，我们直接使用源码
-        // 在实际使用中，应该导入打包后的文件
+        let clipboardManager;
         
-        // 模拟剪贴板功能（实际项目中会导入真实的库）
-        const clipboard = {
-            isSupported: 'clipboard' in navigator && 'writeText' in navigator.clipboard,
-            canRead: 'clipboard' in navigator && 'readText' in navigator.clipboard,
-            
-            async copyText(text) {
-                try {
-                    if (this.isSupported) {
-                        await navigator.clipboard.writeText(text);
-                        return true;
-                    } else {
+        // 初始化剪贴板管理器
+        async function initializeClipboard() {
+            try {
+                // 使用新的 ClipboardManager API
+                if (typeof jsUseCore !== 'undefined' && jsUseCore.ClipboardManager) {
+                    clipboardManager = new jsUseCore.ClipboardManager({
+                        enablePermissionCheck: true,
+                        enableFallback: true,
+                        enableDataValidation: true,
+                        enableHtmlSanitization: true,
+                        debug: true
+                    });
+                    
+                    await clipboardManager.initialize();
+                    
+                    // 监听剪贴板事件
+                    clipboardManager.on('copy', (data) => {
+                        console.log('复制完成:', data);
+                        updateLastCopyTime();
+                    });
+                    
+                    clipboardManager.on('read', (data) => {
+                        console.log('读取完成:', data);
+                    });
+                    
+                } else {
+                    // 降级到基础实现
+                    clipboardManager = createFallbackClipboard();
+                }
+                
+                updateStatus();
+                
+            } catch (error) {
+                console.error('初始化剪贴板管理器失败:', error);
+                showMessage('初始化失败: ' + error.message, 'error');
+                // 使用降级实现
+                clipboardManager = createFallbackClipboard();
+                updateStatus();
+            }
+        }
+        
+        // 创建降级剪贴板实现
+        function createFallbackClipboard() {
+            return {
+                isSupported: 'clipboard' in navigator && 'writeText' in navigator.clipboard,
+                canRead: 'clipboard' in navigator && 'readText' in navigator.clipboard,
+                canWrite: 'clipboard' in navigator && 'writeText' in navigator.clipboard,
+                
+                async copyText(text, options = {}) {
+                    try {
+                        if (this.isSupported) {
+                            await navigator.clipboard.writeText(text);
+                            return true;
+                        } else {
+                            return this.fallbackCopyText(text);
+                        }
+                    } catch (error) {
+                        console.error('Failed to copy text:', error);
                         return this.fallbackCopyText(text);
                     }
-                } catch (error) {
-                    console.error('Failed to copy text:', error);
-                    return this.fallbackCopyText(text);
-                }
-            },
-            
-            async copyHTML(html) {
-                try {
-                    if (this.isSupported && 'write' in navigator.clipboard) {
-                        const blob = new Blob([html], { type: 'text/html' });
-                        const data = [new ClipboardItem({ 'text/html': blob })];
-                        await navigator.clipboard.write(data);
-                        return true;
-                    } else {
+                },
+                
+                async copyHTML(html, options = {}) {
+                    try {
+                        if (this.isSupported && 'write' in navigator.clipboard) {
+                            const blob = new Blob([html], { type: 'text/html' });
+                            const data = [new ClipboardItem({ 'text/html': blob })];
+                            await navigator.clipboard.write(data);
+                            return true;
+                        } else {
+                            return this.fallbackCopyHTML(html);
+                        }
+                    } catch (error) {
+                        console.error('Failed to copy HTML:', error);
                         return this.fallbackCopyHTML(html);
                     }
-                } catch (error) {
-                    console.error('Failed to copy HTML:', error);
-                    return this.fallbackCopyHTML(html);
-                }
-            },
-            
-            async copyElement(element, options = {}) {
-                const { format = 'text' } = options;
+                },
                 
-                try {
-                    switch (format) {
-                        case 'html':
-                            return await this.copyHTML(element.innerHTML);
-                        case 'text':
-                        default:
-                            return await this.copyText(element.textContent || '');
+                async copyElement(element, options = {}) {
+                    const { format = 'text' } = options;
+                    
+                    try {
+                        switch (format) {
+                            case 'html':
+                                return await this.copyHTML(element.innerHTML);
+                            case 'text':
+                            default:
+                                return await this.copyText(element.textContent || '');
+                        }
+                    } catch (error) {
+                        throw error;
                     }
-                } catch (error) {
-                    throw error;
+                },
+                
+                fallbackCopyText(text) {
+                    try {
+                        const textArea = document.createElement('textarea');
+                        textArea.value = text;
+                        textArea.style.position = 'fixed';
+                        textArea.style.left = '-999999px';
+                        textArea.style.top = '-999999px';
+                        document.body.appendChild(textArea);
+                        textArea.focus();
+                        textArea.select();
+                        
+                        const successful = document.execCommand('copy');
+                        document.body.removeChild(textArea);
+                        return successful;
+                    } catch (error) {
+                        console.error('Fallback copy failed:', error);
+                        return false;
+                    }
+                },
+                
+                fallbackCopyHTML(html) {
+                    try {
+                        const textArea = document.createElement('textarea');
+                        textArea.innerHTML = html;
+                        textArea.style.position = 'fixed';
+                        textArea.style.left = '-999999px';
+                        textArea.style.top = '-999999px';
+                        document.body.appendChild(textArea);
+                        textArea.focus();
+                        textArea.select();
+                        
+                        const successful = document.execCommand('copy');
+                        document.body.removeChild(textArea);
+                        return successful;
+                    } catch (error) {
+                        console.error('Fallback HTML copy failed:', error);
+                        return false;
+                    }
+                },
+                
+                destroy() {
+                    // 降级实现不需要特殊清理
                 }
-            },
-            
-            fallbackCopyText(text) {
-                try {
-                    const textArea = document.createElement('textarea');
-                    textArea.value = text;
-                    textArea.style.position = 'fixed';
-                    textArea.style.left = '-999999px';
-                    textArea.style.top = '-999999px';
-                    document.body.appendChild(textArea);
-                    textArea.focus();
-                    textArea.select();
-                    
-                    const successful = document.execCommand('copy');
-                    document.body.removeChild(textArea);
-                    return successful;
-                } catch (error) {
-                    console.error('Fallback copy failed:', error);
-                    return false;
-                }
-            },
-            
-            fallbackCopyHTML(html) {
-                try {
-                    const textArea = document.createElement('textarea');
-                    textArea.innerHTML = html;
-                    textArea.style.position = 'fixed';
-                    textArea.style.left = '-999999px';
-                    textArea.style.top = '-999999px';
-                    document.body.appendChild(textArea);
-                    textArea.focus();
-                    textArea.select();
-                    
-                    const successful = document.execCommand('copy');
-                    document.body.removeChild(textArea);
-                    return successful;
-                } catch (error) {
-                    console.error('Fallback HTML copy failed:', error);
-                    return false;
-                }
-            }
-        };
+            };
+        }
         
         // 更新状态显示
         function updateStatus() {
-            document.getElementById('isSupported').textContent = clipboard.isSupported ? '支持' : '不支持';
-            document.getElementById('canRead').textContent = clipboard.canRead ? '支持' : '不支持';
+            if (!clipboardManager) return;
+            
+            document.getElementById('isSupported').textContent = clipboardManager.isSupported ? '支持' : '不支持';
+            document.getElementById('canRead').textContent = clipboardManager.canRead ? '支持' : '不支持';
         }
         
         // 显示消息
@@ -357,12 +410,13 @@
         
         // 绑定事件
         document.getElementById('copyText').addEventListener('click', async () => {
+            if (!clipboardManager) return;
+            
             const text = document.getElementById('textInput').value;
             try {
-                const success = await clipboard.copyText(text);
+                const success = await clipboardManager.copyText(text);
                 if (success) {
                     showMessage('文本已复制到剪贴板');
-                    updateLastCopyTime();
                 } else {
                     showMessage('复制失败', 'error');
                 }
@@ -372,9 +426,11 @@
         });
         
         document.getElementById('copyTextWithFallback').addEventListener('click', async () => {
+            if (!clipboardManager) return;
+            
             const text = document.getElementById('textInput').value;
             try {
-                const success = await clipboard.fallbackCopyText(text);
+                const success = await clipboardManager.fallbackCopyText(text);
                 if (success) {
                     showMessage('文本已复制到剪贴板（降级方式）');
                     updateLastCopyTime();
@@ -387,12 +443,16 @@
         });
         
         document.getElementById('copyHTML').addEventListener('click', async () => {
+            if (!clipboardManager) return;
+            
             const html = document.getElementById('htmlInput').value;
             try {
-                const success = await clipboard.copyHTML(html);
+                const success = await clipboardManager.copyHTML(html, {
+                    sanitizeHtml: true,
+                    preserveFormatting: true
+                });
                 if (success) {
                     showMessage('HTML 已复制到剪贴板');
-                    updateLastCopyTime();
                 } else {
                     showMessage('复制失败', 'error');
                 }
@@ -402,9 +462,11 @@
         });
         
         document.getElementById('copyHTMLWithFallback').addEventListener('click', async () => {
+            if (!clipboardManager) return;
+            
             const html = document.getElementById('htmlInput').value;
             try {
-                const success = await clipboard.fallbackCopyHTML(html);
+                const success = await clipboardManager.fallbackCopyHTML(html);
                 if (success) {
                     showMessage('HTML 已复制到剪贴板（降级方式）');
                     updateLastCopyTime();
@@ -417,12 +479,13 @@
         });
         
         document.getElementById('copyElementText').addEventListener('click', async () => {
+            if (!clipboardManager) return;
+            
             const element = document.getElementById('copyableElement');
             try {
-                const success = await clipboard.copyElement(element, { format: 'text' });
+                const success = await clipboardManager.copyElement(element, { format: 'text' });
                 if (success) {
                     showMessage('元素文本已复制到剪贴板');
-                    updateLastCopyTime();
                 } else {
                     showMessage('复制失败', 'error');
                 }
@@ -432,12 +495,13 @@
         });
         
         document.getElementById('copyElementHTML').addEventListener('click', async () => {
+            if (!clipboardManager) return;
+            
             const element = document.getElementById('copyableElement');
             try {
-                const success = await clipboard.copyElement(element, { format: 'html' });
+                const success = await clipboardManager.copyElement(element, { format: 'html' });
                 if (success) {
                     showMessage('元素 HTML 已复制到剪贴板');
-                    updateLastCopyTime();
                 } else {
                     showMessage('复制失败', 'error');
                 }
@@ -448,12 +512,13 @@
         
         // 点击元素复制
         document.getElementById('copyableElement').addEventListener('click', async () => {
+            if (!clipboardManager) return;
+            
             const element = document.getElementById('copyableElement');
             try {
-                const success = await clipboard.copyElement(element, { format: 'text' });
+                const success = await clipboardManager.copyElement(element, { format: 'text' });
                 if (success) {
                     showMessage('元素内容已复制到剪贴板');
-                    updateLastCopyTime();
                 } else {
                     showMessage('复制失败', 'error');
                 }
