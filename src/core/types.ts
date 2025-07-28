@@ -36,6 +36,10 @@ export enum ErrorType {
   CONFIG_ERROR = 'CONFIG_ERROR',
   /** 超时错误 - 操作超时 */
   TIMEOUT_ERROR = 'TIMEOUT_ERROR',
+  /** 验证错误 - 数据验证失败 */
+  VALIDATION_ERROR = 'VALIDATION_ERROR',
+  /** 内部错误 - 内部逻辑错误 */
+  INTERNAL_ERROR = 'INTERNAL_ERROR',
   /** 未知错误 - 其他未分类错误 */
   UNKNOWN_ERROR = 'UNKNOWN_ERROR'
 }

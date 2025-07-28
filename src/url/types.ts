@@ -2,6 +2,8 @@
  * URL 相关类型定义
  */
 
+import { BaseOptions } from '../core/types';
+
 /**
  * URL 解析结果对象
  */
@@ -67,4 +69,18 @@ export interface UrlValidateOptions {
   allowLocalhost?: boolean;
   /** 是否允许 IP 地址 */
   allowIp?: boolean;
+}
+
+/**
+ * URL 管理器配置选项
+ */
+export interface UrlManagerOptions extends BaseOptions {
+  /** 初始 URL */
+  url?: string;
+  /** 是否验证 URL */
+  validateUrls?: boolean;
+  /** 允许的协议列表 */
+  allowedProtocols?: string[];
+  /** 最大 URL 长度 */
+  maxUrlLength?: number;
 }

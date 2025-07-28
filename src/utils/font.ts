@@ -1,37 +1,37 @@
-import Font, { FontOptions, FontCheckResult, FontLoadResult } from '../font';
+import FontManager, { FontOptions, FontCheckResult, FontLoadResult } from '../font';
 
-// 全局字体检查器实例
-let globalFont: Font | null = null;
+// 全局字体管理器实例
+let globalFontManager: FontManager | null = null;
 
 /**
- * 获取或创建全局字体检查器实例
+ * 获取或创建全局字体管理器实例
  */
-function getGlobalFont(options?: FontOptions): Font {
-  if (!globalFont) {
-    globalFont = new Font(options);
+async function getGlobalFontManager(options?: FontOptions): Promise<FontManager> {
+  if (!globalFontManager) {
+    globalFontManager = new FontManager(options);
+    await globalFontManager.initialize();
   } else if (options) {
     // 如果已有实例但传入了新的选项，则更新实例的选项
-    if (options.timeout && options.timeout !== globalFont['options'].timeout) {
-      // 创建一个新的实例，使用新的超时设置
-      globalFont = new Font(options);
-    }
+    globalFontManager.updateOptions(options);
   }
-  return globalFont;
+  return globalFontManager;
 }
 
 /**
- * 创建字体检查器实例
+ * 创建字体管理器实例
  */
-export function createFont(options?: FontOptions): Font {
-  return new Font(options);
+export async function createFont(options?: FontOptions): Promise<FontManager> {
+  const fontManager = new FontManager(options);
+  await fontManager.initialize();
+  return fontManager;
 }
 
 /**
  * 检查单个字体是否已加载
  */
 export async function checkFont(fontName: string, options?: FontOptions): Promise<FontCheckResult> {
-  const checker = getGlobalFont(options);
-  const result = await checker.check(fontName);
+  const manager = await getGlobalFontManager(options);
+  const result = await manager.check(fontName);
   
   // 从allFonts中查找对应字体的结果
   const fontResult = result.allFonts.find(font => font.name === fontName);
@@ -39,30 +39,16 @@ export async function checkFont(fontName: string, options?: FontOptions): Promis
     return fontResult;
   }
   
-  // 额外检查：如果document.fonts.check返回false，则认为字体未加载
-  if (document.fonts && !document.fonts.check(`12px '${fontName}'`)) {
-    return { name: fontName, loaded: false, status: 'unloaded' };
-  }
-  
-  // 如果没有找到字体结果，说明字体已加载
-  return { name: fontName, loaded: true, status: 'loaded' };
+  // 如果没有找到字体结果，返回默认结果
+  return { name: fontName, loaded: false, status: 'not-found' };
 }
 
 /**
  * 检查多个字体是否已加载
  */
 export async function checkFonts(fontNames: string[], options?: FontOptions): Promise<FontLoadResult> {
-  // 单独检查每个字体
-  const results = await Promise.all(fontNames.map(name => checkFont(name, options)));
-  
-  // 查找加载失败的字体
-  const failedFonts = results.filter(font => !font.loaded);
-  
-  return {
-    success: failedFonts.length === 0,
-    allFonts: results,
-    ...(failedFonts.length > 0 ? { failedFonts } : {})
-  };
+  const manager = await getGlobalFontManager(options);
+  return await manager.check(fontNames);
 }
 
 /**
@@ -72,9 +58,9 @@ export async function checkFonts(fontNames: string[], options?: FontOptions): Pr
  * @param options 可选的FontFace配置选项
  * @returns 布尔值，表示是否添加成功
  */
-export function addFont(fontName: string, url: string, options?: FontFaceDescriptors, checkerOptions?: FontOptions): boolean {
-  const checker = getGlobalFont(checkerOptions);
-  return checker.addFont(fontName, url, options);
+export async function addFont(fontName: string, url: string, options?: FontFaceDescriptors, checkerOptions?: FontOptions): Promise<boolean> {
+  const manager = await getGlobalFontManager(checkerOptions);
+  return manager.addFont(fontName, url, options);
 }
 
 /**
@@ -82,28 +68,28 @@ export function addFont(fontName: string, url: string, options?: FontFaceDescrip
  * @param font FontFace 对象
  * @returns 布尔值，表示是否添加成功
  */
-export function addFontFace(font: FontFace, options?: FontOptions): boolean {
-  const checker = getGlobalFont(options);
-  return checker.addFontFace(font);
+export async function addFontFace(font: FontFace, options?: FontOptions): Promise<boolean> {
+  const manager = await getGlobalFontManager(options);
+  return manager.addFontFace(font);
 }
 
 /**
  * 删除字体
  * @param font FontFace对象或字体名称
- * @param options 字体检查器选项
+ * @param options 字体管理器选项
  * @returns 布尔值，表示是否删除成功
  */
-export function deleteFont(font: FontFace | string, options?: FontOptions): boolean {
-  const checker = getGlobalFont(options);
-  return checker.deleteFont(font);
+export async function deleteFont(font: FontFace | string, options?: FontOptions): Promise<boolean> {
+  const manager = await getGlobalFontManager(options);
+  return manager.deleteFont(font);
 }
 
 /**
  * 清除所有动态添加的字体
  */
-export function clearFonts(options?: FontOptions): boolean {
-  const checker = getGlobalFont(options);
-  return checker.clearFonts();
+export async function clearFonts(options?: FontOptions): Promise<boolean> {
+  const manager = await getGlobalFontManager(options);
+  return manager.clearFonts();
 }
 
 /**
@@ -120,8 +106,8 @@ export function isFontLoaded(fontName: string): boolean {
  * 等待字体加载完成
  */
 export async function waitForFonts(fontNames: string[], timeout?: number): Promise<FontLoadResult> {
-  const checker = getGlobalFont({ timeout });
-  return await checker.check(fontNames);
+  const manager = await getGlobalFontManager({ timeout });
+  return await manager.check(fontNames);
 }
 
 /**
@@ -133,55 +119,34 @@ export async function waitForFonts(fontNames: string[], timeout?: number): Promi
  * @param onError 加载失败回调
  * @returns 布尔值，表示是否成功添加字体（注意：这不代表字体已加载成功）
  */
-export function loadFont(
+export async function loadFont(
   fontName: string, 
   url: string, 
   options?: FontFaceDescriptors, 
   onSuccess?: () => void,
   onError?: (error: any, isCORSError: boolean) => void
-): boolean {
+): Promise<boolean> {
   try {
-    if (!document.fonts) {
-      console.error('当前环境不支持 CSS Font Loading API');
-      return false;
+    const manager = await getGlobalFontManager();
+    
+    // 监听字体加载事件
+    if (onSuccess) {
+      manager.once('fontLoaded', (event) => {
+        if (event.fontName === fontName) {
+          onSuccess();
+        }
+      });
     }
     
-    if (typeof FontFace !== 'function') {
-      console.error('当前环境不支持 FontFace API');
-      return false;
+    if (onError) {
+      manager.once('fontLoadError', (event) => {
+        if (event.fontName === fontName) {
+          onError(event.error, event.type === 'cors');
+        }
+      });
     }
     
-    // 创建FontFace对象
-    const fontFace = new FontFace(fontName, `url(${url})`, options);
-    
-    // 使用全局Font实例添加字体
-    const checker = getGlobalFont();
-    const added = checker.addFontFace(fontFace);
-    
-    if (!added) {
-      if (onError) onError(new Error('添加字体失败'), false);
-      return false;
-    }
-    
-    // 尝试加载字体
-    fontFace.load().then(() => {
-      if (onSuccess) onSuccess();
-      console.log(`字体 ${fontName} 加载成功`);
-    }).catch(error => {
-      // 检测是否是跨域错误
-      const isCORSError = isFontCORSError(error);
-      
-      if (isCORSError) {
-        console.error(`字体 ${fontName} 加载失败: 跨域资源共享(CORS)错误`);
-        console.error('请确保字体服务器设置了正确的CORS头部: Access-Control-Allow-Origin');
-      } else {
-        console.warn(`字体 ${fontName} 加载失败:`, error);
-      }
-      
-      if (onError) onError(error, isCORSError);
-    });
-    
-    return true;
+    return manager.addFont(fontName, url, options);
   } catch (error) {
     console.error('添加字体失败:', error);
     if (onError) onError(error, false);
@@ -236,4 +201,59 @@ export function isFontCORSError(error: any): boolean {
          errorString.includes('cross origin') ||
          errorString.includes('networkerror') ||
          errorString.includes('access-control-allow-origin');
-} 
+}
+
+/**
+ * 批量添加字体
+ * @param fonts 字体配置数组
+ * @returns 添加结果数组
+ */
+export async function addFonts(fonts: Array<{
+  name: string;
+  url: string;
+  options?: FontFaceDescriptors;
+}>, managerOptions?: FontOptions): Promise<Array<{ name: string; success: boolean; error?: string }>> {
+  const manager = await getGlobalFontManager(managerOptions);
+  return await manager.addFonts(fonts);
+}
+
+/**
+ * 预加载字体（检测可用性但不添加到文档）
+ * @param fontNames 字体名称数组
+ * @param options 字体管理器选项
+ * @returns 预加载结果
+ */
+export async function preloadFonts(fontNames: string[], options?: FontOptions): Promise<{
+  available: string[];
+  unavailable: string[];
+  cached: string[];
+}> {
+  const manager = await getGlobalFontManager(options);
+  return await manager.preloadFonts(fontNames);
+}
+
+/**
+ * 获取字体管理器性能统计
+ * @param options 字体管理器选项
+ * @returns 性能统计信息
+ */
+export async function getFontPerformanceStats(options?: FontOptions): Promise<{
+  totalFontsChecked: number;
+  cacheHitRate: number;
+  averageCheckTime: number;
+  loadingFonts: number;
+  loadedFonts: number;
+  failedFonts: number;
+}> {
+  const manager = await getGlobalFontManager(options);
+  return manager.getPerformanceStats();
+}
+
+/**
+ * 清理字体管理器缓存和过期状态
+ * @param options 字体管理器选项
+ */
+export async function cleanupFontManager(options?: FontOptions): Promise<void> {
+  const manager = await getGlobalFontManager(options);
+  manager.cleanup();
+}

@@ -15,6 +15,24 @@ export interface MobileDetectOptions {
 }
 
 /**
+ * 设备检测器配置选项
+ */
+export interface DeviceDetectorOptions extends MobileDetectOptions {
+  /** 是否启用调试模式 */
+  debug?: boolean;
+  /** 操作超时时间（毫秒） */
+  timeout?: number;
+  /** 失败重试次数 */
+  retries?: number;
+  /** 是否启用缓存 */
+  cache?: boolean;
+  /** 缓存过期时间（毫秒） */
+  cacheTTL?: number;
+  /** 是否启用性能监控 */
+  enablePerformanceMonitoring?: boolean;
+}
+
+/**
  * 设备类型枚举
  */
 export enum DeviceType {

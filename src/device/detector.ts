@@ -5,18 +5,48 @@
 import type { MobileDetectOptions } from './types';
 import { DeviceType, OSType, BrowserType } from './types';
 
+// 缓存检测结果
+const detectionCache = new Map<string, { result: boolean; timestamp: number }>();
+const CACHE_TTL = 5 * 60 * 1000; // 5分钟缓存
+
+/**
+ * 清理过期的缓存项
+ */
+function cleanupCache(): void {
+  const now = Date.now();
+  for (const [key, value] of detectionCache.entries()) {
+    if (now - value.timestamp > CACHE_TTL) {
+      detectionCache.delete(key);
+    }
+  }
+}
+
+/**
+ * 获取缓存的检测结果
+ */
+function getCachedResult(key: string): boolean | null {
+  cleanupCache();
+  const cached = detectionCache.get(key);
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    return cached.result;
+  }
+  return null;
+}
+
+/**
+ * 设置缓存的检测结果
+ */
+function setCachedResult(key: string, result: boolean): void {
+  detectionCache.set(key, { result, timestamp: Date.now() });
+}
+
 /**
  * 判断是否是手机
- * 基于 `https://github.com/matthewhudson/current-device`
+ * 基于 `https://github.com/matthewhudson/current-device` 并进行了优化
  * @param opts 配置选项
  * @returns 是否是手机
  */
 export function isMobile(opts?: MobileDetectOptions): boolean {
-  const mobileRE =
-    /(android|bb\d+|meego).+mobile|armv7l|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series[46]0|samsungbrowser.*mobile|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i;
-  const notMobileRE = /CrOS/;
-  const tabletRE = /android|ipad|playbook|silk/i;
-  
   if (!opts) opts = {};
   let ua = opts.ua;
   if (!ua && typeof navigator !== "undefined") ua = navigator.userAgent;
@@ -25,17 +55,57 @@ export function isMobile(opts?: MobileDetectOptions): boolean {
   }
   if (typeof ua !== "string") return false;
 
+  // 生成缓存键
+  const cacheKey = `mobile_${ua}_${!!opts.tablet}_${!!opts.featureDetect}`;
+  const cached = getCachedResult(cacheKey);
+  if (cached !== null) {
+    return cached;
+  }
+
+  // 更精确的移动设备正则表达式
+  const mobileRE = /(android|bb\d+|meego).+mobile|armv7l|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series[46]0|samsungbrowser.*mobile|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino|android.+mobile/i;
+  
+  // 排除的设备（如Chrome OS）
+  const notMobileRE = /CrOS|Windows NT/;
+  
+  // 平板设备检测
+  const tabletRE = /android(?!.*mobile)|ipad|playbook|silk|kindle/i;
+  
   let result = (mobileRE.test(ua) && !notMobileRE.test(ua)) || (!!opts.tablet && tabletRE.test(ua));
 
-  // iPad Pro的特殊检测：新版iPad在macOS上使用Safari浏览器时，会显示为桌面浏览器
-  // 但可以通过触摸点检测识别
-  if (!result && opts.tablet && opts.featureDetect && 
-      typeof navigator !== "undefined" && 
-      navigator.maxTouchPoints > 1 && 
-      ua.indexOf("Macintosh") !== -1 && 
-      ua.indexOf("Safari") !== -1) {
-    result = true;
+  // 增强的iPad Pro检测
+  if (!result && opts.featureDetect && typeof navigator !== "undefined") {
+    // 检测iPad Pro（在macOS上使用Safari时）
+    if (navigator.maxTouchPoints > 1 && 
+        ua.indexOf("Macintosh") !== -1 && 
+        ua.indexOf("Safari") !== -1 &&
+        !ua.indexOf("Chrome") !== -1) {
+      result = !!opts.tablet;
+    }
+    
+    // 检测其他触摸设备
+    if (!result && navigator.maxTouchPoints > 0) {
+      // 检查屏幕尺寸来区分手机和平板
+      if (typeof window !== 'undefined') {
+        const screenWidth = window.screen.width;
+        const screenHeight = window.screen.height;
+        const minDimension = Math.min(screenWidth, screenHeight);
+        const maxDimension = Math.max(screenWidth, screenHeight);
+        
+        // 手机通常较小
+        if (minDimension < 768 && maxDimension < 1024) {
+          result = true;
+        }
+        // 平板尺寸
+        else if (opts.tablet && minDimension >= 768) {
+          result = true;
+        }
+      }
+    }
   }
+
+  // 缓存结果
+  setCachedResult(cacheKey, result);
   return result;
 }
 
@@ -76,16 +146,44 @@ export function getDeviceType(opts?: MobileDetectOptions): DeviceType {
 export function detectOS(ua?: string): OSType {
   const userAgent = ua || (typeof navigator !== 'undefined' ? navigator.userAgent : '');
   
+  // 生成缓存键
+  const cacheKey = `os_${userAgent}`;
+  const cached = getCachedResult(cacheKey);
+  if (cached !== null) {
+    return cached as OSType;
+  }
+  
+  let result: OSType;
+  
+  // 更精确的操作系统检测
   // 先检测移动设备操作系统，避免被 macOS 匹配
-  if (/iphone|ipad|ipod/i.test(userAgent)) return OSType.IOS;
-  if (/android/i.test(userAgent)) return OSType.ANDROID;
+  if (/iphone|ipad|ipod/i.test(userAgent)) {
+    result = OSType.IOS;
+  } else if (/android/i.test(userAgent)) {
+    result = OSType.ANDROID;
+  }
+  // 检测桌面操作系统
+  else if (/windows nt|win32|win64|wow64/i.test(userAgent)) {
+    result = OSType.WINDOWS;
+  } else if (/macintosh|mac os x|darwin/i.test(userAgent)) {
+    // 排除iOS设备伪装成macOS的情况
+    if (!/iphone|ipad|ipod/i.test(userAgent)) {
+      result = OSType.MACOS;
+    } else {
+      result = OSType.IOS;
+    }
+  } else if (/linux|x11/i.test(userAgent) && !/android/i.test(userAgent)) {
+    result = OSType.LINUX;
+  } else if (/cros/i.test(userAgent)) {
+    // Chrome OS 特殊处理
+    result = OSType.LINUX;
+  } else {
+    result = OSType.UNKNOWN;
+  }
   
-  // 再检测桌面操作系统
-  if (/windows/i.test(userAgent)) return OSType.WINDOWS;
-  if (/macintosh|mac os x/i.test(userAgent)) return OSType.MACOS;
-  if (/linux/i.test(userAgent)) return OSType.LINUX;
-  
-  return OSType.UNKNOWN;
+  // 缓存结果（使用字符串形式缓存）
+  detectionCache.set(cacheKey, { result: result as any, timestamp: Date.now() });
+  return result;
 }
 
 /**
@@ -96,14 +194,35 @@ export function detectOS(ua?: string): OSType {
 export function detectBrowser(ua?: string): BrowserType {
   const userAgent = ua || (typeof navigator !== 'undefined' ? navigator.userAgent : '');
   
-  if (/edg/i.test(userAgent)) return BrowserType.EDGE;
-  if (/chrome/i.test(userAgent) && !/edg/i.test(userAgent)) return BrowserType.CHROME;
-  if (/firefox/i.test(userAgent)) return BrowserType.FIREFOX;
-  if (/safari/i.test(userAgent) && !/chrome/i.test(userAgent)) return BrowserType.SAFARI;
-  if (/msie|trident/i.test(userAgent)) return BrowserType.IE;
-  if (/opera|opr/i.test(userAgent)) return BrowserType.OPERA;
+  // 生成缓存键
+  const cacheKey = `browser_${userAgent}`;
+  const cached = getCachedResult(cacheKey);
+  if (cached !== null) {
+    return cached as BrowserType;
+  }
   
-  return BrowserType.UNKNOWN;
+  let result: BrowserType;
+  
+  // 更精确的浏览器检测，按优先级排序
+  if (/edg(?:e|ios|a)?/i.test(userAgent)) {
+    result = BrowserType.EDGE;
+  } else if (/opr\/|opera/i.test(userAgent)) {
+    result = BrowserType.OPERA;
+  } else if (/chrome|crios|crmo/i.test(userAgent) && !/edg/i.test(userAgent)) {
+    result = BrowserType.CHROME;
+  } else if (/firefox|fxios/i.test(userAgent)) {
+    result = BrowserType.FIREFOX;
+  } else if (/safari/i.test(userAgent) && !/chrome|crios|crmo|edg|opr|opera/i.test(userAgent)) {
+    result = BrowserType.SAFARI;
+  } else if (/msie|trident/i.test(userAgent)) {
+    result = BrowserType.IE;
+  } else {
+    result = BrowserType.UNKNOWN;
+  }
+  
+  // 缓存结果
+  detectionCache.set(cacheKey, { result: result as any, timestamp: Date.now() });
+  return result;
 }
 
 /**
