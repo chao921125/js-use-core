@@ -530,18 +530,27 @@
         // HTML 输入框变化时更新预览
         document.getElementById('htmlInput').addEventListener('input', updateHTMLPreview);
         
-        // 初始化
-        updateStatus();
-        updateHTMLPreview();
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', async () => {
+            await initializeClipboard();
+            updateHTMLPreview();
+            
+            // 检查支持性并禁用不支持的按钮
+            if (!clipboardManager || !clipboardManager.isSupported) {
+                const buttons = document.querySelectorAll('button:not([id*="Fallback"])');
+                buttons.forEach(button => {
+                    button.disabled = true;
+                });
+                showMessage('当前浏览器不支持现代剪贴板 API，将使用降级方式', 'error');
+            }
+        });
         
-        // 禁用不支持的按钮
-        if (!clipboard.isSupported) {
-            const buttons = document.querySelectorAll('button:not([id*="Fallback"])');
-            buttons.forEach(button => {
-                button.disabled = true;
-            });
-            showMessage('当前浏览器不支持现代剪贴板 API，将使用降级方式', 'error');
-        }
+        // 页面卸载时清理资源
+        window.addEventListener('beforeunload', () => {
+            if (clipboardManager && typeof clipboardManager.destroy === 'function') {
+                clipboardManager.destroy();
+            }
+        });
     </script>
 </body>
 </html> 

@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>js-use-core 综合演示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .demo-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .demo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        .demo-card h2 {
+            margin-bottom: 20px;
+            color: #fff;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .demo-card .icon {
+            font-size: 1.8rem;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+        
+        input::placeholder, textarea::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        button:disabled {
+            background: rgba(255, 255, 255, 0.2);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        button.secondary {
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+        }
+        
+        button.danger {
+            background: linear-gradient(45deg, #f44336, #d32f2f);
+        }
+        
+        .status-panel {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+        
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .status-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        .status-label {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .status-value {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        
+        .message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            max-width: 350px;
+        }
+        
+        .message.show {
+            transform: translateX(0);
+        }
+        
+        .message.success {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+        }
+        
+        .message.error {
+            background: linear-gradient(45deg, #f44336, #d32f2f);
+        }
+        
+        .message.warning {
+            background: linear-gradient(45deg, #ff9800, #f57c00);
+        }
+        
+        .fullscreen-demo {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 15px 0;
+        }
+        
+        .fullscreen-demo:hover {
+            transform: scale(1.02);
+        }
+        
+        .font-demo {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: center;
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+        
+        .copyable-content {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .copyable-content:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .device-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .device-info-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .performance-chart {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        
+        .performance-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .performance-label {
+            width: 100px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .performance-value {
+            flex: 1;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 0 10px;
+        }
+        
+        .performance-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #45a049);
+            transition: width 0.3s ease;
+        }
+        
+        .performance-text {
+            font-size: 12px;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 js-use-core 综合演示</h1>
+        
+        <div class="demo-grid">
+            <!-- 全屏功能演示 -->
+            <div class="demo-card">
+                <h2><span class="icon">🖥️</span>全屏功能</h2>
+                <div class="fullscreen-demo" id="fullscreenDemo">
+                    <h3>点击进入全屏模式</h3>
+                    <p>支持页面和元素全屏</p>
+                </div>
+                <div class="button-group">
+                    <button id="requestFullscreen">页面全屏</button>
+                    <button id="requestElementFullscreen" class="secondary">元素全屏</button>
+                    <button id="exitFullscreen" class="danger">退出全屏</button>
+                </div>
+                <div class="status-panel" id="fullscreenStatus">
+                    <div class="status-item">
+                        <span class="status-label">支持状态:</span>
+                        <span class="status-value" id="fullscreenSupported">检测中...</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">当前状态:</span>
+                        <span class="status-value" id="fullscreenCurrent">检测中...</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 剪贴板功能演示 -->
+            <div class="demo-card">
+                <h2><span class="icon">📋</span>剪贴板功能</h2>
+                <div class="input-group">
+                    <label for="clipboardText">文本内容:</label>
+                    <input type="text" id="clipboardText" placeholder="输入要复制的文本" value="Hello, js-use-core!">
+                </div>
+                <div class="input-group">
+                    <label for="clipboardHtml">HTML 内容:</label>
+                    <textarea id="clipboardHtml" rows="3" placeholder="输入 HTML 内容"><strong>粗体文本</strong> 和 <em>斜体文本</em></textarea>
+                </div>
+                <div class="copyable-content" id="copyableContent">
+                    <h4>可复制的内容</h4>
+                    <p>点击这个区域复制内容到剪贴板</p>
+                </div>
+                <div class="button-group">
+                    <button id="copyText">复制文本</button>
+                    <button id="copyHtml" class="secondary">复制 HTML</button>
+                    <button id="readClipboard" class="secondary">读取剪贴板</button>
+                </div>
+                <div class="status-panel" id="clipboardStatus">
+                    <div class="status-item">
+                        <span class="status-label">API 支持:</span>
+                        <span class="status-value" id="clipboardSupported">检测中...</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">最后操作:</span>
+                        <span class="status-value" id="clipboardLastAction">无</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 字体功能演示 -->
+            <div class="demo-card">
+                <h2><span class="icon">🔤</span>字体功能</h2>
+                <div class="input-group">
+                    <label for="fontName">字体名称:</label>
+                    <input type="text" id="fontName" placeholder="输入字体名称" value="Arial">
+                </div>
+                <div class="input-group">
+                    <label for="fontUrl">字体 URL (可选):</label>
+                    <input type="text" id="fontUrl" placeholder="输入字体文件 URL">
+                </div>
+                <div class="font-demo" id="fontDemo" style="font-family: Arial;">
+                    这是字体演示文本 - Font Demo Text
+                </div>
+                <div class="button-group">
+                    <button id="checkFont">检查字体</button>
+                    <button id="addFont" class="secondary">添加字体</button>
+                    <button id="checkMultipleFonts" class="secondary">批量检查</button>
+                </div>
+                <div class="status-panel" id="fontStatus">
+                    <div class="status-item">
+                        <span class="status-label">检查结果:</span>
+                        <span class="status-value" id="fontCheckResult">未检查</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">加载时间:</span>
+                        <span class="status-value" id="fontLoadTime">-</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- URL 功能演示 -->
+            <div class="demo-card">
+                <h2><span class="icon">🔗</span>URL 功能</h2>
+                <div class="input-group">
+                    <label for="urlInput">URL 地址:</label>
+                    <input type="text" id="urlInput" placeholder="输入 URL" value="https://example.com/api">
+                </div>
+                <div class="input-group">
+                    <label for="queryKey">查询参数键:</label>
+                    <input type="text" id="queryKey" placeholder="参数名" value="page">
+                </div>
+                <div class="input-group">
+                    <label for="queryValue">查询参数值:</label>
+                    <input type="text" id="queryValue" placeholder="参数值" value="1">
+                </div>
+                <div class="button-group">
+                    <button id="parseUrl">解析 URL</button>
+                    <button id="addQuery" class="secondary">添加参数</button>
+                    <button id="buildUrl" class="secondary">构建 URL</button>
+                </div>
+                <div class="status-panel" id="urlStatus">
+                    <div class="status-item">
+                        <span class="status-label">解析结果:</span>
+                        <span class="status-value" id="urlParseResult">未解析</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">构建结果:</span>
+                        <span class="status-value" id="urlBuildResult">-</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 设备检测演示 -->
+            <div class="demo-card">
+                <h2><span class="icon">📱</span>设备检测</h2>
+                <div class="button-group">
+                    <button id="detectDevice">检测设备</button>
+                    <button id="refreshDeviceInfo" class="secondary">刷新信息</button>
+                </div>
+                <div class="device-info" id="deviceInfo">
+                    <div class="device-info-item">
+                        <div>设备类型</div>
+                        <div id="deviceType">检测中...</div>
+                    </div>
+                    <div class="device-info-item">
+                        <div>操作系统</div>
+                        <div id="deviceOS">检测中...</div>
+                    </div>
+                    <div class="device-info-item">
+                        <div>浏览器</div>
+                        <div id="deviceBrowser">检测中...</div>
+                    </div>
+                    <div class="device-info-item">
+                        <div>屏幕尺寸</div>
+                        <div id="deviceScreen">检测中...</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- User Agent 解析演示 -->
+            <div class="demo-card">
+                <h2><span class="icon">🔍</span>User Agent 解析</h2>
+                <div class="input-group">
+                    <label for="uaInput">User Agent 字符串:</label>
+                    <textarea id="uaInput" rows="3" placeholder="输入 User Agent 字符串"></textarea>
+                </div>
+                <div class="button-group">
+                    <button id="parseUA">解析 UA</button>
+                    <button id="getCurrentUA" class="secondary">获取当前 UA</button>
+                    <button id="compareUA" class="secondary">版本比较</button>
+                </div>
+                <div class="status-panel" id="uaStatus">
+                    <div class="status-item">
+                        <span class="status-label">浏览器:</span>
+                        <span class="status-value" id="uaBrowser">未解析</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">版本:</span>
+                        <span class="status-value" id="uaVersion">-</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">操作系统:</span>
+                        <span class="status-value" id="uaOS">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 性能监控面板 -->
+        <div class="demo-card">
+            <h2><span class="icon">📊</span>性能监控</h2>
+            <div class="performance-chart" id="performanceChart">
+                <div class="performance-bar">
+                    <div class="performance-label">全屏操作</div>
+                    <div class="performance-value">
+                        <div class="performance-fill" id="fullscreenPerf" style="width: 0%"></div>
+                    </div>
+                    <div class="performance-text" id="fullscreenPerfText">0ms</div>
+                </div>
+                <div class="performance-bar">
+                    <div class="performance-label">剪贴板操作</div>
+                    <div class="performance-value">
+                        <div class="performance-fill" id="clipboardPerf" style="width: 0%"></div>
+                    </div>
+                    <div class="performance-text" id="clipboardPerfText">0ms</div>
+                </div>
+                <div class="performance-bar">
+                    <div class="performance-label">字体检测</div>
+                    <div class="performance-value">
+                        <div class="performance-fill" id="fontPerf" style="width: 0%"></div>
+                    </div>
+                    <div class="performance-text" id="fontPerfText">0ms</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 引入 js-use-core 库 -->
+    <script src="../dist/index.umd.js"></script>
+    
+    <script>
+        // 全局管理器实例
+        let managers = {
+            fullscreen: null,
+            clipboard: null,
+            font: null,
+            url: null,
+            device: null
+        };
+        
+        // 消息显示函数
+        function showMessage(message, type = 'success') {
+            const messageEl = document.createElement('div');
+            messageEl.className = `message ${type}`;
+            messageEl.textContent = message;
+            document.body.appendChild(messageEl);
+            
+            setTimeout(() => messageEl.classList.add('show'), 100);
+            
+            setTimeout(() => {
+                messageEl.classList.remove('show');
+                setTimeout(() => document.body.removeChild(messageEl), 300);
+            }, 3000);
+        }
+        
+        // 更新性能图表
+        function updatePerformanceChart(module, time) {
+            const maxTime = 1000; // 最大时间 1000ms
+            const percentage = Math.min((time / maxTime) * 100, 100);
+            
+            const fillEl = document.getElementById(`${module}Perf`);
+            const textEl = document.getElementById(`${module}PerfText`);
+            
+            if (fillEl && textEl) {
+                fillEl.style.width = percentage + '%';
+                textEl.textContent = time + 'ms';
+            }
+        }
+        
+        // 初始化所有管理器
+        async function initializeManagers() {
+            try {
+                // 初始化全屏管理器
+                if (jsUseCore.FullscreenManager) {
+                    managers.fullscreen = new jsUseCore.FullscreenManager({
+                        enablePerformanceMonitoring: true,
+                        debug: true
+                    });
+                    await managers.fullscreen.initialize();
+                    
+                    managers.fullscreen.on('change', () => {
+                        updateFullscreenStatus();
+                    });
+                    
+                    managers.fullscreen.on('request', () => {
+                        const perfData = managers.fullscreen.performanceData;
+                        updatePerformanceChart('fullscreen', perfData.enterTime);
+                    });
+                }
+                
+                // 初始化剪贴板管理器
+                if (jsUseCore.ClipboardManager) {
+                    managers.clipboard = new jsUseCore.ClipboardManager({
+                        enablePermissionCheck: true,
+                        enableFallback: true,
+                        debug: true
+                    });
+                    await managers.clipboard.initialize();
+                    
+                    managers.clipboard.on('copy', (data) => {
+                        document.getElementById('clipboardLastAction').textContent = 
+                            `复制 ${data.type} (${data.size} 字节)`;
+                    });
+                }
+                
+                // 初始化字体管理器
+                if (jsUseCore.FontManager) {
+                    managers.font = new jsUseCore.FontManager({
+                        timeout: 3000,
+                        cache: true,
+                        debug: true
+                    });
+                    await managers.font.initialize();
+                    
+                    managers.font.on('fontLoaded', (data) => {
+                        showMessage(`字体 ${data.fontName} 加载成功`);
+                        updatePerformanceChart('font', data.loadTime);
+                    });
+                }
+                
+                // 初始化 URL 管理器
+                if (jsUseCore.UrlManager) {
+                    managers.url = new jsUseCore.UrlManager();
+                }
+                
+                // 初始化设备检测器
+                if (jsUseCore.DeviceDetector) {
+                    managers.device = new jsUseCore.DeviceDetector();
+                    await managers.device.initialize();
+                }
+                
+                // 更新状态显示
+                updateAllStatus();
+                showMessage('所有管理器初始化完成');
+                
+            } catch (error) {
+                console.error('初始化管理器失败:', error);
+                showMessage('初始化失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 更新全屏状态
+        function updateFullscreenStatus() {
+            if (managers.fullscreen) {
+                document.getElementById('fullscreenSupported').textContent = 
+                    managers.fullscreen.isSupported ? '支持' : '不支持';
+                document.getElementById('fullscreenCurrent').textContent = 
+                    managers.fullscreen.isFullscreen ? '全屏中' : '正常';
+            }
+        }
+        
+        // 更新剪贴板状态
+        function updateClipboardStatus() {
+            if (managers.clipboard) {
+                document.getElementById('clipboardSupported').textContent = 
+                    managers.clipboard.isSupported ? '支持' : '不支持';
+            }
+        }
+        
+        // 更新所有状态
+        function updateAllStatus() {
+            updateFullscreenStatus();
+            updateClipboardStatus();
+            
+            // 设置当前 UA
+            if (navigator.userAgent) {
+                document.getElementById('uaInput').value = navigator.userAgent;
+            }
+        }
+        
+        // 绑定全屏事件
+        document.getElementById('requestFullscreen').addEventListener('click', async () => {
+            if (!managers.fullscreen) return;
+            try {
+                await managers.fullscreen.request();
+                showMessage('已进入全屏模式');
+            } catch (error) {
+                showMessage('全屏失败: ' + error.message, 'error');
+            }
+        });
+        
+        document.getElementById('requestElementFullscreen').addEventListener('click', async () => {
+            if (!managers.fullscreen) return;
+            try {
+                const element = document.getElementById('fullscreenDemo');
+                await managers.fullscreen.request(element);
+                showMessage('元素已进入全屏模式');
+            } catch (error) {
+                showMessage('元素全屏失败: ' + error.message, 'error');
+            }
+        });
+        
+        document.getElementById('exitFullscreen').addEventListener('click', async () => {
+            if (!managers.fullscreen) return;
+            try {
+                await managers.fullscreen.exit();
+                showMessage('已退出全屏模式');
+            } catch (error) {
+                showMessage('退出全屏失败: ' + error.message, 'error');
+            }
+        });
+        
+        // 点击演示区域进入全屏
+        document.getElementById('fullscreenDemo').addEventListener('click', async () => {
+            if (!managers.fullscreen) return;
+            try {
+                await managers.fullscreen.toggle(document.getElementById('fullscreenDemo'));
+            } catch (error) {
+                showMessage('切换全屏失败: ' + error.message, 'error');
+            }
+        });
+        
+        // 绑定剪贴板事件
+        document.getElementById('copyText').addEventListener('click', async () => {
+            if (!managers.clipboard) return;
+            try {
+                const text = document.getElementById('clipboardText').value;
+                await managers.clipboard.copyText(text);
+                showMessage('文本已复制到剪贴板');
+            } catch (error) {
+                showMessage('复制失败: ' + error.message, 'error');
+            }
+        });
+        
+        document.getElementById('copyHtml').addEventListener('click', async () => {
+            if (!managers.clipboard) return;
+            try {
+                const html = document.getElementById('clipboardHtml').value;
+                await managers.clipboard.copyHTML(html);
+                showMessage('HTML 已复制到剪贴板');
+            } catch (error) {
+                showMessage('复制失败: ' + error.message, 'error');
+            }
+        });
+        
+        document.getElementById('readClipboard').addEventListener('click', async () => {
+            if (!managers.clipboard) return;
+            try {
+                const text = await managers.clipboard.readText();
+                showMessage('剪贴板内容: ' + text.substring(0, 50) + (text.length > 50 ? '...' : ''));
+            } catch (error) {
+                showMessage('读取失败: ' + error.message, 'error');
+            }
+        });
+        
+        // 点击可复制内容
+        document.getElementById('copyableContent').addEventListener('click', async () => {
+            if (!managers.clipboard) return;
+            try {
+                const element = document.getElementById('copyableContent');
+                await managers.clipboard.copyElement(element);
+                showMessage('内容已复制到剪贴板');
+            } catch (error) {
+                showMessage('复制失败: ' + error.message, 'error');
+            }
+        });
+        
+        // 绑定字体事件
+        document.getElementById('checkFont').addEventListener('click', async () => {
+            if (!managers.font) return;
+            try {
+                const fontName = document.getElementById('fontName').value;
+                const startTime = performance.now();
+                const result = await managers.font.check(fontName);
+                const endTime = performance.now();
+                
+                const font = result.allFonts[0];
+                document.getElementById('fontCheckResult').textContent = 
+                    font.loaded ? '已加载' : '未加载';
+                document.getElementById('fontLoadTime').textContent = 
+                    Math.round(endTime - startTime) + 'ms';
+                
+                // 更新字体演示
+                if (font.loaded) {
+                    document.getElementById('fontDemo').style.fontFamily = fontName;
+                }
+                
+                updatePerformanceChart('font', endTime - startTime);
+                showMessage(`字体检测完成: ${font.loaded ? '已加载' : '未加载'}`);
+            } catch (error) {
+                showMessage('字体检测失败: ' + error.message, 'error');
+            }
+        });
+        
+        document.getElementById('addFont').addEventListener('click', () => {
+            if (!managers.font) return;
+            try {
+                const fontName = document.getElementById('fontName').value;
+                const fontUrl = document.getElementById('fontUrl').value;
+                
+                if (!fontUrl) {
+                    showMessage('请输入字体 URL', 'warning');
+                    return;
+                }
+                
+                const success = managers.font.addFont(fontName, fontUrl);
+                if (success) {
+                    showMessage('字体添加成功，正在加载...');
+                } else {
+                    showMessage('字体添加失败', 'error');
+                }
+            } catch (error) {
+                showMessage('添加字体失败: ' + error.message, 'error');
+            }
+        });
+        
+        document.getElementById('checkMultipleFonts').addEventListener('click', async () => {
+            if (!managers.font) return;
+            try {
+                const fonts = ['Arial', 'Helvetica', 'Times New Roman', 'Georgia', 'Verdana'];
+                const startTime = performance.now();
+                const result = await managers.font.check(fonts);
+                const endTime = performance.now();
+                
+                const loadedCount = result.allFonts.filter(f => f.loaded).length;
+                showMessage(`批量检测完成: ${loadedCount}/${fonts.length} 个字体已加载`);
+                updatePerformanceChart('font', endTime - startTime);
+            } catch (error) {
+                showMessage('批量检测失败: ' + error.message, 'error');
+            }
+        });
+        
+        // 绑定 URL 事件
+        document.getElementById('parseUrl').addEventListener('click', () => {
+            try {
+                const url = document.getElementById('urlInput').value;
+                if (managers.url) {
+                    managers.url = new jsUseCore.UrlManager(url);
+                    const parsed = managers.url.parse();
+                    document.getElementById('urlParseResult').textContent = 
+                        `${parsed.protocol}//${parsed.host}${parsed.pathname}`;
+                    showMessage('URL 解析完成');
+                }
+            } catch (error) {
+                showMessage('URL 解析失败: ' + error.message, 'error');
+            }
+        });
+        
+        document.getElementById('addQuery').addEventListener('click', () => {
+            try {
+                const key = document.getElementById('queryKey').value;
+                const value = document.getElementById('queryValue').value;
+                
+                if (managers.url && key && value) {
+                    managers.url.addQuery({ [key]: value });
+                    document.getElementById('urlBuildResult').textContent = managers.url.toString();
+                    showMessage('查询参数已添加');
+                }
+            } catch (error) {
+                showMessage('添加参数失败: ' + error.message, 'error');
+            }
+        });
+        
+        document.getElementById('buildUrl').addEventListener('click', () => {
+            try {
+                if (managers.url) {
+                    const built = managers.url.toString();
+                    document.getElementById('urlBuildResult').textContent = built;
+                    showMessage('URL 构建完成');
+                }
+            } catch (error) {
+                showMessage('URL 构建失败: ' + error.message, 'error');
+            }
+        });
+        
+        // 绑定设备检测事件
+        document.getElementById('detectDevice').addEventListener('click', async () => {
+            if (!managers.device) return;
+            try {
+                await managers.device.detect();
+                updateDeviceInfo();
+                showMessage('设备检测完成');
+            } catch (error) {
+                showMessage('设备检测失败: ' + error.message, 'error');
+            }
+        });
+        
+        document.getElementById('refreshDeviceInfo').addEventListener('click', () => {
+            updateDeviceInfo();
+            showMessage('设备信息已刷新');
+        });
+        
+        function updateDeviceInfo() {
+            if (managers.device) {
+                document.getElementById('deviceType').textContent = 
+                    managers.device.isMobile ? '移动设备' : 
+                    managers.device.isTablet ? '平板设备' : '桌面设备';
+                document.getElementById('deviceOS').textContent = 
+                    managers.device.os?.name || '未知';
+                document.getElementById('deviceBrowser').textContent = 
+                    managers.device.browser?.name || '未知';
+                document.getElementById('deviceScreen').textContent = 
+                    `${screen.width}x${screen.height}`;
+            }
+        }
+        
+        // 绑定 UA 解析事件
+        document.getElementById('parseUA').addEventListener('click', () => {
+            try {
+                const uaString = document.getElementById('uaInput').value;
+                if (jsUseCore.UA && uaString) {
+                    const parsed = jsUseCore.UA.parse(uaString);
+                    document.getElementById('uaBrowser').textContent = 
+                        parsed.browser?.name || '未知';
+                    document.getElementById('uaVersion').textContent = 
+                        parsed.browser?.version || '未知';
+                    document.getElementById('uaOS').textContent = 
+                        parsed.os?.name || '未知';
+                    showMessage('User Agent 解析完成');
+                }
+            } catch (error) {
+                showMessage('UA 解析失败: ' + error.message, 'error');
+            }
+        });
+        
+        document.getElementById('getCurrentUA').addEventListener('click', () => {
+            try {
+                if (jsUseCore.UA) {
+                    const current = jsUseCore.UA.parse(navigator.userAgent);
+                    document.getElementById('uaBrowser').textContent = 
+                        current.browser?.name || '未知';
+                    document.getElementById('uaVersion').textContent = 
+                        current.browser?.version || '未知';
+                    document.getElementById('uaOS').textContent = 
+                        current.os?.name || '未知';
+                    showMessage('当前 UA 信息已获取');
+                }
+            } catch (error) {
+                showMessage('获取 UA 失败: ' + error.message, 'error');
+            }
+        });
+        
+        document.getElementById('compareUA').addEventListener('click', () => {
+            try {
+                if (jsUseCore.UA) {
+                    const current = jsUseCore.UA.parse(navigator.userAgent);
+                    const isModern = jsUseCore.UA.satisfies(current, 'Chrome >= 80');
+                    showMessage(`浏览器版本检查: ${isModern ? '现代浏览器' : '旧版浏览器'}`);
+                }
+            } catch (error) {
+                showMessage('版本比较失败: ' + error.message, 'error');
+            }
+        });
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', async () => {
+            showMessage('正在初始化管理器...', 'warning');
+            await initializeManagers();
+        });
+        
+        // 页面卸载时清理资源
+        window.addEventListener('beforeunload', () => {
+            Object.values(managers).forEach(manager => {
+                if (manager && typeof manager.destroy === 'function') {
+                    manager.destroy();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

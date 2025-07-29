@@ -1,257 +1,694 @@
-/**
- * file React 示例
- * 
- * 这个示例展示了如何在React应用中使用file库
- * 注意：这只是一个示例组件，需要在React项目中使用
- */
+import React, { useState, useEffect, useRef } from 'react';
+import { 
+  FullscreenManager, 
+  ClipboardManager, 
+  FontManager,
+  UrlManager,
+  DeviceDetector,
+  UA
+} from 'js-use-core';
 
-import React, { useState } from 'react';
-import {
-  fileToBase64,
-  base64ToFile,
-  imgCompress,
-  imgConvert,
-  checkFileType
-} from 'js-use-core'; // 假设已经安装了js-use-core包
+// 全屏功能组件
+function FullscreenDemo() {
+  const [fullscreenManager, setFullscreenManager] = useState(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isSupported, setIsSupported] = useState(false);
+  const elementRef = useRef(null);
 
-const FileUtilDemo = () => {
-  const [base64Result, setBase64Result] = useState('');
-  const [fileResult, setFileResult] = useState(null);
-  const [originalImage, setOriginalImage] = useState(null);
-  const [processedImage, setProcessedImage] = useState(null);
-  const [processInfo, setProcessInfo] = useState('');
+  useEffect(() => {
+    const initFullscreen = async () => {
+      try {
+        const manager = new FullscreenManager({
+          enablePerformanceMonitoring: true,
+          debug: true
+        });
+        
+        await manager.initialize();
+        
+        manager.on('change', (data) => {
+          setIsFullscreen(data.isFullscreen);
+        });
+        
+        setFullscreenManager(manager);
+        setIsSupported(manager.isSupported);
+        setIsFullscreen(manager.isFullscreen);
+      } catch (error) {
+        console.error('初始化全屏管理器失败:', error);
+      }
+    };
 
-  // 文件转Base64
-  const handleFileToBase64 = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
+    initFullscreen();
 
+    return () => {
+      if (fullscreenManager) {
+        fullscreenManager.destroy();
+      }
+    };
+  }, []);
+
+  const handleRequestFullscreen = async () => {
+    if (!fullscreenManager) return;
     try {
-      const base64 = await fileToBase64(file);
-      setBase64Result(base64);
+      await fullscreenManager.request();
     } catch (error) {
-      console.error('文件转Base64失败:', error);
-      alert(`转换失败: ${error.message}`);
+      console.error('进入全屏失败:', error);
     }
   };
 
-  // Base64转文件
-  const handleBase64ToFile = () => {
-    if (!base64Result) {
-      alert('请先转换文件为Base64');
-      return;
-    }
-
+  const handleRequestElementFullscreen = async () => {
+    if (!fullscreenManager || !elementRef.current) return;
     try {
-      const file = base64ToFile(base64Result);
-      setFileResult(file);
-
-      // 创建下载链接
-      const url = URL.createObjectURL(file);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = file.name;
-      a.click();
-      URL.revokeObjectURL(url);
+      await fullscreenManager.request(elementRef.current);
     } catch (error) {
-      console.error('Base64转文件失败:', error);
-      alert(`转换失败: ${error.message}`);
+      console.error('元素全屏失败:', error);
     }
   };
 
-  // 图片压缩
-  const handleImageCompress = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const fileType = checkFileType(file);
-    if (!fileType.isImage) {
-      alert('请选择图片文件');
-      return;
-    }
-
-    // 显示原图
-    setOriginalImage(URL.createObjectURL(file));
-    setProcessedImage(null);
-    setProcessInfo('');
-
+  const handleExitFullscreen = async () => {
+    if (!fullscreenManager) return;
     try {
-      // 压缩图片
-      const compressedFile = await imgCompress(file, {
-        quality: 0.7,
-        maxWidth: 800,
-        maxHeight: 800
-      });
-
-      // 显示压缩后的图片
-      setProcessedImage(URL.createObjectURL(compressedFile));
-      setProcessInfo(`压缩后大小: ${(compressedFile.size / 1024).toFixed(2)} KB (原大小: ${(file.size / 1024).toFixed(2)} KB)`);
+      await fullscreenManager.exit();
     } catch (error) {
-      console.error('图片压缩失败:', error);
-      alert(`压缩失败: ${error.message}`);
-    }
-  };
-
-  // 图片格式转换
-  const handleImageConvert = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const fileType = checkFileType(file);
-    if (!fileType.isImage) {
-      alert('请选择图片文件');
-      return;
-    }
-
-    // 显示原图
-    setOriginalImage(URL.createObjectURL(file));
-    setProcessedImage(null);
-    setProcessInfo('');
-
-    try {
-      // 转换图片格式为WebP
-      const convertedFile = await imgConvert(file, {
-        format: 'webp',
-        quality: 0.9
-      });
-
-      // 显示转换后的图片
-      setProcessedImage(URL.createObjectURL(convertedFile));
-      setProcessInfo(`转换为WebP格式，大小: ${(convertedFile.size / 1024).toFixed(2)} KB (原大小: ${(file.size / 1024).toFixed(2)} KB)`);
-    } catch (error) {
-      console.error('图片格式转换失败:', error);
-      alert(`转换失败: ${error.message}`);
+      console.error('退出全屏失败:', error);
     }
   };
 
   return (
-    <div className="file-demo">
-      <h1>file React 示例</h1>
-
-      <div className="demo-section">
-        <h2>文件转Base64</h2>
-        <input type="file" onChange={handleFileToBase64} />
-        {base64Result && (
-          <div className="result">
-            <h3>Base64结果:</h3>
-            <div className="base64-preview">
-              {base64Result.substring(0, 50)}...
-            </div>
-            <button onClick={handleBase64ToFile}>转换回文件并下载</button>
-          </div>
-        )}
-        {fileResult && (
-          <div className="result">
-            <h3>文件信息:</h3>
-            <p>名称: {fileResult.name}</p>
-            <p>大小: {fileResult.size} 字节</p>
-            <p>类型: {fileResult.type}</p>
-          </div>
-        )}
+    <div className="demo-section">
+      <h2>🖥️ 全屏功能演示</h2>
+      
+      <div 
+        ref={elementRef}
+        className="fullscreen-element"
+        onClick={handleRequestElementFullscreen}
+        style={{
+          padding: '20px',
+          background: 'linear-gradient(45deg, #ff6b6b, #4ecdc4)',
+          borderRadius: '10px',
+          textAlign: 'center',
+          cursor: 'pointer',
+          margin: '10px 0'
+        }}
+      >
+        <h3>点击进入元素全屏</h3>
+        <p>或使用下面的按钮控制全屏</p>
       </div>
 
-      <div className="demo-section">
-        <h2>图片处理</h2>
-        <div className="image-tools">
-          <div>
-            <h3>图片压缩</h3>
-            <input type="file" accept="image/*" onChange={handleImageCompress} />
-            <button onClick={() => document.querySelector('input[type="file"]').click()}>选择图片压缩</button>
-          </div>
-          <div>
-            <h3>图片格式转换</h3>
-            <input type="file" accept="image/*" onChange={handleImageConvert} />
-            <button onClick={() => document.querySelectorAll('input[type="file"]')[1].click()}>选择图片转换为WebP</button>
-          </div>
+      <div className="button-group">
+        <button onClick={handleRequestFullscreen} disabled={!isSupported}>
+          页面全屏
+        </button>
+        <button onClick={handleRequestElementFullscreen} disabled={!isSupported}>
+          元素全屏
+        </button>
+        <button onClick={handleExitFullscreen} disabled={!isSupported}>
+          退出全屏
+        </button>
+      </div>
+
+      <div className="status">
+        <p>支持状态: {isSupported ? '✅ 支持' : '❌ 不支持'}</p>
+        <p>当前状态: {isFullscreen ? '🔲 全屏中' : '🔳 正常'}</p>
+      </div>
+    </div>
+  );
+}
+
+// 剪贴板功能组件
+function ClipboardDemo() {
+  const [clipboardManager, setClipboardManager] = useState(null);
+  const [textInput, setTextInput] = useState('Hello, js-use-core!');
+  const [htmlInput, setHtmlInput] = useState('<strong>粗体文本</strong> 和 <em>斜体文本</em>');
+  const [isSupported, setIsSupported] = useState(false);
+  const [lastAction, setLastAction] = useState('无');
+
+  useEffect(() => {
+    const initClipboard = async () => {
+      try {
+        const manager = new ClipboardManager({
+          enablePermissionCheck: true,
+          enableFallback: true,
+          debug: true
+        });
+        
+        await manager.initialize();
+        
+        manager.on('copy', (data) => {
+          setLastAction(`复制 ${data.type} (${data.size} 字节)`);
+        });
+        
+        manager.on('read', (data) => {
+          setLastAction(`读取 ${data.type} (${data.size} 字节)`);
+        });
+        
+        setClipboardManager(manager);
+        setIsSupported(manager.isSupported);
+      } catch (error) {
+        console.error('初始化剪贴板管理器失败:', error);
+      }
+    };
+
+    initClipboard();
+
+    return () => {
+      if (clipboardManager) {
+        clipboardManager.destroy();
+      }
+    };
+  }, []);
+
+  const handleCopyText = async () => {
+    if (!clipboardManager) return;
+    try {
+      await clipboardManager.copyText(textInput);
+      alert('文本已复制到剪贴板');
+    } catch (error) {
+      alert('复制失败: ' + error.message);
+    }
+  };
+
+  const handleCopyHTML = async () => {
+    if (!clipboardManager) return;
+    try {
+      await clipboardManager.copyHTML(htmlInput);
+      alert('HTML 已复制到剪贴板');
+    } catch (error) {
+      alert('复制失败: ' + error.message);
+    }
+  };
+
+  const handleReadClipboard = async () => {
+    if (!clipboardManager) return;
+    try {
+      const text = await clipboardManager.readText();
+      alert('剪贴板内容: ' + text.substring(0, 100));
+    } catch (error) {
+      alert('读取失败: ' + error.message);
+    }
+  };
+
+  return (
+    <div className="demo-section">
+      <h2>📋 剪贴板功能演示</h2>
+      
+      <div className="input-group">
+        <label>文本内容:</label>
+        <input 
+          type="text" 
+          value={textInput}
+          onChange={(e) => setTextInput(e.target.value)}
+          placeholder="输入要复制的文本"
+        />
+      </div>
+
+      <div className="input-group">
+        <label>HTML 内容:</label>
+        <textarea 
+          value={htmlInput}
+          onChange={(e) => setHtmlInput(e.target.value)}
+          placeholder="输入 HTML 内容"
+          rows="3"
+        />
+      </div>
+
+      <div className="button-group">
+        <button onClick={handleCopyText} disabled={!isSupported}>
+          复制文本
+        </button>
+        <button onClick={handleCopyHTML} disabled={!isSupported}>
+          复制 HTML
+        </button>
+        <button onClick={handleReadClipboard} disabled={!isSupported}>
+          读取剪贴板
+        </button>
+      </div>
+
+      <div className="status">
+        <p>API 支持: {isSupported ? '✅ 支持' : '❌ 不支持'}</p>
+        <p>最后操作: {lastAction}</p>
+      </div>
+    </div>
+  );
+}
+
+// 字体功能组件
+function FontDemo() {
+  const [fontManager, setFontManager] = useState(null);
+  const [fontName, setFontName] = useState('Arial');
+  const [fontUrl, setFontUrl] = useState('');
+  const [checkResult, setCheckResult] = useState('未检查');
+  const [loadTime, setLoadTime] = useState('-');
+
+  useEffect(() => {
+    const initFont = async () => {
+      try {
+        const manager = new FontManager({
+          timeout: 3000,
+          cache: true,
+          debug: true
+        });
+        
+        await manager.initialize();
+        
+        manager.on('fontLoaded', (data) => {
+          alert(`字体 ${data.fontName} 加载成功`);
+          setLoadTime(data.loadTime + 'ms');
+        });
+        
+        manager.on('fontLoadError', (data) => {
+          alert(`字体 ${data.fontName} 加载失败: ${data.error.message}`);
+        });
+        
+        setFontManager(manager);
+      } catch (error) {
+        console.error('初始化字体管理器失败:', error);
+      }
+    };
+
+    initFont();
+
+    return () => {
+      if (fontManager) {
+        fontManager.destroy();
+      }
+    };
+  }, []);
+
+  const handleCheckFont = async () => {
+    if (!fontManager) return;
+    try {
+      const startTime = performance.now();
+      const result = await fontManager.check(fontName);
+      const endTime = performance.now();
+      
+      const font = result.allFonts[0];
+      setCheckResult(font.loaded ? '已加载' : '未加载');
+      setLoadTime(Math.round(endTime - startTime) + 'ms');
+      
+      alert(`字体检测完成: ${font.loaded ? '已加载' : '未加载'}`);
+    } catch (error) {
+      alert('字体检测失败: ' + error.message);
+    }
+  };
+
+  const handleAddFont = () => {
+    if (!fontManager) return;
+    if (!fontUrl) {
+      alert('请输入字体 URL');
+      return;
+    }
+    
+    try {
+      const success = fontManager.addFont(fontName, fontUrl);
+      if (success) {
+        alert('字体添加成功，正在加载...');
+      } else {
+        alert('字体添加失败');
+      }
+    } catch (error) {
+      alert('添加字体失败: ' + error.message);
+    }
+  };
+
+  const handleBatchCheck = async () => {
+    if (!fontManager) return;
+    try {
+      const fonts = ['Arial', 'Helvetica', 'Times New Roman', 'Georgia', 'Verdana'];
+      const result = await fontManager.check(fonts);
+      const loadedCount = result.allFonts.filter(f => f.loaded).length;
+      alert(`批量检测完成: ${loadedCount}/${fonts.length} 个字体已加载`);
+    } catch (error) {
+      alert('批量检测失败: ' + error.message);
+    }
+  };
+
+  return (
+    <div className="demo-section">
+      <h2>🔤 字体功能演示</h2>
+      
+      <div className="input-group">
+        <label>字体名称:</label>
+        <input 
+          type="text" 
+          value={fontName}
+          onChange={(e) => setFontName(e.target.value)}
+          placeholder="输入字体名称"
+        />
+      </div>
+
+      <div className="input-group">
+        <label>字体 URL (可选):</label>
+        <input 
+          type="text" 
+          value={fontUrl}
+          onChange={(e) => setFontUrl(e.target.value)}
+          placeholder="输入字体文件 URL"
+        />
+      </div>
+
+      <div 
+        className="font-demo"
+        style={{
+          fontFamily: fontName,
+          padding: '20px',
+          background: 'rgba(0,0,0,0.1)',
+          borderRadius: '8px',
+          textAlign: 'center',
+          margin: '10px 0'
+        }}
+      >
+        这是字体演示文本 - Font Demo Text
+      </div>
+
+      <div className="button-group">
+        <button onClick={handleCheckFont}>检查字体</button>
+        <button onClick={handleAddFont}>添加字体</button>
+        <button onClick={handleBatchCheck}>批量检查</button>
+      </div>
+
+      <div className="status">
+        <p>检查结果: {checkResult}</p>
+        <p>检测时间: {loadTime}</p>
+      </div>
+    </div>
+  );
+}
+
+// 设备检测组件
+function DeviceDemo() {
+  const [deviceDetector, setDeviceDetector] = useState(null);
+  const [deviceInfo, setDeviceInfo] = useState({
+    type: '检测中...',
+    os: '检测中...',
+    browser: '检测中...',
+    screen: '检测中...'
+  });
+
+  useEffect(() => {
+    const initDevice = async () => {
+      try {
+        const detector = new DeviceDetector();
+        await detector.initialize();
+        
+        setDeviceDetector(detector);
+        updateDeviceInfo(detector);
+      } catch (error) {
+        console.error('初始化设备检测器失败:', error);
+      }
+    };
+
+    initDevice();
+
+    return () => {
+      if (deviceDetector) {
+        deviceDetector.destroy();
+      }
+    };
+  }, []);
+
+  const updateDeviceInfo = (detector) => {
+    if (!detector) return;
+    
+    setDeviceInfo({
+      type: detector.isMobile ? '移动设备' : 
+            detector.isTablet ? '平板设备' : '桌面设备',
+      os: detector.os?.name || '未知',
+      browser: detector.browser?.name || '未知',
+      screen: `${screen.width}x${screen.height}`
+    });
+  };
+
+  const handleDetectDevice = async () => {
+    if (!deviceDetector) return;
+    try {
+      await deviceDetector.detect();
+      updateDeviceInfo(deviceDetector);
+      alert('设备检测完成');
+    } catch (error) {
+      alert('设备检测失败: ' + error.message);
+    }
+  };
+
+  const handleRefreshInfo = () => {
+    updateDeviceInfo(deviceDetector);
+    alert('设备信息已刷新');
+  };
+
+  return (
+    <div className="demo-section">
+      <h2>📱 设备检测演示</h2>
+      
+      <div className="button-group">
+        <button onClick={handleDetectDevice}>检测设备</button>
+        <button onClick={handleRefreshInfo}>刷新信息</button>
+      </div>
+
+      <div className="device-info" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px', marginTop: '15px' }}>
+        <div style={{ padding: '10px', background: 'rgba(0,0,0,0.1)', borderRadius: '6px' }}>
+          <div>设备类型</div>
+          <div>{deviceInfo.type}</div>
         </div>
+        <div style={{ padding: '10px', background: 'rgba(0,0,0,0.1)', borderRadius: '6px' }}>
+          <div>操作系统</div>
+          <div>{deviceInfo.os}</div>
+        </div>
+        <div style={{ padding: '10px', background: 'rgba(0,0,0,0.1)', borderRadius: '6px' }}>
+          <div>浏览器</div>
+          <div>{deviceInfo.browser}</div>
+        </div>
+        <div style={{ padding: '10px', background: 'rgba(0,0,0,0.1)', borderRadius: '6px' }}>
+          <div>屏幕尺寸</div>
+          <div>{deviceInfo.screen}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
-        {(originalImage || processedImage) && (
-          <div className="image-preview">
-            {originalImage && (
-              <div className="preview-item">
-                <h3>原图</h3>
-                <img src={originalImage} alt="原图" />
-              </div>
-            )}
-            {processedImage && (
-              <div className="preview-item">
-                <h3>处理后</h3>
-                <img src={processedImage} alt="处理后" />
-                <p>{processInfo}</p>
-              </div>
-            )}
-          </div>
-        )}
+// User Agent 解析组件
+function UADemo() {
+  const [uaInput, setUaInput] = useState(navigator.userAgent);
+  const [parseResult, setParseResult] = useState({
+    browser: '未解析',
+    version: '-',
+    os: '-'
+  });
+
+  const handleParseUA = () => {
+    try {
+      if (UA && uaInput) {
+        const parsed = UA.parse(uaInput);
+        setParseResult({
+          browser: parsed.browser?.name || '未知',
+          version: parsed.browser?.version || '未知',
+          os: parsed.os?.name || '未知'
+        });
+        alert('User Agent 解析完成');
+      }
+    } catch (error) {
+      alert('UA 解析失败: ' + error.message);
+    }
+  };
+
+  const handleGetCurrentUA = () => {
+    try {
+      if (UA) {
+        const current = UA.parse(navigator.userAgent);
+        setParseResult({
+          browser: current.browser?.name || '未知',
+          version: current.browser?.version || '未知',
+          os: current.os?.name || '未知'
+        });
+        alert('当前 UA 信息已获取');
+      }
+    } catch (error) {
+      alert('获取 UA 失败: ' + error.message);
+    }
+  };
+
+  const handleCompareUA = () => {
+    try {
+      if (UA) {
+        const current = UA.parse(navigator.userAgent);
+        const isModern = UA.satisfies(current, 'Chrome >= 80');
+        alert(`浏览器版本检查: ${isModern ? '现代浏览器' : '旧版浏览器'}`);
+      }
+    } catch (error) {
+      alert('版本比较失败: ' + error.message);
+    }
+  };
+
+  return (
+    <div className="demo-section">
+      <h2>🔍 User Agent 解析演示</h2>
+      
+      <div className="input-group">
+        <label>User Agent 字符串:</label>
+        <textarea 
+          value={uaInput}
+          onChange={(e) => setUaInput(e.target.value)}
+          placeholder="输入 User Agent 字符串"
+          rows="3"
+        />
       </div>
 
+      <div className="button-group">
+        <button onClick={handleParseUA}>解析 UA</button>
+        <button onClick={handleGetCurrentUA}>获取当前 UA</button>
+        <button onClick={handleCompareUA}>版本比较</button>
+      </div>
+
+      <div className="status">
+        <p>浏览器: {parseResult.browser}</p>
+        <p>版本: {parseResult.version}</p>
+        <p>操作系统: {parseResult.os}</p>
+      </div>
+    </div>
+  );
+}
+
+// 主应用组件
+function App() {
+  return (
+    <div className="app" style={{ 
+      fontFamily: 'Arial, sans-serif', 
+      maxWidth: '1200px', 
+      margin: '0 auto', 
+      padding: '20px',
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      minHeight: '100vh',
+      color: 'white'
+    }}>
+      <h1 style={{ textAlign: 'center', marginBottom: '40px' }}>
+        🚀 js-use-core React 演示
+      </h1>
+      
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', 
+        gap: '30px' 
+      }}>
+        <div style={{ 
+          background: 'rgba(255, 255, 255, 0.1)', 
+          borderRadius: '15px', 
+          padding: '25px',
+          backdropFilter: 'blur(10px)'
+        }}>
+          <FullscreenDemo />
+        </div>
+        
+        <div style={{ 
+          background: 'rgba(255, 255, 255, 0.1)', 
+          borderRadius: '15px', 
+          padding: '25px',
+          backdropFilter: 'blur(10px)'
+        }}>
+          <ClipboardDemo />
+        </div>
+        
+        <div style={{ 
+          background: 'rgba(255, 255, 255, 0.1)', 
+          borderRadius: '15px', 
+          padding: '25px',
+          backdropFilter: 'blur(10px)'
+        }}>
+          <FontDemo />
+        </div>
+        
+        <div style={{ 
+          background: 'rgba(255, 255, 255, 0.1)', 
+          borderRadius: '15px', 
+          padding: '25px',
+          backdropFilter: 'blur(10px)'
+        }}>
+          <DeviceDemo />
+        </div>
+        
+        <div style={{ 
+          background: 'rgba(255, 255, 255, 0.1)', 
+          borderRadius: '15px', 
+          padding: '25px',
+          backdropFilter: 'blur(10px)',
+          gridColumn: '1 / -1'
+        }}>
+          <UADemo />
+        </div>
+      </div>
+      
       <style jsx>{`
-        .file-demo {
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-          max-width: 800px;
-          margin: 0 auto;
-          padding: 20px;
+        .button-group {
+          display: flex;
+          gap: 10px;
+          flex-wrap: wrap;
+          margin-top: 15px;
         }
-        .demo-section {
-          margin-bottom: 30px;
-          border: 1px solid #eee;
-          padding: 20px;
-          border-radius: 5px;
-        }
-        h1 {
-          color: #333;
-        }
-        h2 {
-          color: #555;
-          margin-top: 0;
-        }
+        
         button {
-          background-color: #4CAF50;
+          padding: 10px 20px;
           border: none;
+          border-radius: 8px;
+          background: linear-gradient(45deg, #4CAF50, #45a049);
           color: white;
-          padding: 10px 15px;
-          text-align: center;
-          text-decoration: none;
-          display: inline-block;
-          font-size: 14px;
-          margin: 4px 2px;
           cursor: pointer;
-          border-radius: 4px;
+          font-size: 14px;
+          font-weight: 500;
+          transition: all 0.3s ease;
         }
-        input[type="file"] {
-          margin: 10px 0;
+        
+        button:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
-        .result {
-          margin-top: 10px;
-          padding: 10px;
-          background-color: #f5f5f5;
-          border-radius: 4px;
+        
+        button:disabled {
+          background: rgba(255, 255, 255, 0.2);
+          cursor: not-allowed;
+          transform: none;
+          box-shadow: none;
         }
-        .base64-preview {
-          word-break: break-all;
+        
+        .input-group {
+          margin-bottom: 15px;
+        }
+        
+        .input-group label {
+          display: block;
+          margin-bottom: 5px;
+          font-weight: 500;
+          color: rgba(255, 255, 255, 0.9);
+        }
+        
+        input, textarea {
+          width: 100%;
+          padding: 12px;
+          border: none;
+          border-radius: 8px;
+          background: rgba(255, 255, 255, 0.1);
+          color: white;
+          font-size: 14px;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          box-sizing: border-box;
+        }
+        
+        input::placeholder, textarea::placeholder {
+          color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .status {
+          margin-top: 15px;
+          padding: 15px;
+          background: rgba(0, 0, 0, 0.2);
+          border-radius: 8px;
           font-family: monospace;
-          margin: 10px 0;
+          font-size: 13px;
         }
-        .image-tools {
-          display: flex;
-          gap: 20px;
-        }
-        .image-preview {
-          display: flex;
-          gap: 20px;
-          margin-top: 20px;
-        }
-        .preview-item {
-          flex: 1;
-        }
-        img {
-          max-width: 100%;
-          max-height: 300px;
-          border: 1px solid #ddd;
-          border-radius: 4px;
+        
+        .status p {
+          margin: 5px 0;
         }
       `}</style>
     </div>
   );
-};
+}
 
-export default FileUtilDemo;
+export default App;
