@@ -533,7 +533,14 @@ export class BrowserAdapter {
     if (legacyElement.attachEvent) {
       const wrappedHandler = (e: Event) => {
         // 修正事件对象
-        e.target = e.target || e.srcElement;
+        if (!e.target && (e as any).srcElement) {
+          Object.defineProperty(e, 'target', {
+            value: (e as any).srcElement,
+            writable: false,
+            enumerable: true,
+            configurable: true
+          });
+        }
         e.preventDefault = e.preventDefault || (() => { e.returnValue = false; });
         e.stopPropagation = e.stopPropagation || (() => { e.cancelBubble = true; });
         handler.call(element, e);

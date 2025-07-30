@@ -4,14 +4,7 @@
 
 import { ScreenOrientation, NetworkType, DevicePerformanceInfo, DeviceCapabilities } from './types';
 
-// 导入检测函数
-import { 
-  supportsWebGL, 
-  supportsWebGL2, 
-  supportsWebAssembly, 
-  supportsServiceWorker, 
-  supportsWebWorkers 
-} from './detector';
+// 这些函数在 detector.ts 中不存在，所以在这里直接实现
 
 // 缓存屏幕信息以提高性能
 let cachedScreenInfo: { width: number; height: number; pixelRatio: number } | null = null;
@@ -325,7 +318,8 @@ export function supportsWebGL(): boolean {
   
   try {
     const canvas = document.createElement('canvas');
-    return !!(canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
+    const context = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    return !!context;
   } catch {
     return false;
   }
@@ -340,11 +334,14 @@ export function supportsWebGL2(): boolean {
   
   try {
     const canvas = document.createElement('canvas');
-    return !!canvas.getContext('webgl2');
+    const context = canvas.getContext('webgl2');
+    return !!context;
   } catch {
     return false;
   }
 }
+
+
 
 /**
  * 获取 GPU 信息
@@ -666,7 +663,7 @@ export function getPerformanceOptimizationSuggestions(): {
   }
   
   return {
-    level: performance.level,
+    level: performance.level === 'unknown' ? 'medium' : performance.level,
     suggestions,
     settings
   };

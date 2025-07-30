@@ -8,7 +8,7 @@ import {
   clearFonts,
   isFontLoaded,
   waitForFonts
-} from '../../src/utils/font';
+} from '../../src/font/utils';
 
 // Mock document.fonts
 const mockFonts = {
@@ -272,7 +272,7 @@ describe('fontUtils', () => {
 
   describe('batch operations', () => {
     it('应该支持批量添加字体', async () => {
-      const { addFonts } = await import('../../src/utils/font');
+      const { addFonts } = await import('../../src/font/utils');
       
       const fonts = [
         { name: 'Font1', url: '/font1.woff2' },
@@ -286,7 +286,7 @@ describe('fontUtils', () => {
     });
 
     it('应该支持字体预加载', async () => {
-      const { preloadFonts } = await import('../../src/utils/font');
+      const { preloadFonts } = await import('../../src/font/utils');
       
       const result = await preloadFonts(['Arial', 'Helvetica', 'NonExistentFont']);
       expect(result).toBeDefined();
@@ -296,7 +296,7 @@ describe('fontUtils', () => {
     });
 
     it('应该提供性能统计信息', async () => {
-      const { getFontPerformanceStats } = await import('../../src/utils/font');
+      const { getFontPerformanceStats } = await import('../../src/font/utils');
       
       const stats = await getFontPerformanceStats();
       expect(stats).toBeDefined();
@@ -309,7 +309,7 @@ describe('fontUtils', () => {
     });
 
     it('应该支持清理功能', async () => {
-      const { cleanupFontManager } = await import('../../src/utils/font');
+      const { cleanupFontManager } = await import('../../src/font/utils');
       
       // 应该不抛出错误
       await expect(cleanupFontManager()).resolves.toBeUndefined();

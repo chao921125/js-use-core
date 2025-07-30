@@ -1,4 +1,28 @@
-import FontManager, { FontOptions, FontCheckResult, FontLoadResult } from '../font';
+import FontManager from './index';
+
+// 重新定义这些类型以避免循环依赖
+export interface FontOptions {
+  timeout?: number;
+  retries?: number;
+  cache?: boolean;
+  concurrency?: number;
+  detectionThreshold?: number;
+}
+
+export interface FontCheckResult {
+  name: string;
+  loaded: boolean;
+  status: string;
+  loadTime?: number;
+  error?: string;
+}
+
+export interface FontLoadResult {
+  success: boolean;
+  allFonts: FontCheckResult[];
+  failedFonts?: FontCheckResult[];
+  totalLoadTime?: number;
+}
 
 // 全局字体管理器实例
 let globalFontManager: FontManager | null = null;

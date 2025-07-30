@@ -2,6 +2,8 @@
  * UA 相关类型定义
  */
 
+import { BaseOptions } from '../types/core';
+
 /**
  * 浏览器信息
  */
@@ -107,11 +109,7 @@ export interface VersionRange {
 /**
  * UA 管理器选项
  */
-export interface UAManagerOptions {
-  debug?: boolean;
-  timeout?: number;
-  retries?: number;
-  cache?: boolean;
+export interface UAManagerOptions extends BaseOptions {
   enablePlugins?: boolean;
   maxCacheSize?: number;
   parseTimeout?: number;

@@ -185,16 +185,19 @@ export class FullscreenManager extends BaseManager<FullscreenOptions> {
     }
 
     // 检查各种浏览器的全屏支持
-    const supported = !!(
-      'fullscreenEnabled' in document ||
-      'webkitFullscreenEnabled' in document ||
-      'mozFullScreenEnabled' in document ||
-      'msFullscreenEnabled' in document ||
-      'requestFullscreen' in document.documentElement ||
-      'webkitRequestFullscreen' in document.documentElement ||
-      'mozRequestFullScreen' in document.documentElement ||
-      'msRequestFullscreen' in document.documentElement
-    );
+    let supported = false;
+    if (typeof document !== 'undefined') {
+      supported = !!(
+        'fullscreenEnabled' in document ||
+        'webkitFullscreenEnabled' in document ||
+        'mozFullScreenEnabled' in document ||
+        'msFullscreenEnabled' in document ||
+        'requestFullscreen' in document.documentElement ||
+        'webkitRequestFullscreen' in document.documentElement ||
+        'mozRequestFullScreen' in document.documentElement ||
+        'msRequestFullscreen' in document.documentElement
+      );
+    }
 
     this.setCached(cacheKey, supported, 60000); // 缓存1分钟
     return supported;
@@ -741,7 +744,6 @@ export function resetFullscreenManager(): void {
 const fullscreen = getFullscreenManager();
 
 export default fullscreen;
-export { FullscreenManager };
 
 // ============================================================================
 // 便捷函数导出

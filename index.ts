@@ -7,7 +7,6 @@ export { FullscreenManager } from "./src/fullscreen";
 export type {
   FullscreenOptions,
   FullscreenEventType,
-  FullscreenEventListener,
 } from "./src/fullscreen";
 
 // 导出剪贴板功能
@@ -26,25 +25,55 @@ export * from "./src/utils/dom";
 // file 文件操作相关导出
 export * from "./src/file";
 export * from "./src/image";
-export * from "./src/types";
-export * from "./src/utils";
+// Export specific types to avoid conflicts
+export type { 
+  QueryParams,
+  FileTypeResult,
+  ImageCompressOptions,
+  ImageConvertOptions,
+  ImageFormat,
+  EventListenerOptions
+} from "./src/types";
+// Export specific utils to avoid conflicts
+export { getBrowserAdapter } from "./src/utils";
 
 // font 字体功能相关导出
 export { default as font } from "./src/font";
 export type { FontCheckResult, FontLoadResult, FontOptions } from "./src/font";
-export * from "./src/utils/font";
+export * from "./src/font/utils";
 
 // url URL功能相关导出
 export { default as url } from "./src/url";
-export * from "./src/url";
+// Export specific URL functions
+export { 
+  UrlManager,
+  createUrlManager
+} from "./src/url";
 
 // device 设备检测功能相关导出
 export { default as device } from "./src/device";
-export * from "./src/device";
+// Export specific device functions to avoid conflicts
+export { 
+  DeviceDetector,
+  getDeviceInfo,
+  isMobile,
+  isTablet,
+  isDesktop,
+  isTouchDevice,
+  isRetinaDisplay,
+  getDevicePerformanceInfo,
+  getPerformanceOptimizationSuggestions
+} from "./src/device";
 
 // ua User Agent功能相关导出
 export { default as ua } from "./src/ua";
-export * from "./src/ua";
+// Export specific UA functions to avoid conflicts
+export { 
+  parseUA,
+  generateUA,
+  compareVersions,
+  UAManager
+} from "./src/ua";
 
 // 默认导出
 import * as core from "./src/core";

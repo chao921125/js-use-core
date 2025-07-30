@@ -19,7 +19,7 @@ import {
   isFile,
   getFileExtension,
   getMimeTypeFromExtension
-} from '../utils/file';
+} from './utils';
 
 /**
  * 文件管理器配置选项
@@ -70,6 +70,7 @@ export class FileManager extends BaseManager<FileManagerOptions> {
       timeout: 30000,
       retries: 2,
       cache: true,
+      cacheTTL: 300000, // 5分钟
       maxFileSize: 10 * 1024 * 1024, // 10MB
       allowedTypes: [],
       enableTypeValidation: true,
@@ -680,6 +681,8 @@ export function blobToFile(blob: Blob, filename?: string): File {
   return result.result;
 }
 
-// 导出类和类型
-export { FileManager };
-export type { FileManagerOptions, FileConversionResult };
+// 导出类和类型已在上面定义时完成
+
+// 导出工具函数
+export * from './utils';
+export * from './types';

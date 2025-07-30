@@ -6,7 +6,7 @@ import type { MobileDetectOptions } from './types';
 import { DeviceType, OSType, BrowserType } from './types';
 
 // 缓存检测结果
-const detectionCache = new Map<string, { result: boolean; timestamp: number }>();
+const detectionCache = new Map<string, { result: any; timestamp: number }>();
 const CACHE_TTL = 5 * 60 * 1000; // 5分钟缓存
 
 /**
@@ -24,11 +24,11 @@ function cleanupCache(): void {
 /**
  * 获取缓存的检测结果
  */
-function getCachedResult(key: string): boolean | null {
+function getCachedResult<T = boolean>(key: string): T | null {
   cleanupCache();
   const cached = detectionCache.get(key);
   if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-    return cached.result;
+    return cached.result as T;
   }
   return null;
 }
@@ -36,7 +36,7 @@ function getCachedResult(key: string): boolean | null {
 /**
  * 设置缓存的检测结果
  */
-function setCachedResult(key: string, result: boolean): void {
+function setCachedResult<T = boolean>(key: string, result: T): void {
   detectionCache.set(key, { result, timestamp: Date.now() });
 }
 
@@ -79,7 +79,7 @@ export function isMobile(opts?: MobileDetectOptions): boolean {
     if (navigator.maxTouchPoints > 1 && 
         ua.indexOf("Macintosh") !== -1 && 
         ua.indexOf("Safari") !== -1 &&
-        !ua.indexOf("Chrome") !== -1) {
+        ua.indexOf("Chrome") === -1) {
       result = !!opts.tablet;
     }
     
@@ -148,9 +148,9 @@ export function detectOS(ua?: string): OSType {
   
   // 生成缓存键
   const cacheKey = `os_${userAgent}`;
-  const cached = getCachedResult(cacheKey);
+  const cached = getCachedResult<OSType>(cacheKey);
   if (cached !== null) {
-    return cached as OSType;
+    return cached;
   }
   
   let result: OSType;
@@ -181,8 +181,8 @@ export function detectOS(ua?: string): OSType {
     result = OSType.UNKNOWN;
   }
   
-  // 缓存结果（使用字符串形式缓存）
-  detectionCache.set(cacheKey, { result: result as any, timestamp: Date.now() });
+  // 缓存结果
+  setCachedResult(cacheKey, result);
   return result;
 }
 
@@ -196,9 +196,9 @@ export function detectBrowser(ua?: string): BrowserType {
   
   // 生成缓存键
   const cacheKey = `browser_${userAgent}`;
-  const cached = getCachedResult(cacheKey);
+  const cached = getCachedResult<BrowserType>(cacheKey);
   if (cached !== null) {
-    return cached as BrowserType;
+    return cached;
   }
   
   let result: BrowserType;
@@ -221,7 +221,7 @@ export function detectBrowser(ua?: string): BrowserType {
   }
   
   // 缓存结果
-  detectionCache.set(cacheKey, { result: result as any, timestamp: Date.now() });
+  setCachedResult(cacheKey, result);
   return result;
 }
 

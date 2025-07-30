@@ -10,14 +10,7 @@ import { satisfies, isModern } from './comparator';
 import { BaseManager } from '../core/BaseManager';
 import { BaseOptions } from '../types/core';
 
-/**
- * UA 管理器选项接口
- */
-export interface UAManagerOptions extends BaseOptions {
-  enablePlugins?: boolean;
-  maxCacheSize?: number;
-  parseTimeout?: number;
-}
+
 
 /**
  * UA 管理器类 - 继承 BaseManager
@@ -48,6 +41,7 @@ export class UAManager extends BaseManager<UAManagerOptions> {
       timeout: 5000,
       retries: 1,
       cache: true,
+      cacheTTL: 300000, // 5 minutes
       enablePlugins: true,
       maxCacheSize: 1000,
       parseTimeout: 1000
@@ -433,6 +427,22 @@ export class UAManager extends BaseManager<UAManagerOptions> {
       source: result.source
     }) as Readonly<ParsedUA>;
   }
+
+  /**
+   * 清除缓存
+   */
+  public clearCache(): void {
+    if (this.cache) {
+      this.cache.clear();
+    }
+  }
+
+  /**
+   * 获取缓存大小
+   */
+  public getCacheSize(): number {
+    return this.cache?.size() || 0;
+  }
 }
 
 /**
@@ -525,10 +535,7 @@ export class UA {
    * 清除解析缓存
    */
   static clearCache(): void {
-    const manager = UA.getManager();
-    if (manager.cache) {
-      manager.cache.clear();
-    }
+    UA.getManager().clearCache();
   }
 
   /**
@@ -536,7 +543,7 @@ export class UA {
    * @returns 缓存大小
    */
   static getCacheSize(): number {
-    return UA.getManager().cache?.size() || 0;
+    return UA.getManager().getCacheSize();
   }
 
   /**

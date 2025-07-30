@@ -635,7 +635,7 @@ export class ClipboardManager extends BaseManager<ClipboardManagerOptions> {
           throw permissionResult.error || this.errorHandler.createError(
             ErrorType.PERMISSION_ERROR,
             'Clipboard read permission denied',
-            { context: { method: 'readText', permission: permissionResult.state } }
+            { context: { method: 'readText', extra: { permission: permissionResult.state } } }
           );
         }
       }
@@ -652,7 +652,7 @@ export class ClipboardManager extends BaseManager<ClipboardManagerOptions> {
         throw this.errorHandler.createError(
           ErrorType.USER_ERROR,
           `Clipboard text exceeds maximum size limit (${options.maxSize} characters)`,
-          { context: { method: 'readText', size: text.length, maxSize: options.maxSize } }
+          { context: { method: 'readText', extra: { size: text.length, maxSize: options.maxSize } } }
         );
       }
 
@@ -712,7 +712,7 @@ export class ClipboardManager extends BaseManager<ClipboardManagerOptions> {
           throw this.errorHandler.createError(
             ErrorType.PERMISSION_ERROR,
             'Clipboard read permission denied',
-            { context: { method: 'readHTML', permission } }
+            { context: { method: 'readHTML', extra: { permission } } }
           );
         }
       }
@@ -734,7 +734,7 @@ export class ClipboardManager extends BaseManager<ClipboardManagerOptions> {
             throw this.errorHandler.createError(
               ErrorType.USER_ERROR,
               `Clipboard HTML exceeds maximum size limit (${options.maxSize} characters)`,
-              { context: { method: 'readHTML', size: html.length, maxSize: options.maxSize } }
+              { context: { method: 'readHTML', extra: { size: html.length, maxSize: options.maxSize } } }
             );
           }
 
@@ -866,7 +866,7 @@ export class ClipboardManager extends BaseManager<ClipboardManagerOptions> {
           throw permissionResult.error || this.errorHandler.createError(
             ErrorType.PERMISSION_ERROR,
             'Clipboard read permission denied',
-            { context: { method: 'readFiles', permission: permissionResult.state } }
+            { context: { method: 'readFiles', extra: { permission: permissionResult.state } } }
           );
         }
       }
@@ -1018,7 +1018,7 @@ export class ClipboardManager extends BaseManager<ClipboardManagerOptions> {
       throw this.errorHandler.createError(
         ErrorType.SYSTEM_ERROR,
         'No clipboard support available in this browser',
-        { context: { method: 'checkBrowserSupport', support } }
+        { context: { method: 'checkBrowserSupport', extra: { support } } }
       );
     }
   }
@@ -1122,7 +1122,7 @@ export class ClipboardManager extends BaseManager<ClipboardManagerOptions> {
           ErrorType.PERMISSION_ERROR,
           `Clipboard ${operation} permission denied and auto-request disabled`,
           { 
-            context: { method: 'requestPermissionSmart', operation },
+            context: { method: 'requestPermissionSmart', extra: { operation } },
             recoverable: this.options.enableFallback
           }
         );
@@ -1152,14 +1152,15 @@ export class ClipboardManager extends BaseManager<ClipboardManagerOptions> {
           ErrorType.PERMISSION_ERROR,
           this.getPermissionErrorMessage(operation, newState),
           { 
-            context: { method: 'requestPermissionSmart', operation, state: newState },
+            context: { method: 'requestPermissionSmart', extra: { operation, state: newState } },
             recoverable: this.options.enableFallback
           }
         );
       }
 
     } catch (error) {
-      result.error = this.handleError(error as Error, 'requestPermissionSmart');
+      const processedError = this.handleError(error as Error, 'requestPermissionSmart');
+      result.error = processedError.originalError;
     }
 
     return result;
@@ -1337,7 +1338,7 @@ export class ClipboardManager extends BaseManager<ClipboardManagerOptions> {
       throw this.errorHandler.createError(
         ErrorType.INTERNAL_ERROR,
         `Failed to convert data from ${from} to ${to}: ${(error as Error).message}`,
-        { context: { method: 'convertData', from, to }, cause: error as Error }
+        { context: { method: 'convertData', extra: { from, to } }, cause: error as Error }
       );
     }
   }
@@ -1395,9 +1396,11 @@ export class ClipboardManager extends BaseManager<ClipboardManagerOptions> {
         { 
           context: { 
             method: 'validateClipboardData', 
-            type: detectedType,
-            errors: validationResult.errors,
-            warnings: validationResult.warnings
+            extra: { 
+              type: detectedType,
+              errors: validationResult.errors,
+              warnings: validationResult.warnings
+            }
           } 
         }
       );
@@ -1738,7 +1741,7 @@ export class ClipboardManager extends BaseManager<ClipboardManagerOptions> {
       ErrorType.SYSTEM_ERROR,
       'All fallback clipboard copy strategies failed',
       { 
-        context: { method: 'fallbackCopyText', strategies },
+        context: { method: 'fallbackCopyText', extra: { strategies } },
         recoverable: false
       }
     );
@@ -1756,7 +1759,7 @@ export class ClipboardManager extends BaseManager<ClipboardManagerOptions> {
       throw this.errorHandler.createError(
         ErrorType.SYSTEM_ERROR,
         'Document not available for fallback operations',
-        { context: { method: 'executeFallbackStrategy', strategy } }
+        { context: { method: 'executeFallbackStrategy', extra: { strategy } } }
       );
     }
 
@@ -1777,7 +1780,7 @@ export class ClipboardManager extends BaseManager<ClipboardManagerOptions> {
         throw this.errorHandler.createError(
           ErrorType.CONFIG_ERROR,
           `Unknown fallback strategy: ${strategy}`,
-          { context: { method: 'executeFallbackStrategy', strategy } }
+          { context: { method: 'executeFallbackStrategy', extra: { strategy } } }
         );
     }
   }
@@ -1946,7 +1949,7 @@ export class ClipboardManager extends BaseManager<ClipboardManagerOptions> {
     // 如果HTML特定策略都失败，尝试转换为文本后使用文本策略
     try {
       const converter = new HtmlToTextConverter();
-      const textContent = await converter.convert(html, 'html', 'text');
+      const textContent = await converter.convert(html);
       const result = await this.fallbackCopyText(textContent);
       if (result) {
         this.logger.debug('Fallback HTML copy successful using text conversion');
@@ -1960,7 +1963,7 @@ export class ClipboardManager extends BaseManager<ClipboardManagerOptions> {
       ErrorType.SYSTEM_ERROR,
       'All fallback HTML copy strategies failed',
       { 
-        context: { method: 'fallbackCopyHTML', strategies: htmlStrategies },
+        context: { method: 'fallbackCopyHTML', extra: { strategies: htmlStrategies } },
         recoverable: false
       }
     );
@@ -1974,7 +1977,7 @@ export class ClipboardManager extends BaseManager<ClipboardManagerOptions> {
       throw this.errorHandler.createError(
         ErrorType.SYSTEM_ERROR,
         'Document/Window not available for HTML fallback operations',
-        { context: { method: 'executeHtmlFallbackStrategy', strategy } }
+        { context: { method: 'executeHtmlFallbackStrategy', extra: { strategy } } }
       );
     }
 
@@ -1989,7 +1992,7 @@ export class ClipboardManager extends BaseManager<ClipboardManagerOptions> {
         throw this.errorHandler.createError(
           ErrorType.CONFIG_ERROR,
           `Unknown HTML fallback strategy: ${strategy}`,
-          { context: { method: 'executeHtmlFallbackStrategy', strategy } }
+          { context: { method: 'executeHtmlFallbackStrategy', extra: { strategy } } }
         );
     }
   }
@@ -2115,7 +2118,7 @@ export class ClipboardManager extends BaseManager<ClipboardManagerOptions> {
       throw this.errorHandler.createError(
         ErrorType.SYSTEM_ERROR,
         'Fallback clipboard element copy failed',
-        { context: { method: 'fallbackCopyElement', format }, cause: error as Error }
+        { context: { method: 'fallbackCopyElement', extra: { format } }, cause: error as Error }
       );
     }
   }
@@ -2128,7 +2131,7 @@ export class ClipboardManager extends BaseManager<ClipboardManagerOptions> {
     throw this.errorHandler.createError(
       ErrorType.SYSTEM_ERROR,
       `Fallback reading for ${format} is not supported due to security restrictions`,
-      { context: { method: 'fallbackRead', format } }
+      { context: { method: 'fallbackRead', extra: { format } } }
     );
   }
 
@@ -2771,20 +2774,4 @@ if (typeof window !== 'undefined') {
   });
 }
 
-export default clipboard;
-export { 
-  ClipboardManager, 
-  ClipboardPermissionState,
-  FallbackStrategy,
-  type ClipboardManagerOptions,
-  type ClipboardData,
-  type ClipboardDataType,
-  type CopyOptions,
-  type PasteOptions,
-  type DataConverter,
-  type PermissionRequestResult,
-  type DataValidationRule,
-  type DataValidationResult,
-  type DataProcessingOptions,
-  type DataProcessingResult
-}; 
+export default clipboard; 

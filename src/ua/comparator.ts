@@ -207,11 +207,13 @@ function parseVersionRange(range: string): VersionRange | null {
     for (const pattern of patterns) {
       const match = trimmed.match(pattern);
       if (match) {
-        let operator = match[2] as VersionOperator;
+        let operatorStr = match[2];
         
         // 标准化操作符
-        if (operator === '==') operator = '===';
-        if (operator === '!=') operator = '!==';
+        if (operatorStr === '==') operatorStr = '===';
+        if (operatorStr === '!=') operatorStr = '!==';
+        
+        const operator = operatorStr as VersionOperator;
 
         return {
           browser: match[1].trim(),

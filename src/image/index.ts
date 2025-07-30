@@ -21,7 +21,7 @@ import {
   generateRandomFileName,
   checkFileType,
   isFile
-} from '../utils/file';
+} from '../file/utils';
 
 /**
  * 图像管理器配置选项
@@ -89,6 +89,7 @@ export class ImageManager extends BaseManager<ImageManagerOptions> {
       timeout: 60000, // 图像处理可能需要更长时间
       retries: 1,
       cache: true,
+      cacheTTL: 300000, // 5分钟
       maxImageSize: 4096,
       defaultQuality: 0.8,
       defaultFormat: 'jpeg',
@@ -874,6 +875,4 @@ export async function imgCompress(
   return result.result;
 }
 
-// 导出类和类型
-export { ImageManager };
-export type { ImageManagerOptions, ImageProcessResult, ImageInfo };
+// 导出类和类型已在上面定义时完成

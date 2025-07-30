@@ -13,7 +13,7 @@ import {
   getMimeTypeFromDataURL,
   getBase64FromDataURL,
   delay
-} from '../src/utils';
+} from '../src/file/utils';
 
 describe('工具函数测试', () => {
   describe('类型检查函数', () => {

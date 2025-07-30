@@ -77,6 +77,7 @@ class FontManager extends BaseManager<FontOptions> {
       timeout: 3000,
       retries: 2,
       cache: true,
+      cacheTTL: 300000, // 5分钟
       concurrency: 5,
       detectionThreshold: 2
     };
@@ -149,7 +150,7 @@ class FontManager extends BaseManager<FontOptions> {
    * @param options 可选的FontFace配置选项
    * @returns 布尔值，表示是否添加成功
    */
-  addFont(fontName: string, url: string, options?: FontFaceDescriptors): boolean {
+  async addFont(fontName: string, url: string, options?: FontFaceDescriptors): Promise<boolean> {
     this.ensureInitialized();
     this.ensureNotDestroyed();
 
@@ -1291,3 +1292,6 @@ class FontManager extends BaseManager<FontOptions> {
 // 保持向后兼容性
 export default FontManager;
 export { FontManager as Font };
+
+// 导出工具函数
+export * from './utils';
