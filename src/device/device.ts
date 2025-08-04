@@ -42,7 +42,9 @@ export class DeviceDetector extends BaseManager<DeviceDetectorOptions> {
       retries: 2,
       cache: true,
       cacheTTL: 5 * 60 * 1000, // 5分钟
-      ua: undefined,
+      // 使用空字符串作为默认值，避免 undefined 类型错误
+      // 当 ua 为空字符串时，_getUserAgent() 方法会回退到 navigator.userAgent
+      ua: '',
       tablet: false,
       featureDetect: true,
       enablePerformanceMonitoring: false
@@ -183,15 +185,20 @@ export class DeviceDetector extends BaseManager<DeviceDetectorOptions> {
    * 获取用户代理字符串
    */
   private _getUserAgent(): string {
+    // 检查是否提供了自定义 UA
     if (this._detectionOptions.ua) {
       if (typeof this._detectionOptions.ua === 'string') {
-        return this._detectionOptions.ua;
+        // 如果是非空字符串，使用自定义 UA
+        return this._detectionOptions.ua.length > 0 ? this._detectionOptions.ua : 
+               (typeof navigator !== 'undefined' ? navigator.userAgent : '');
       }
+      // 如果是对象格式，提取 headers 中的 user-agent
       if (this._detectionOptions.ua.headers && this._detectionOptions.ua.headers['user-agent']) {
         return this._detectionOptions.ua.headers['user-agent'];
       }
     }
     
+    // 回退到浏览器的 navigator.userAgent
     return typeof navigator !== 'undefined' ? navigator.userAgent : '';
   }
 

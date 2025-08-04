@@ -186,16 +186,17 @@ export class FullscreenManager extends BaseManager<FullscreenOptions> {
 
     // 检查各种浏览器的全屏支持
     let supported = false;
-    if (typeof document !== 'undefined') {
+    if (typeof document !== 'undefined' && document.documentElement) {
+      const docElement = document.documentElement as any;
       supported = !!(
         'fullscreenEnabled' in document ||
         'webkitFullscreenEnabled' in document ||
         'mozFullScreenEnabled' in document ||
         'msFullscreenEnabled' in document ||
-        'requestFullscreen' in document.documentElement ||
-        'webkitRequestFullscreen' in document.documentElement ||
-        'mozRequestFullScreen' in document.documentElement ||
-        'msRequestFullscreen' in document.documentElement
+        'requestFullscreen' in docElement ||
+        'webkitRequestFullscreen' in docElement ||
+        'mozRequestFullScreen' in docElement ||
+        'msRequestFullscreen' in docElement
       );
     }
 
@@ -661,12 +662,14 @@ export class FullscreenManager extends BaseManager<FullscreenOptions> {
       'msRequestFullscreen'
     ];
 
-    for (const methodName of methodNames) {
-      const result = this.browserAdapter.detectFeature(methodName, 'method', document.documentElement);
-      if (result.supported) {
-        const actualMethodName = result.prefixedName || methodName;
-        this.setCached(cacheKey, actualMethodName, 300000); // 缓存5分钟
-        return actualMethodName;
+    if (document.documentElement) {
+      for (const methodName of methodNames) {
+        const result = this.browserAdapter.detectFeature(methodName, 'method', document.documentElement);
+        if (result.supported) {
+          const actualMethodName = result.prefixedName || methodName;
+          this.setCached(cacheKey, actualMethodName, 300000); // 缓存5分钟
+          return actualMethodName;
+        }
       }
     }
 

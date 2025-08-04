@@ -6,7 +6,10 @@
  * 移动设备检测选项
  */
 export interface MobileDetectOptions {
-  /** 自定义用户代理字符串或包含user-agent的headers对象 */
+  /** 
+   * 自定义用户代理字符串或包含user-agent的headers对象
+   * 如果未提供或为空字符串，将使用 navigator.userAgent
+   */
   ua?: string | { headers: { 'user-agent': string } };
   /** 是否将平板视为移动设备 */
   tablet?: boolean;

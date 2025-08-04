@@ -1569,7 +1569,9 @@ export class ClipboardManager extends BaseManager<ClipboardManagerOptions> {
       write: '剪贴板写入'
     };
 
-    const stateMessages = {
+    // 类型安全的权限状态消息映射，包含所有枚举值
+    const stateMessages: Record<ClipboardPermissionState, string> = {
+      [ClipboardPermissionState.GRANTED]: '权限已授予。',
       [ClipboardPermissionState.DENIED]: '权限被拒绝。请在浏览器设置中允许剪贴板访问权限，或使用HTTPS协议。',
       [ClipboardPermissionState.PROMPT]: '需要用户授权。请在浏览器弹出的权限请求中点击"允许"。',
       [ClipboardPermissionState.UNKNOWN]: '权限状态未知。可能是浏览器不支持权限API或运行在不安全的上下文中。'
@@ -1579,6 +1581,7 @@ export class ClipboardManager extends BaseManager<ClipboardManagerOptions> {
       ? ' 系统将尝试使用降级方案。' 
       : ' 请启用降级处理或使用支持的浏览器。';
 
+    // 使用类型安全的索引访问，TypeScript现在可以确保所有枚举值都有对应的消息
     return `${baseMessages[operation]}${stateMessages[state]}${fallbackMessage}`;
   }
 
