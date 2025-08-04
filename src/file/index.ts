@@ -278,7 +278,7 @@ export class FileManager extends BaseManager<FileManagerOptions> {
       
       // 解码Base64数据
       const byteCharacters = atob(b64Data);
-      const byteArrays: Uint8Array[] = [];
+      const byteArrays: BlobPart[] = [];
       
       // 分块处理以提高性能
       for (let offset = 0; offset < byteCharacters.length; offset += this.CHUNK_SIZE) {
