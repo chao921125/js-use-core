@@ -150,7 +150,7 @@ export class ImageManager extends BaseManager<ImageManagerOptions> {
    * @returns Promise<ImageProcessResult<string>> 转换结果
    */
   async blobToDataURL(blob: Blob): Promise<ImageProcessResult<string>> {
-    this.ensureInitialized();
+    await this.ensureInitialized();
     this.ensureNotDestroyed();
 
     // 输入验证
@@ -200,7 +200,7 @@ export class ImageManager extends BaseManager<ImageManagerOptions> {
     format: ImageFormat = this.options.defaultFormat,
     quality: number = this.options.defaultQuality
   ): ImageProcessResult<string> {
-    this.ensureInitialized();
+    this.ensureInitializedSync();
     this.ensureNotDestroyed();
 
     // 输入验证
@@ -250,7 +250,7 @@ export class ImageManager extends BaseManager<ImageManagerOptions> {
    * @returns Promise<ImageProcessResult<HTMLImageElement>> 转换结果
    */
   async dataURLToImage(dataURL: string): Promise<ImageProcessResult<HTMLImageElement>> {
-    this.ensureInitialized();
+    await this.ensureInitialized();
     this.ensureNotDestroyed();
 
     // 输入验证
@@ -318,7 +318,7 @@ export class ImageManager extends BaseManager<ImageManagerOptions> {
    * @returns ImageProcessResult<Blob> 转换结果
    */
   dataURLtoBlob(dataURL: string): ImageProcessResult<Blob> {
-    this.ensureInitialized();
+    this.ensureInitializedSync();
     this.ensureNotDestroyed();
 
     // 输入验证
@@ -377,7 +377,7 @@ export class ImageManager extends BaseManager<ImageManagerOptions> {
    * @returns ImageProcessResult<File> 转换结果
    */
   dataURLtoFile(dataURL: string, filename?: string): ImageProcessResult<File> {
-    this.ensureInitialized();
+    this.ensureInitializedSync();
     this.ensureNotDestroyed();
 
     const blobResult = this.dataURLtoBlob(dataURL);
@@ -421,7 +421,7 @@ export class ImageManager extends BaseManager<ImageManagerOptions> {
     imageFile: File,
     options: ImageConvertOptions
   ): Promise<ImageProcessResult<File>> {
-    this.ensureInitialized();
+    await this.ensureInitialized();
     this.ensureNotDestroyed();
 
     // 输入验证
@@ -531,7 +531,7 @@ export class ImageManager extends BaseManager<ImageManagerOptions> {
     imageFile: File,
     options: ImageCompressOptions = {}
   ): Promise<ImageProcessResult<File>> {
-    this.ensureInitialized();
+    await this.ensureInitialized();
     this.ensureNotDestroyed();
 
     // 输入验证
@@ -667,7 +667,7 @@ export class ImageManager extends BaseManager<ImageManagerOptions> {
    * @returns Promise<ImageDimensions> 图像尺寸信息
    */
   async getImageDimensions(imageFile: File): Promise<ImageDimensions> {
-    this.ensureInitialized();
+    await this.ensureInitialized();
     this.ensureNotDestroyed();
 
     if (!isFile(imageFile) || !imageFile.type.startsWith('image/')) {

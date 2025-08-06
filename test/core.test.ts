@@ -242,20 +242,26 @@ describe('核心基础架构测试', () => {
     });
 
     it('应该能够初始化和销毁', async () => {
-      expect(manager.getStatus().initialized).toBe(false);
+      // 创建一个新的管理器来测试初始化状态
+      const testManager = new TestManager();
       
-      await manager.initialize();
-      expect(manager.getStatus().initialized).toBe(true);
+      // 等待自动初始化完成
+      await testManager.ready();
+      expect(testManager.getStatus().initialized).toBe(true);
       
-      manager.destroy();
-      expect(manager.getStatus().destroyed).toBe(true);
+      testManager.destroy();
+      expect(testManager.getStatus().destroyed).toBe(true);
     });
 
     it('应该支持事件系统', async () => {
       const listener = jest.fn();
-      manager.on('initialized', listener);
       
-      await manager.initialize();
+      // 创建一个新的管理器并立即添加监听器（在自动初始化之前）
+      const testManager = new TestManager();
+      testManager.on('initialized', listener);
+      
+      // 手动调用初始化来触发事件
+      await testManager.initialize();
       expect(listener).toHaveBeenCalled();
     });
 

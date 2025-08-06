@@ -24,6 +24,8 @@ export abstract class BaseManager<T extends BaseOptions = BaseOptions> {
   protected cache?: Cache;
   protected initialized: boolean = false;
   protected destroyed: boolean = false;
+  private initPromise?: Promise<void>;
+  private initializing: boolean = false;
 
   /**
    * 构造函数
@@ -50,6 +52,9 @@ export abstract class BaseManager<T extends BaseOptions = BaseOptions> {
 
     // 设置错误处理
     this.setupErrorHandling();
+    
+    // 自动开始初始化（不阻塞构造函数）
+    this.startAutoInitialization();
   }
 
   /**
@@ -294,14 +299,54 @@ export abstract class BaseManager<T extends BaseOptions = BaseOptions> {
   }
 
   /**
-   * 检查是否已初始化
+   * 确保已初始化（自动初始化版本）
    */
-  protected ensureInitialized(): void {
+  protected async ensureInitialized(): Promise<void> {
+    if (this.destroyed) {
+      throw this.errorHandler.createError(
+        'SYSTEM_ERROR' as any,
+        'Manager has been destroyed and cannot be used.',
+        { context: { method: 'ensureInitialized' } }
+      );
+    }
+
+    if (this.initialized) {
+      return;
+    }
+
+    if (this.initPromise) {
+      try {
+        await this.initPromise;
+        this.initPromise = undefined;
+      } catch (error) {
+        // 重新抛出初始化错误
+        throw this.errorHandler.createError(
+          'SYSTEM_ERROR' as any,
+          `Manager initialization failed: ${(error as Error).message}`,
+          { context: { method: 'ensureInitialized' } }
+        );
+      }
+    } else if (!this.initializing) {
+      // 如果没有初始化Promise且未在初始化中，手动初始化
+      this.initializing = true;
+      try {
+        await this.initialize();
+      } finally {
+        this.initializing = false;
+      }
+    }
+  }
+
+  /**
+   * 检查是否已初始化（同步版本，用于向后兼容）
+   * @deprecated 建议使用 ensureInitialized() 的异步版本
+   */
+  protected ensureInitializedSync(): void {
     if (!this.initialized) {
       throw this.errorHandler.createError(
         'SYSTEM_ERROR' as any,
-        'Manager not initialized. Call initialize() first.',
-        { context: { method: 'ensureInitialized' } }
+        'Manager not initialized. Operations requiring initialization should be awaited.',
+        { context: { method: 'ensureInitializedSync' } }
       );
     }
   }
@@ -320,6 +365,14 @@ export abstract class BaseManager<T extends BaseOptions = BaseOptions> {
   }
 
   /**
+   * 等待初始化完成
+   * @returns Promise that resolves when initialization is complete
+   */
+  async ready(): Promise<void> {
+    await this.ensureInitialized();
+  }
+
+  /**
    * 获取管理器状态
    */
   getStatus(): {
@@ -327,12 +380,14 @@ export abstract class BaseManager<T extends BaseOptions = BaseOptions> {
     destroyed: boolean;
     eventListeners: number;
     cacheSize?: number;
+    initializing: boolean;
   } {
     return {
       initialized: this.initialized,
       destroyed: this.destroyed,
       eventListeners: this.eventNames().reduce((total, event) => total + this.listenerCount(event), 0),
-      cacheSize: this.cache?.size()
+      cacheSize: this.cache?.size(),
+      initializing: this.initializing || !!this.initPromise
     };
   }
 
@@ -377,6 +432,22 @@ export abstract class BaseManager<T extends BaseOptions = BaseOptions> {
         this.handleError(new Error(String(reason)), 'unhandledRejection');
       });
     }
+  }
+
+  /**
+   * 开始自动初始化
+   */
+  private startAutoInitialization(): void {
+    this.initPromise = this.initialize().catch((error) => {
+      this.logger.error('Auto-initialization failed:', error);
+      // 不要在这里抛出未处理的拒绝，而是存储错误供后续使用
+      return Promise.reject(error);
+    });
+    
+    // 添加一个空的 catch 处理器来防止未处理的 Promise 拒绝
+    this.initPromise.catch(() => {
+      // 静默处理，错误会在实际使用时重新抛出
+    });
   }
 
   /**

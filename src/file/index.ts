@@ -115,7 +115,7 @@ export class FileManager extends BaseManager<FileManagerOptions> {
    * @returns Promise<FileConversionResult<string>> 转换结果
    */
   async urlToBase64(url: string): Promise<FileConversionResult<string>> {
-    this.ensureInitialized();
+    await this.ensureInitialized();
     this.ensureNotDestroyed();
 
     // 输入验证
@@ -167,7 +167,7 @@ export class FileManager extends BaseManager<FileManagerOptions> {
    * @returns Promise<FileConversionResult<string>> 转换结果
    */
   async blobToBase64(blob: Blob): Promise<FileConversionResult<string>> {
-    this.ensureInitialized();
+    await this.ensureInitialized();
     this.ensureNotDestroyed();
 
     // 输入验证
@@ -220,7 +220,7 @@ export class FileManager extends BaseManager<FileManagerOptions> {
    * @returns Promise<FileConversionResult<string>> 转换结果
    */
   async fileToBase64(file: File): Promise<FileConversionResult<string>> {
-    this.ensureInitialized();
+    await this.ensureInitialized();
     this.ensureNotDestroyed();
 
     // 输入验证
@@ -248,7 +248,7 @@ export class FileManager extends BaseManager<FileManagerOptions> {
    * @returns FileConversionResult<Blob> 转换结果
    */
   base64ToBlob(base64: string): FileConversionResult<Blob> {
-    this.ensureInitialized();
+    this.ensureInitializedSync();
     this.ensureNotDestroyed();
 
     // 输入验证
@@ -312,7 +312,7 @@ export class FileManager extends BaseManager<FileManagerOptions> {
    * @returns FileConversionResult<File> 转换结果
    */
   base64ToFile(base64: string, filename?: string): FileConversionResult<File> {
-    this.ensureInitialized();
+    this.ensureInitializedSync();
     this.ensureNotDestroyed();
 
     const blobResult = this.base64ToBlob(base64);
@@ -354,7 +354,7 @@ export class FileManager extends BaseManager<FileManagerOptions> {
    * @returns FileConversionResult<Blob> 转换结果
    */
   fileToBlob(file: File): FileConversionResult<Blob> {
-    this.ensureInitialized();
+    this.ensureInitializedSync();
     this.ensureNotDestroyed();
 
     // 输入验证
@@ -386,7 +386,7 @@ export class FileManager extends BaseManager<FileManagerOptions> {
    * @returns FileConversionResult<File> 转换结果
    */
   blobToFile(blob: Blob, filename?: string): FileConversionResult<File> {
-    this.ensureInitialized();
+    this.ensureInitializedSync();
     this.ensureNotDestroyed();
 
     // 输入验证
@@ -431,7 +431,7 @@ export class FileManager extends BaseManager<FileManagerOptions> {
    * @returns Promise<FileReadResult> 读取结果
    */
   async readFile(file: File, options?: FileReadOptions): Promise<FileReadResult> {
-    this.ensureInitialized();
+    await this.ensureInitialized();
     this.ensureNotDestroyed();
 
     // 输入验证
@@ -503,7 +503,7 @@ export class FileManager extends BaseManager<FileManagerOptions> {
    * @returns FileTypeResult 文件类型检查结果
    */
   checkFileType(file: File | string): FileTypeResult {
-    this.ensureInitialized();
+    this.ensureInitializedSync();
     this.ensureNotDestroyed();
 
     try {
@@ -519,7 +519,7 @@ export class FileManager extends BaseManager<FileManagerOptions> {
    * @returns 验证结果
    */
   validateFile(file: File): { valid: boolean; errors: string[] } {
-    this.ensureInitialized();
+    this.ensureInitializedSync();
     this.ensureNotDestroyed();
 
     const errors: string[] = [];

@@ -78,7 +78,8 @@ describe('FullscreenManager', () => {
     mockDocument.msFullscreenElement = null;
     
     manager = new FullscreenManager({ debug: false });
-    await manager.initialize();
+    // 自动初始化已在构造函数中处理，等待完成
+    await manager.ready();
   });
 
   afterEach(() => {
@@ -247,7 +248,7 @@ describe('FullscreenManager', () => {
       const newManager = new FullscreenManager();
       expect(newManager.getStatus().initialized).toBe(false);
       
-      await newManager.initialize();
+      await newManager.ready();
       expect(newManager.getStatus().initialized).toBe(true);
       
       newManager.destroy();

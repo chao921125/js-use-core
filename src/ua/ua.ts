@@ -108,7 +108,7 @@ export class UAManager extends BaseManager<UAManagerOptions> {
    * @returns 只读的解析结果
    */
   async parse(ua?: string): Promise<Readonly<ParsedUA>> {
-    this.ensureInitialized();
+    await this.ensureInitialized();
     this.ensureNotDestroyed();
 
     const userAgent = ua || this.getCurrentUA();
@@ -155,7 +155,7 @@ export class UAManager extends BaseManager<UAManagerOptions> {
    * @returns 解析结果
    */
   parseSync(ua?: string): Readonly<ParsedUA> {
-    this.ensureInitialized();
+    this.ensureInitializedSync();
     this.ensureNotDestroyed();
 
     const userAgent = ua || this.getCurrentUA();
@@ -193,7 +193,7 @@ export class UAManager extends BaseManager<UAManagerOptions> {
    * @returns UA 字符串
    */
   stringify(spec: UAGenerateSpec): string {
-    this.ensureInitialized();
+    this.ensureInitializedSync();
     this.ensureNotDestroyed();
 
     try {
@@ -225,7 +225,7 @@ export class UAManager extends BaseManager<UAManagerOptions> {
    * @returns 是否满足条件
    */
   satisfies(ua: ParsedUA | string, range: string): boolean {
-    this.ensureInitialized();
+    this.ensureInitializedSync();
     this.ensureNotDestroyed();
 
     try {
@@ -243,7 +243,7 @@ export class UAManager extends BaseManager<UAManagerOptions> {
    * @returns 是否为现代浏览器
    */
   isModern(ua: ParsedUA, opts?: ModernBrowserOptions): boolean {
-    this.ensureInitialized();
+    this.ensureInitializedSync();
     this.ensureNotDestroyed();
 
     try {
@@ -267,7 +267,7 @@ export class UAManager extends BaseManager<UAManagerOptions> {
    * @param plugin 插件对象
    */
   use(plugin: UAParserPlugin): void {
-    this.ensureInitialized();
+    this.ensureInitializedSync();
     this.ensureNotDestroyed();
 
     if (!this.options.enablePlugins) {
@@ -299,7 +299,7 @@ export class UAManager extends BaseManager<UAManagerOptions> {
    * @param plugin 插件对象
    */
   removePlugin(plugin: UAParserPlugin): boolean {
-    this.ensureInitialized();
+    this.ensureInitializedSync();
     this.ensureNotDestroyed();
 
     const index = this.plugins.indexOf(plugin);

@@ -345,7 +345,7 @@ export class ClipboardManager extends BaseManager<ClipboardManagerOptions> {
    * @returns 是否复制成功
    */
   async copyText(text: string, options: CopyOptions = {}): Promise<boolean> {
-    this.ensureInitialized();
+    await this.ensureInitialized();
     this.ensureNotDestroyed();
 
     return this.safeExecute(async () => {
@@ -455,7 +455,7 @@ export class ClipboardManager extends BaseManager<ClipboardManagerOptions> {
    * @returns 是否复制成功
    */
   async copyHTML(html: string, options: CopyOptions = {}): Promise<boolean> {
-    this.ensureInitialized();
+    await this.ensureInitialized();
     this.ensureNotDestroyed();
 
     return this.safeExecute(async () => {
@@ -574,7 +574,7 @@ export class ClipboardManager extends BaseManager<ClipboardManagerOptions> {
    * @returns 是否复制成功
    */
   async copyElement(element: Element | string, options: CopyOptions = {}): Promise<boolean> {
-    this.ensureInitialized();
+    await this.ensureInitialized();
     this.ensureNotDestroyed();
 
     return this.safeExecute(async () => {
@@ -613,7 +613,7 @@ export class ClipboardManager extends BaseManager<ClipboardManagerOptions> {
    * @returns 剪贴板中的文本内容
    */
   async readText(options: PasteOptions = {}): Promise<string> {
-    this.ensureInitialized();
+    await this.ensureInitialized();
     this.ensureNotDestroyed();
 
     return this.safeExecute(async () => {
@@ -693,7 +693,7 @@ export class ClipboardManager extends BaseManager<ClipboardManagerOptions> {
    * @returns 剪贴板中的HTML内容
    */
   async readHTML(options: PasteOptions = {}): Promise<string> {
-    this.ensureInitialized();
+    await this.ensureInitialized();
     this.ensureNotDestroyed();
 
     return this.safeExecute(async () => {
@@ -762,7 +762,7 @@ export class ClipboardManager extends BaseManager<ClipboardManagerOptions> {
    * @returns 是否复制成功
    */
   async copyFiles(files: File[], options: CopyOptions = {}): Promise<boolean> {
-    this.ensureInitialized();
+    await this.ensureInitialized();
     this.ensureNotDestroyed();
 
     return this.safeExecute(async () => {
@@ -844,7 +844,7 @@ export class ClipboardManager extends BaseManager<ClipboardManagerOptions> {
    * @returns 剪贴板中的文件数组
    */
   async readFiles(options: PasteOptions = {}): Promise<File[]> {
-    this.ensureInitialized();
+    await this.ensureInitialized();
     this.ensureNotDestroyed();
 
     return this.safeExecute(async () => {
@@ -919,7 +919,7 @@ export class ClipboardManager extends BaseManager<ClipboardManagerOptions> {
    * @returns 剪贴板数据
    */
   async read(options: PasteOptions = {}): Promise<ClipboardData> {
-    this.ensureInitialized();
+    await this.ensureInitialized();
     this.ensureNotDestroyed();
 
     return this.safeExecute(async () => {
@@ -2218,7 +2218,7 @@ export class ClipboardManager extends BaseManager<ClipboardManagerOptions> {
     write: ClipboardPermissionState;
     read: ClipboardPermissionState;
   }> {
-    this.ensureInitialized();
+    await this.ensureInitialized();
     
     const writePermission = await this.checkWritePermission();
     const readPermission = await this.checkReadPermission();
@@ -2230,7 +2230,7 @@ export class ClipboardManager extends BaseManager<ClipboardManagerOptions> {
    * 请求剪贴板权限
    */
   async requestPermissions(): Promise<boolean> {
-    this.ensureInitialized();
+    await this.ensureInitialized();
     
     try {
       // 使用智能权限请求
@@ -2254,7 +2254,7 @@ export class ClipboardManager extends BaseManager<ClipboardManagerOptions> {
    * 清空剪贴板（如果支持）
    */
   async clear(): Promise<boolean> {
-    this.ensureInitialized();
+    await this.ensureInitialized();
     this.ensureNotDestroyed();
 
     return this.safeExecute(async () => {
@@ -2325,7 +2325,7 @@ export class ClipboardManager extends BaseManager<ClipboardManagerOptions> {
     to: ClipboardDataType,
     options?: DataProcessingOptions
   ): Promise<any> {
-    this.ensureInitialized();
+    await this.ensureInitialized();
     return this.convertData(data, from, to, options);
   }
 
@@ -2767,14 +2767,7 @@ class DataProcessor {
   }
 }
 
-// 创建单例实例
+// 创建单例实例（自动初始化已在构造函数中处理）
 const clipboard = new ClipboardManager();
-
-// 自动初始化（如果在浏览器环境中）
-if (typeof window !== 'undefined') {
-  clipboard.initialize().catch((error) => {
-    console.warn('Failed to initialize clipboard manager:', error);
-  });
-}
 
 export default clipboard; 

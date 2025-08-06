@@ -266,7 +266,7 @@ export class FullscreenManager extends BaseManager<FullscreenOptions> {
    * @param requestOptions 全屏请求选项
    */
   async request(element?: Element, requestOptions?: { navigationUI?: 'auto' | 'hide' | 'show' }): Promise<void> {
-    this.ensureInitialized();
+    await this.ensureInitialized();
     this.ensureNotDestroyed();
 
     return this.safeExecute(async () => {
@@ -370,7 +370,7 @@ export class FullscreenManager extends BaseManager<FullscreenOptions> {
    * 退出全屏
    */
   async exit(): Promise<void> {
-    this.ensureInitialized();
+    await this.ensureInitialized();
     this.ensureNotDestroyed();
 
     return this.safeExecute(async () => {
@@ -427,7 +427,7 @@ export class FullscreenManager extends BaseManager<FullscreenOptions> {
    * @param options 全屏选项（仅在进入全屏时使用）
    */
   async toggle(element?: Element, options?: { navigationUI?: 'auto' | 'hide' | 'show' }): Promise<void> {
-    this.ensureInitialized();
+    await this.ensureInitialized();
     this.ensureNotDestroyed();
 
     if (this.currentState.isFullscreen) {
@@ -725,10 +725,7 @@ let defaultFullscreenManager: FullscreenManager | null = null;
 export function getFullscreenManager(options?: FullscreenOptions): FullscreenManager {
   if (!defaultFullscreenManager) {
     defaultFullscreenManager = new FullscreenManager(options);
-    // 自动初始化
-    defaultFullscreenManager.initialize().catch((error) => {
-      console.warn('Failed to initialize default fullscreen manager:', error);
-    });
+    // 自动初始化已在构造函数中处理
   }
   return defaultFullscreenManager;
 }

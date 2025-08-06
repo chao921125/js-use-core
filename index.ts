@@ -39,6 +39,7 @@ export { getBrowserAdapter } from "./src/utils";
 
 // font 字体功能相关导出
 export { default as font } from "./src/font";
+export { FontManager } from "./src/font";
 export type { FontCheckResult, FontLoadResult, FontOptions } from "./src/font";
 export * from "./src/font/utils";
 

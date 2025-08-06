@@ -99,7 +99,7 @@ export class DeviceDetector extends BaseManager<DeviceDetectorOptions> {
    * 获取完整的设备信息
    */
   async getDeviceInfo(): Promise<DeviceInfo> {
-    this.ensureInitialized();
+    await this.ensureInitialized();
     this.ensureNotDestroyed();
 
     const cacheKey = 'device_info';
@@ -130,7 +130,7 @@ export class DeviceDetector extends BaseManager<DeviceDetectorOptions> {
    * 刷新设备信息
    */
   async refresh(): Promise<DeviceInfo> {
-    this.ensureInitialized();
+    await this.ensureInitialized();
     this.ensureNotDestroyed();
 
     this.logger.debug('Refreshing device info');

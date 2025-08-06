@@ -567,7 +567,7 @@
                         enablePerformanceMonitoring: true,
                         debug: true
                     });
-                    await managers.fullscreen.initialize();
+                    // 自动初始化已在构造函数中处理
                     
                     managers.fullscreen.on('change', () => {
                         updateFullscreenStatus();
@@ -586,7 +586,7 @@
                         enableFallback: true,
                         debug: true
                     });
-                    await managers.clipboard.initialize();
+                    // 自动初始化已在构造函数中处理
                     
                     managers.clipboard.on('copy', (data) => {
                         document.getElementById('clipboardLastAction').textContent = 
@@ -601,7 +601,7 @@
                         cache: true,
                         debug: true
                     });
-                    await managers.font.initialize();
+                    // 自动初始化已在构造函数中处理
                     
                     managers.font.on('fontLoaded', (data) => {
                         showMessage(`字体 ${data.fontName} 加载成功`);
@@ -617,7 +617,7 @@
                 // 初始化设备检测器
                 if (jsUseCore.DeviceDetector) {
                     managers.device = new jsUseCore.DeviceDetector();
-                    await managers.device.initialize();
+                    // 自动初始化已在构造函数中处理
                 }
                 
                 // 更新状态显示

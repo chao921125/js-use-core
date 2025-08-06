@@ -69,7 +69,8 @@ describe('ClipboardManager', () => {
     });
     
     manager = new ClipboardManager();
-    await manager.initialize();
+    // 自动初始化已在构造函数中处理，等待完成
+    await manager.ready();
   });
 
   describe('isSupported', () => {
@@ -232,7 +233,7 @@ describe('ClipboardManager', () => {
         configurable: true
       });
       const newManager = new ClipboardManager();
-      await newManager.initialize();
+      await newManager.ready();
       
       // The implementation should handle unsupported reading
       expect(newManager.canRead).toBe(false);

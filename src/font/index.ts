@@ -151,7 +151,7 @@ class FontManager extends BaseManager<FontOptions> {
    * @returns 布尔值，表示是否添加成功
    */
   async addFont(fontName: string, url: string, options?: FontFaceDescriptors): Promise<boolean> {
-    this.ensureInitialized();
+    await this.ensureInitialized();
     this.ensureNotDestroyed();
 
     return this.safeExecute(async () => {
@@ -317,7 +317,7 @@ class FontManager extends BaseManager<FontOptions> {
    * 否则返回 {success: false, allFonts: [...], failedFonts: 失败的字体列表}
    */
   async check(fontNames?: string | string[]): Promise<FontLoadResult> {
-    this.ensureInitialized();
+    await this.ensureInitialized();
     this.ensureNotDestroyed();
 
     return this.safeExecute(async () => {
@@ -789,7 +789,7 @@ class FontManager extends BaseManager<FontOptions> {
    * @returns 布尔值，表示是否添加成功
    */
   addFontFace(font: FontFace): boolean {
-    this.ensureInitialized();
+    this.ensureInitializedSync();
     this.ensureNotDestroyed();
 
     try {
@@ -820,7 +820,7 @@ class FontManager extends BaseManager<FontOptions> {
    * @returns 布尔值，表示是否删除成功
    */
   deleteFont(font: FontFace | string): boolean {
-    this.ensureInitialized();
+    this.ensureInitializedSync();
     this.ensureNotDestroyed();
 
     try {
@@ -940,7 +940,7 @@ class FontManager extends BaseManager<FontOptions> {
     url: string;
     options?: FontFaceDescriptors;
   }>): Promise<Array<{ name: string; success: boolean; error?: string }>> {
-    this.ensureInitialized();
+    await this.ensureInitialized();
     this.ensureNotDestroyed();
 
     const results: Array<{ name: string; success: boolean; error?: string }> = [];
@@ -994,7 +994,7 @@ class FontManager extends BaseManager<FontOptions> {
     unavailable: string[];
     cached: string[];
   }> {
-    this.ensureInitialized();
+    await this.ensureInitialized();
     this.ensureNotDestroyed();
 
     const available: string[] = [];
@@ -1152,6 +1152,7 @@ class FontManager extends BaseManager<FontOptions> {
 
 // 保持向后兼容性
 export default FontManager;
+export { FontManager };
 export { FontManager as Font };
 
 // 导出工具函数

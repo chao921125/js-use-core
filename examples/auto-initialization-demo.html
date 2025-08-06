@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自动初始化演示</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #fff;
+        }
+        
+        .demo-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+        
+        .demo-section h2 {
+            margin-top: 0;
+            color: #fff;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            transition: transform 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            min-height: 20px;
+        }
+        
+        .success {
+            color: #4CAF50;
+        }
+        
+        .error {
+            color: #f44336;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>自动初始化演示</h1>
+        <p>这个演示展示了新的自动初始化功能。现在你可以直接使用管理器，无需手动调用 initialize()！</p>
+        
+        <div class="demo-section">
+            <h2>剪贴板管理器</h2>
+            <p>直接使用，无需手动初始化：</p>
+            <button onclick="testClipboard()">复制文本</button>
+            <button onclick="testClipboardRead()">读取剪贴板</button>
+            <div id="clipboardResult" class="result"></div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>全屏管理器</h2>
+            <p>直接使用，无需手动初始化：</p>
+            <button onclick="testFullscreen()">切换全屏</button>
+            <div id="fullscreenResult" class="result"></div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>字体管理器</h2>
+            <p>直接使用，无需手动初始化：</p>
+            <button onclick="testFont()">检查字体</button>
+            <button onclick="testAddFont()">添加字体</button>
+            <div id="fontResult" class="result"></div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>等待初始化完成</h2>
+            <p>如果需要确保初始化完成，可以使用 ready() 方法：</p>
+            <button onclick="testReady()">测试 ready() 方法</button>
+            <div id="readyResult" class="result"></div>
+        </div>
+    </div>
+
+    <script src="../dist/index.umd.js"></script>
+    <script>
+        // 创建管理器实例 - 无需手动初始化！
+        const clipboard = new jsUseCore.ClipboardManager();
+        const fullscreen = new jsUseCore.FullscreenManager();
+        const font = new jsUseCore.FontManager();
+        
+        async function testClipboard() {
+            const result = document.getElementById('clipboardResult');
+            try {
+                // 直接使用，自动初始化
+                await clipboard.copyText('Hello, Auto-Initialization!');
+                result.innerHTML = '<span class="success">✓ 文本复制成功！</span>';
+            } catch (error) {
+                result.innerHTML = `<span class="error">✗ 错误: ${error.message}</span>`;
+            }
+        }
+        
+        async function testClipboardRead() {
+            const result = document.getElementById('clipboardResult');
+            try {
+                // 直接使用，自动初始化
+                const text = await clipboard.readText();
+                result.innerHTML = `<span class="success">✓ 读取到: ${text}</span>`;
+            } catch (error) {
+                result.innerHTML = `<span class="error">✗ 错误: ${error.message}</span>`;
+            }
+        }
+        
+        async function testFullscreen() {
+            const result = document.getElementById('fullscreenResult');
+            try {
+                // 直接使用，自动初始化
+                await fullscreen.toggle();
+                result.innerHTML = '<span class="success">✓ 全屏状态切换成功！</span>';
+            } catch (error) {
+                result.innerHTML = `<span class="error">✗ 错误: ${error.message}</span>`;
+            }
+        }
+        
+        async function testFont() {
+            const result = document.getElementById('fontResult');
+            try {
+                // 直接使用，自动初始化
+                const fontResult = await font.check(['Arial', 'Helvetica']);
+                result.innerHTML = `<span class="success">✓ 字体检查完成: ${fontResult.allFonts.length} 个字体</span>`;
+            } catch (error) {
+                result.innerHTML = `<span class="error">✗ 错误: ${error.message}</span>`;
+            }
+        }
+        
+        async function testAddFont() {
+            const result = document.getElementById('fontResult');
+            try {
+                // 直接使用，自动初始化
+                const success = await font.addFont('CustomFont', 'https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+                result.innerHTML = `<span class="success">✓ 字体添加${success ? '成功' : '失败'}</span>`;
+            } catch (error) {
+                result.innerHTML = `<span class="error">✗ 错误: ${error.message}</span>`;
+            }
+        }
+        
+        async function testReady() {
+            const result = document.getElementById('readyResult');
+            const startTime = Date.now();
+            
+            try {
+                // 等待所有管理器初始化完成
+                await Promise.all([
+                    clipboard.ready(),
+                    fullscreen.ready(),
+                    font.ready()
+                ]);
+                
+                const endTime = Date.now();
+                result.innerHTML = `<span class="success">✓ 所有管理器初始化完成 (${endTime - startTime}ms)</span>`;
+            } catch (error) {
+                result.innerHTML = `<span class="error">✗ 错误: ${error.message}</span>`;
+            }
+        }
+        
+        // 显示管理器状态
+        function updateStatus() {
+            console.log('Clipboard Status:', clipboard.getStatus());
+            console.log('Fullscreen Status:', fullscreen.getStatus());
+            console.log('Font Status:', font.getStatus());
+        }
+        
+        // 定期更新状态
+        setInterval(updateStatus, 2000);
+        
+        // 页面加载完成后显示初始状态
+        window.addEventListener('load', () => {
+            console.log('页面加载完成，管理器已自动开始初始化');
+            updateStatus();
+        });
+    </script>
+</body>
+</html>

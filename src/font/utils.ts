@@ -33,7 +33,8 @@ let globalFontManager: FontManager | null = null;
 async function getGlobalFontManager(options?: FontOptions): Promise<FontManager> {
   if (!globalFontManager) {
     globalFontManager = new FontManager(options);
-    await globalFontManager.initialize();
+    // 自动初始化已在构造函数中处理，但我们等待它完成
+    await globalFontManager.ready();
   } else if (options) {
     // 如果已有实例但传入了新的选项，则更新实例的选项
     globalFontManager.updateOptions(options);
@@ -46,7 +47,8 @@ async function getGlobalFontManager(options?: FontOptions): Promise<FontManager>
  */
 export async function createFont(options?: FontOptions): Promise<FontManager> {
   const fontManager = new FontManager(options);
-  await fontManager.initialize();
+  // 自动初始化已在构造函数中处理，但我们等待它完成
+  await fontManager.ready();
   return fontManager;
 }
 

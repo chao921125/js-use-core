@@ -94,7 +94,7 @@ export class UrlManager extends BaseManager<UrlManagerOptions> {
    * 获取完整的 URL 信息
    */
   getUrlInfo(): UrlInfo {
-    this.ensureInitialized();
+    this.ensureInitializedSync();
     this.ensureNotDestroyed();
 
     try {
@@ -123,7 +123,7 @@ export class UrlManager extends BaseManager<UrlManagerOptions> {
    * 获取查询参数
    */
   getQuery(): QueryParams {
-    this.ensureInitialized();
+    this.ensureInitializedSync();
     this.ensureNotDestroyed();
 
     try {
@@ -142,7 +142,7 @@ export class UrlManager extends BaseManager<UrlManagerOptions> {
    * 设置查询参数
    */
   setQuery(params: QueryParams): this {
-    this.ensureInitialized();
+    this.ensureInitializedSync();
     this.ensureNotDestroyed();
 
     if (!this.validateInput(params, { type: 'object', required: true })) {
@@ -169,7 +169,7 @@ export class UrlManager extends BaseManager<UrlManagerOptions> {
    * 添加查询参数
    */
   addQuery(params: QueryParams): this {
-    this.ensureInitialized();
+    this.ensureInitializedSync();
     this.ensureNotDestroyed();
 
     if (!this.validateInput(params, { type: 'object', required: true })) {
@@ -196,7 +196,7 @@ export class UrlManager extends BaseManager<UrlManagerOptions> {
    * 移除查询参数
    */
   removeQuery(keys: string | string[]): this {
-    this.ensureInitialized();
+    this.ensureInitializedSync();
     this.ensureNotDestroyed();
 
     if (!keys) {
@@ -222,7 +222,7 @@ export class UrlManager extends BaseManager<UrlManagerOptions> {
    * 设置哈希值
    */
   setHash(hash: string): this {
-    this.ensureInitialized();
+    this.ensureInitializedSync();
     this.ensureNotDestroyed();
 
     if (!this.validateInput(hash, { type: 'string', required: true })) {
@@ -248,7 +248,7 @@ export class UrlManager extends BaseManager<UrlManagerOptions> {
    * 设置路径
    */
   setPathname(pathname: string): this {
-    this.ensureInitialized();
+    this.ensureInitializedSync();
     this.ensureNotDestroyed();
 
     if (!this.validateInput(pathname, { type: 'string', required: true })) {
@@ -282,7 +282,7 @@ export class UrlManager extends BaseManager<UrlManagerOptions> {
    * 重置为新的 URL
    */
   reset(url: string): this {
-    this.ensureInitialized();
+    this.ensureInitializedSync();
     this.ensureNotDestroyed();
 
     if (!this.validateInput(url, { type: 'string', required: true })) {
