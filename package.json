@@ -1,6 +1,6 @@
 {
 	"name": "js-use-core",
-	"version": "1.2.1",
+	"version": "1.3.0",
 	"description": "JavaScript Comprehensive tool library, including full screen, copy and paste functions",
 	"keywords": [
 		"javascript",
@@ -172,7 +172,7 @@
 		"@rollup/plugin-node-resolve": "^16.0.1",
 		"@rollup/plugin-terser": "^0.4.4",
 		"@rollup/plugin-typescript": "^12.1.4",
-		"@testing-library/jest-dom": "^6.6.4",
+		"@testing-library/jest-dom": "^6.7.0",
 		"@types/jest": "^30.0.0",
 		"@types/node": "^24.2.1",
 		"@typescript-eslint/eslint-plugin": "^8.39.1",

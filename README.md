@@ -10,6 +10,7 @@
 
 ## ✨ 特性
 
+- 🎉 **自动初始化** - 开箱即用，无需手动调用 `initialize()`
 - 🏗️ **统一架构** - 基于 BaseManager 的统一管理架构
 - 🔧 **TypeScript 支持** - 完整的类型定义和智能提示
 - 🛡️ **错误处理** - 统一的错误处理和降级方案
@@ -26,6 +27,10 @@ npm install js-use-core
 
 ## 🚀 快速开始
 
+### 🎉 自动初始化 - 开箱即用！
+
+从 v1.3.0 开始，所有管理器都支持自动初始化，无需手动调用 `initialize()` 方法：
+
 ```javascript
 import { 
   FullscreenManager, 
@@ -36,33 +41,39 @@ import {
   UA
 } from 'js-use-core';
 
-// 全屏管理
+// 全屏管理 - 直接使用，自动初始化
 const fullscreen = new FullscreenManager();
-await fullscreen.initialize();
-await fullscreen.request();
+await fullscreen.request(); // 自动处理初始化
 
-// 剪贴板操作
+// 剪贴板操作 - 直接使用，自动初始化
 const clipboard = new ClipboardManager();
-await clipboard.initialize();
-await clipboard.copyText('Hello World!');
+await clipboard.copyText('Hello World!'); // 自动处理初始化
 
-// 字体管理
+// 字体管理 - 直接使用，自动初始化
 const fontManager = new FontManager();
-await fontManager.initialize();
-const result = await fontManager.check('Arial');
+const result = await fontManager.check('Arial'); // 自动处理初始化
 
-// URL 操作
+// URL 操作 - 同步操作，立即可用
 const urlManager = new UrlManager('https://example.com');
 urlManager.addQuery({ page: 1, size: 10 });
 
-// 设备检测
+// 设备检测 - 直接使用，自动初始化
 const device = new DeviceDetector();
-await device.initialize();
-console.log(device.isMobile);
+const info = await device.getDeviceInfo(); // 自动处理初始化
 
-// User Agent 解析
+// User Agent 解析 - 静态方法，无需初始化
 const ua = UA.parse(navigator.userAgent);
 console.log(ua.browser.name, ua.browser.version);
+```
+
+### 等待初始化完成（可选）
+
+如果需要确保初始化完成，可以使用 `ready()` 方法：
+
+```javascript
+const clipboard = new ClipboardManager();
+await clipboard.ready(); // 等待初始化完成
+// 现在可以安全使用所有功能
 ```
 
 ## 📚 功能模块
@@ -78,7 +89,7 @@ const fullscreen = new FullscreenManager({
   timeout: 5000
 });
 
-await fullscreen.initialize();
+// 直接使用，自动初始化
 await fullscreen.request(document.getElementById('video'));
 ```
 
@@ -93,7 +104,7 @@ const clipboard = new ClipboardManager({
   enableFallback: true
 });
 
-await clipboard.initialize();
+// 直接使用，自动初始化
 await clipboard.copyText('要复制的文本');
 const text = await clipboard.readText();
 ```
@@ -109,8 +120,8 @@ const fontManager = new FontManager({
   enableCache: true
 });
 
-await fontManager.initialize();
-fontManager.addFont('CustomFont', '/fonts/custom.woff2');
+// 直接使用，自动初始化
+await fontManager.addFont('CustomFont', '/fonts/custom.woff2');
 const result = await fontManager.check(['Arial', 'CustomFont']);
 ```
 
@@ -121,8 +132,8 @@ const result = await fontManager.check(['Arial', 'CustomFont']);
 import { FileManager } from 'js-use-core';
 
 const fileManager = new FileManager();
-await fileManager.initialize();
-const content = await fileManager.readAsText(file);
+// 直接使用，自动初始化
+const content = await fileManager.readFile(file);
 ```
 
 ### [URL 功能](./docs/url/README.md)
@@ -143,12 +154,13 @@ console.log(url.toString());
 import { DeviceDetector } from 'js-use-core';
 
 const device = new DeviceDetector();
-await device.initialize();
+// 直接使用，自动初始化
+const info = await device.getDeviceInfo();
 console.log({
-  isMobile: device.isMobile,
-  isTablet: device.isTablet,
-  os: device.os,
-  browser: device.browser
+  isMobile: info.isMobile,
+  isTablet: info.isTablet,
+  os: info.os,
+  browser: info.browser
 });
 ```
 
@@ -193,17 +205,32 @@ const throttledFn = throttle(callback, 100);
 - **性能**: 内置缓存和性能监控
 - **类型安全**: 完整的 TypeScript 支持
 
-## 📖 API 文档
+## 📖 文档
 
-- [核心架构 API](./docs/core/README.md)
-- [全屏 API](./docs/fullscreen/API.md)
-- [剪贴板 API](./docs/clipboard/API.md)
-- [字体 API](./docs/font/API.md)
-- [文件 API](./docs/file/API.md)
-- [URL API](./docs/url/API.md)
-- [设备检测 API](./docs/device/API.md)
-- [User Agent API](./docs/ua/API.md)
-- [工具函数 API](./docs/utils/API.md)
+### 📚 指南
+- [快速开始](./docs/GETTING_STARTED.md) - 快速上手指南
+- [架构设计](./docs/ARCHITECTURE.md) - 详细的架构说明
+- [自动初始化](./docs/AUTO_INITIALIZATION.md) - 自动初始化功能详解
+- [最佳实践](./docs/BEST_PRACTICES.md) - 使用最佳实践
+- [故障排除](./docs/TROUBLESHOOTING.md) - 常见问题解决方案
+- [迁移指南](./MIGRATION_GUIDE.md) - 版本迁移指南
+
+### 📋 API 参考
+- [完整 API 文档](./docs/API_REFERENCE.md) - 所有 API 的详细说明
+- [剪贴板 API](./docs/clipboard/API.md) - 剪贴板功能 API
+- [全屏 API](./docs/fullscreen/API.md) - 全屏功能 API
+- [字体 API](./docs/font/API.md) - 字体管理 API
+- [文件 API](./docs/file/API.md) - 文件处理 API
+- [设备检测 API](./docs/device/API.md) - 设备检测 API
+- [URL API](./docs/url/API.md) - URL 管理 API
+- [User Agent API](./docs/ua/API.md) - UA 解析 API
+- [工具函数 API](./docs/utils/API.md) - 工具函数 API
+
+### 🎯 示例
+- [综合使用示例](./examples/comprehensive-usage.html) - 完整功能演示
+- [React 示例](./examples/react-example.jsx) - React 集成示例
+- [Vue 示例](./examples/vue-example.vue) - Vue 集成示例
+- [自动初始化演示](./examples/auto-initialization-demo.html) - 自动初始化功能演示
 
 ## 🌐 浏览器兼容性
 
@@ -231,6 +258,21 @@ const options = {
 
 ## 📝 迁移指南
 
+### 🎉 v1.3.0 自动初始化更新
+
+**好消息！** 从 v1.3.0 开始，所有管理器都支持自动初始化，使用更加简单：
+
+```javascript
+// v1.3.0+ 推荐方式 - 自动初始化
+const clipboard = new ClipboardManager();
+await clipboard.copyText('hello'); // 直接使用，自动处理初始化
+
+// 旧方式仍然支持（向后兼容）
+const clipboard = new ClipboardManager();
+await clipboard.initialize(); // 可选，但不是必需的
+await clipboard.copyText('hello');
+```
+
 ### 从 1.x 版本迁移
 
 1. **导入方式变更**：
@@ -238,22 +280,24 @@ const options = {
 // 旧版本
 import { fullscreen } from 'js-use-core';
 
-// 新版本
+// 新版本 - 自动初始化
 import { FullscreenManager } from 'js-use-core';
 const fullscreen = new FullscreenManager();
-await fullscreen.initialize();
+await fullscreen.request(); // 直接使用
 ```
 
 2. **API 变更**：
-- 所有功能现在都需要先初始化
-- 统一的错误处理机制
-- 新增性能监控和缓存功能
+- ✅ **自动初始化** - 无需手动调用 `initialize()`
+- ✅ **向后兼容** - 现有代码无需修改
+- ✅ **统一错误处理** - 更好的错误处理机制
+- ✅ **性能优化** - 内置性能监控和缓存
 
-3. **配置选项**：
-- 统一的配置选项格式
-- 新增更多自定义选项
+3. **新增功能**：
+- `ready()` 方法 - 等待初始化完成
+- 更详细的状态信息
+- 更好的错误提示
 
-详细迁移指南请参考 [MIGRATION.md](./MIGRATION.md)
+详细迁移指南请参考 [MIGRATION_GUIDE.md](./MIGRATION_GUIDE.md)
 
 ## 🤝 贡献指南
 

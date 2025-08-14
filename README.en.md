@@ -6,6 +6,7 @@ A modern JavaScript comprehensive utility library providing fullscreen, clipboar
 
 ## ✨ Features
 
+- 🎉 **Auto-Initialization** - Ready to use out of the box, no need to call `initialize()` manually
 - 🏗️ **Unified Architecture** - Based on BaseManager unified management architecture
 - 🔧 **TypeScript Support** - Complete type definitions and intelligent hints
 - 🛡️ **Error Handling** - Unified error handling and fallback solutions
@@ -22,6 +23,10 @@ npm install js-use-core
 
 ## 🚀 Quick Start
 
+### 🎉 Auto-Initialization - Ready to Use!
+
+Starting from v1.3.0, all managers support auto-initialization, no need to call `initialize()` manually:
+
 ```javascript
 import { 
   FullscreenManager, 
@@ -32,20 +37,17 @@ import {
   UA
 } from 'js-use-core';
 
-// Fullscreen management
+// Fullscreen management - Direct use with auto-initialization
 const fullscreen = new FullscreenManager();
-await fullscreen.initialize();
-await fullscreen.request();
+await fullscreen.request(); // Auto-handles initialization
 
-// Clipboard operations
+// Clipboard operations - Direct use with auto-initialization
 const clipboard = new ClipboardManager();
-await clipboard.initialize();
-await clipboard.copyText('Hello World!');
+await clipboard.copyText('Hello World!'); // Auto-handles initialization
 
-// Font management
+// Font management - Direct use with auto-initialization
 const fontManager = new FontManager();
-await fontManager.initialize();
-const result = await fontManager.check('Arial');
+const result = await fontManager.check('Arial'); // Auto-handles initialization
 
 // URL operations
 const urlManager = new UrlManager('https://example.com');

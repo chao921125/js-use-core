@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>js-use-core 综合使用示例</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #e1e5e9;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+        
+        .section h2 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            background: #3498db;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        
+        button:hover {
+            background: #2980b9;
+        }
+        
+        button:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+        
+        input, textarea, select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            margin: 5px;
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 100px;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+        
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        
+        .info-item {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #e1e5e9;
+        }
+        
+        .info-item h4 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+        }
+        
+        .info-item p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        
+        .fullscreen-demo {
+            background: linear-gradient(45deg, #3498db, #9b59b6);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .font-demo {
+            font-size: 24px;
+            margin: 15px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 6px;
+            text-align: center;
+        }
+        
+        .url-demo {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+        
+        .url-demo input {
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .mobile-only {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-only {
+                display: block;
+            }
+            
+            .desktop-only {
+                display: none;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>🚀 js-use-core 综合使用示例</h1>
+    <p>这个页面展示了 js-use-core 库的各种功能和使用方法。</p>
+
+    <!-- 设备检测 -->
+    <div class="section">
+        <h2>📱 设备检测</h2>
+        <div class="controls">
+            <button onclick="detectDevice()">检测设备信息</button>
+            <button onclick="checkFeatures()">检查功能支持</button>
+        </div>
+        <div id="deviceInfo" class="info-grid"></div>
+    </div>
+
+    <!-- 剪贴板功能 -->
+    <div class="section">
+        <h2>📋 剪贴板功能</h2>
+        <div class="controls">
+            <input type="text" id="clipboardText" placeholder="输入要复制的文本" value="Hello, js-use-core!">
+            <button onclick="copyText()">复制文本</button>
+            <button onclick="pasteText()">粘贴文本</button>
+            <button onclick="copyHTML()">复制 HTML</button>
+            <button onclick="pasteHTML()">粘贴 HTML</button>
+        </div>
+        <textarea id="clipboardResult" placeholder="粘贴结果将显示在这里"></textarea>
+        <div id="clipboardStatus"></div>
+    </div>
+
+    <!-- 全屏功能 -->
+    <div class="section">
+        <h2>🖥️ 全屏功能</h2>
+        <div class="controls">
+            <button onclick="requestFullscreen()">进入全屏</button>
+            <button onclick="exitFullscreen()">退出全屏</button>
+            <button onclick="toggleFullscreen()">切换全屏</button>
+        </div>
+        <div class="fullscreen-demo" id="fullscreenDemo">
+            <h3>全屏演示区域</h3>
+            <p>点击上方按钮体验全屏功能</p>
+            <p id="fullscreenStatus">当前状态: 非全屏</p>
+        </div>
+    </div>
+
+    <!-- 字体管理 -->
+    <div class="section">
+        <h2>🔤 字体管理</h2>
+        <div class="controls">
+            <button onclick="checkFonts()">检查系统字体</button>
+            <button onclick="loadCustomFont()">加载自定义字体</button>
+            <select id="fontSelect" onchange="changeFontDemo()">
+                <option value="Arial">Arial</option>
+                <option value="Helvetica">Helvetica</option>
+                <option value="Times New Roman">Times New Roman</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Verdana">Verdana</option>
+            </select>
+        </div>
+        <div class="font-demo" id="fontDemo">
+            字体演示文本 - Font Demo Text
+        </div>
+        <div id="fontStatus"></div>
+    </div>
+
+    <!-- URL 管理 -->
+    <div class="section">
+        <h2>🌐 URL 管理</h2>
+        <div class="url-demo">
+            <input type="text" id="urlInput" placeholder="输入 URL" value="https://example.com/api/users">
+            <div class="controls">
+                <button onclick="parseUrl()">解析 URL</button>
+                <button onclick="addQueryParams()">添加查询参数</button>
+                <button onclick="buildUrl()">构建 URL</button>
+                <button onclick="normalizeUrl()">标准化 URL</button>
+            </div>
+            <div id="urlResult"></div>
+        </div>
+    </div>
+
+    <!-- User Agent 解析 -->
+    <div class="section">
+        <h2>🔍 User Agent 解析</h2>
+        <div class="controls">
+            <button onclick="parseUserAgent()">解析当前 UA</button>
+            <button onclick="checkBrowserCompatibility()">检查浏览器兼容性</button>
+            <button onclick="generateUA()">生成自定义 UA</button>
+        </div>
+        <div id="uaResult"></div>
+    </div>
+
+    <!-- 文件处理 -->
+    <div class="section">
+        <h2>📁 文件处理</h2>
+        <div class="controls">
+            <input type="file" id="fileInput" accept="image/*,text/*">
+            <button onclick="processFile()">处理文件</button>
+            <button onclick="convertToBase64()">转换为 Base64</button>
+        </div>
+        <div id="fileResult"></div>
+    </div>
+
+    <!-- 网络状态 -->
+    <div class="section">
+        <h2>🌐 网络状态</h2>
+        <div class="controls">
+            <button onclick="checkNetworkStatus()">检查网络状态</button>
+            <button onclick="monitorNetwork()">监控网络变化</button>
+        </div>
+        <div id="networkStatus"></div>
+    </div>
+
+    <!-- 性能监控 -->
+    <div class="section">
+        <h2>📊 性能监控</h2>
+        <div class="controls">
+            <button onclick="runPerformanceTest()">运行性能测试</button>
+            <button onclick="getMemoryInfo()">获取内存信息</button>
+        </div>
+        <div id="performanceResult"></div>
+    </div>
+
+    <script type="module">
+        import { 
+            ClipboardManager,
+            FullscreenManager,
+            FontManager,
+            DeviceDetector,
+            UrlManager,
+            UA,
+            FileManager
+        } from './dist/index.js';
+
+        // 全局管理器实例
+        window.managers = {
+            clipboard: new ClipboardManager({ debug: true }),
+            fullscreen: new FullscreenManager({ debug: true }),
+            font: new FontManager({ debug: true }),
+            device: new DeviceDetector({ debug: true }),
+            file: new FileManager({ debug: true })
+        };
+
+        // 工具函数
+        window.showStatus = function(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="status ${type}">${message}</div>`;
+            setTimeout(() => {
+                element.innerHTML = '';
+            }, 5000);
+        };
+
+        window.formatJSON = function(obj) {
+            return JSON.stringify(obj, null, 2);
+        };
+
+        // 设备检测功能
+        window.detectDevice = async function() {
+            try {
+                const deviceInfo = await window.managers.device.getDeviceInfo();
+                const infoGrid = document.getElementById('deviceInfo');
+                
+                infoGrid.innerHTML = `
+                    <div class="info-item">
+                        <h4>基本信息</h4>
+                        <p><strong>设备类型:</strong> ${deviceInfo.type}</p>
+                        <p><strong>移动设备:</strong> ${deviceInfo.isMobile ? '是' : '否'}</p>
+                        <p><strong>平板设备:</strong> ${deviceInfo.isTablet ? '是' : '否'}</p>
+                        <p><strong>触摸设备:</strong> ${deviceInfo.isTouchDevice ? '是' : '否'}</p>
+                    </div>
+                    <div class="info-item">
+                        <h4>操作系统</h4>
+                        <p><strong>名称:</strong> ${deviceInfo.os.name}</p>
+                        <p><strong>版本:</strong> ${deviceInfo.os.version}</p>
+                        <p><strong>平台:</strong> ${deviceInfo.os.platform}</p>
+                    </div>
+                    <div class="info-item">
+                        <h4>浏览器</h4>
+                        <p><strong>名称:</strong> ${deviceInfo.browser.name}</p>
+                        <p><strong>版本:</strong> ${deviceInfo.browser.version}</p>
+                        <p><strong>引擎:</strong> ${deviceInfo.browser.engine}</p>
+                    </div>
+                    <div class="info-item">
+                        <h4>屏幕信息</h4>
+                        <p><strong>尺寸:</strong> ${deviceInfo.screen.width} × ${deviceInfo.screen.height}</p>
+                        <p><strong>像素比:</strong> ${deviceInfo.screen.pixelRatio}</p>
+                        <p><strong>方向:</strong> ${deviceInfo.screen.orientation}</p>
+                    </div>
+                `;
+            } catch (error) {
+                window.showStatus('deviceInfo', `检测失败: ${error.message}`, 'error');
+            }
+        };
+
+        window.checkFeatures = function() {
+            const features = {
+                'WebGL': window.managers.device.checkFeatureSupport('webgl'),
+                'WebGL2': window.managers.device.checkFeatureSupport('webgl2'),
+                'WebAssembly': window.managers.device.checkFeatureSupport('webassembly'),
+                'Service Worker': window.managers.device.checkFeatureSupport('serviceWorker'),
+                'Web Workers': window.managers.device.checkFeatureSupport('webWorkers'),
+                'IndexedDB': window.managers.device.checkFeatureSupport('indexedDB'),
+                'Local Storage': window.managers.device.checkFeatureSupport('localStorage'),
+                'Geolocation': window.managers.device.checkFeatureSupport('geolocation'),
+                'Notifications': window.managers.device.checkFeatureSupport('notifications'),
+                'Vibration': window.managers.device.checkFeatureSupport('vibration')
+            };
+
+            const infoGrid = document.getElementById('deviceInfo');
+            const featuresHtml = Object.entries(features)
+                .map(([name, supported]) => 
+                    `<p><strong>${name}:</strong> ${supported ? '✅ 支持' : '❌ 不支持'}</p>`
+                ).join('');
+
+            infoGrid.innerHTML = `
+                <div class="info-item" style="grid-column: 1 / -1;">
+                    <h4>功能支持检测</h4>
+                    ${featuresHtml}
+                </div>
+            `;
+        };
+
+        // 剪贴板功能
+        window.copyText = async function() {
+            try {
+                const text = document.getElementById('clipboardText').value;
+                await window.managers.clipboard.copyText(text);
+                window.showStatus('clipboardStatus', '文本复制成功！', 'success');
+            } catch (error) {
+                window.showStatus('clipboardStatus', `复制失败: ${error.message}`, 'error');
+            }
+        };
+
+        window.pasteText = async function() {
+            try {
+                const text = await window.managers.clipboard.readText();
+                document.getElementById('clipboardResult').value = text;
+                window.showStatus('clipboardStatus', '文本粘贴成功！', 'success');
+            } catch (error) {
+                window.showStatus('clipboardStatus', `粘贴失败: ${error.message}`, 'error');
+            }
+        };
+
+        window.copyHTML = async function() {
+            try {
+                const html = '<h3>HTML 内容</h3><p>这是一段 <strong>HTML</strong> 内容。</p>';
+                await window.managers.clipboard.copyHTML(html);
+                window.showStatus('clipboardStatus', 'HTML 复制成功！', 'success');
+            } catch (error) {
+                window.showStatus('clipboardStatus', `HTML 复制失败: ${error.message}`, 'error');
+            }
+        };
+
+        window.pasteHTML = async function() {
+            try {
+                const html = await window.managers.clipboard.readHTML();
+                document.getElementById('clipboardResult').value = html;
+                window.showStatus('clipboardStatus', 'HTML 粘贴成功！', 'success');
+            } catch (error) {
+                window.showStatus('clipboardStatus', `HTML 粘贴失败: ${error.message}`, 'error');
+            }
+        };
+
+        // 全屏功能
+        window.requestFullscreen = async function() {
+            try {
+                const element = document.getElementById('fullscreenDemo');
+                await window.managers.fullscreen.request(element);
+                updateFullscreenStatus();
+            } catch (error) {
+                console.error('进入全屏失败:', error);
+            }
+        };
+
+        window.exitFullscreen = async function() {
+            try {
+                await window.managers.fullscreen.exit();
+                updateFullscreenStatus();
+            } catch (error) {
+                console.error('退出全屏失败:', error);
+            }
+        };
+
+        window.toggleFullscreen = async function() {
+            try {
+                const element = document.getElementById('fullscreenDemo');
+                await window.managers.fullscreen.toggle(element);
+                updateFullscreenStatus();
+            } catch (error) {
+                console.error('切换全屏失败:', error);
+            }
+        };
+
+        function updateFullscreenStatus() {
+            const status = window.managers.fullscreen.isFullscreen ? '全屏' : '非全屏';
+            document.getElementById('fullscreenStatus').textContent = `当前状态: ${status}`;
+        }
+
+        // 监听全屏状态变化
+        window.managers.fullscreen.on('change', updateFullscreenStatus);
+
+        // 字体管理功能
+        window.checkFonts = async function() {
+            try {
+                const fonts = ['Arial', 'Helvetica', 'Times New Roman', 'Georgia', 'Verdana', 'Comic Sans MS'];
+                const result = await window.managers.font.check(fonts);
+                
+                const statusHtml = result.allFonts.map(font => 
+                    `<p><strong>${font.name}:</strong> ${font.loaded ? '✅ 可用' : '❌ 不可用'}</p>`
+                ).join('');
+
+                window.showStatus('fontStatus', `
+                    <div>
+                        <h4>字体检查结果:</h4>
+                        ${statusHtml}
+                        <p><strong>总耗时:</strong> ${result.totalLoadTime}ms</p>
+                    </div>
+                `, 'info');
+            } catch (error) {
+                window.showStatus('fontStatus', `字体检查失败: ${error.message}`, 'error');
+            }
+        };
+
+        window.loadCustomFont = async function() {
+            try {
+                // 这里使用 Google Fonts 作为示例
+                const fontUrl = 'https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap';
+                
+                // 创建 link 元素加载字体
+                const link = document.createElement('link');
+                link.href = fontUrl;
+                link.rel = 'stylesheet';
+                document.head.appendChild(link);
+
+                // 等待字体加载
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                // 检查字体是否可用
+                const result = await window.managers.font.check('Roboto');
+                
+                if (result.success) {
+                    // 添加到选择器
+                    const select = document.getElementById('fontSelect');
+                    const option = document.createElement('option');
+                    option.value = 'Roboto';
+                    option.textContent = 'Roboto (自定义)';
+                    select.appendChild(option);
+                    
+                    window.showStatus('fontStatus', '自定义字体加载成功！', 'success');
+                } else {
+                    window.showStatus('fontStatus', '自定义字体加载失败', 'error');
+                }
+            } catch (error) {
+                window.showStatus('fontStatus', `加载自定义字体失败: ${error.message}`, 'error');
+            }
+        };
+
+        window.changeFontDemo = function() {
+            const fontName = document.getElementById('fontSelect').value;
+            const demo = document.getElementById('fontDemo');
+            demo.style.fontFamily = `"${fontName}", sans-serif`;
+            demo.textContent = `字体演示文本 - Font Demo Text (${fontName})`;
+        };
+
+        // URL 管理功能
+        window.parseUrl = function() {
+            try {
+                const urlInput = document.getElementById('urlInput').value;
+                const urlManager = new UrlManager(urlInput);
+                const info = urlManager.getUrlInfo();
+                
+                document.getElementById('urlResult').innerHTML = `
+                    <h4>URL 解析结果:</h4>
+                    <pre>${window.formatJSON(info)}</pre>
+                `;
+            } catch (error) {
+                window.showStatus('urlResult', `URL 解析失败: ${error.message}`, 'error');
+            }
+        };
+
+        window.addQueryParams = function() {
+            try {
+                const urlInput = document.getElementById('urlInput').value;
+                const urlManager = new UrlManager(urlInput);
+                
+                urlManager.addQuery({
+                    page: 1,
+                    limit: 10,
+                    sort: 'name',
+                    tags: ['javascript', 'web']
+                });
+                
+                document.getElementById('urlInput').value = urlManager.toString();
+                window.showStatus('urlResult', '查询参数添加成功！', 'success');
+            } catch (error) {
+                window.showStatus('urlResult', `添加查询参数失败: ${error.message}`, 'error');
+            }
+        };
+
+        window.buildUrl = function() {
+            try {
+                const urlManager = new UrlManager('https://api.example.com');
+                
+                urlManager
+                    .appendPath('v1')
+                    .appendPath('users')
+                    .appendPath('123')
+                    .addQuery({ 
+                        include: ['profile', 'settings'],
+                        format: 'json'
+                    })
+                    .setHash('profile');
+                
+                document.getElementById('urlInput').value = urlManager.toString();
+                window.showStatus('urlResult', 'URL 构建成功！', 'success');
+            } catch (error) {
+                window.showStatus('urlResult', `URL 构建失败: ${error.message}`, 'error');
+            }
+        };
+
+        window.normalizeUrl = function() {
+            try {
+                const urlInput = document.getElementById('urlInput').value;
+                const urlManager = new UrlManager(urlInput);
+                
+                // 标准化处理
+                urlManager.normalize();
+                
+                document.getElementById('urlInput').value = urlManager.toString();
+                window.showStatus('urlResult', 'URL 标准化成功！', 'success');
+            } catch (error) {
+                window.showStatus('urlResult', `URL 标准化失败: ${error.message}`, 'error');
+            }
+        };
+
+        // User Agent 解析功能
+        window.parseUserAgent = function() {
+            try {
+                const ua = UA.parse();
+                
+                document.getElementById('uaResult').innerHTML = `
+                    <h4>User Agent 解析结果:</h4>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <h4>浏览器</h4>
+                            <p><strong>名称:</strong> ${ua.browser.name}</p>
+                            <p><strong>版本:</strong> ${ua.browser.version}</p>
+                            <p><strong>主版本:</strong> ${ua.browser.major}</p>
+                        </div>
+                        <div class="info-item">
+                            <h4>引擎</h4>
+                            <p><strong>名称:</strong> ${ua.engine.name}</p>
+                            <p><strong>版本:</strong> ${ua.engine.version}</p>
+                        </div>
+                        <div class="info-item">
+                            <h4>操作系统</h4>
+                            <p><strong>名称:</strong> ${ua.os.name}</p>
+                            <p><strong>版本:</strong> ${ua.os.version}</p>
+                        </div>
+                        <div class="info-item">
+                            <h4>设备</h4>
+                            <p><strong>类型:</strong> ${ua.device.type || '未知'}</p>
+                            <p><strong>型号:</strong> ${ua.device.model || '未知'}</p>
+                            <p><strong>厂商:</strong> ${ua.device.vendor || '未知'}</p>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                window.showStatus('uaResult', `UA 解析失败: ${error.message}`, 'error');
+            }
+        };
+
+        window.checkBrowserCompatibility = function() {
+            try {
+                const ua = UA.parse();
+                
+                const checks = [
+                    { name: 'Chrome >= 60', condition: 'Chrome >= 60' },
+                    { name: 'Firefox >= 55', condition: 'Firefox >= 55' },
+                    { name: 'Safari >= 12', condition: 'Safari >= 12' },
+                    { name: 'Edge >= 79', condition: 'Edge >= 79' }
+                ];
+                
+                const results = checks.map(check => ({
+                    name: check.name,
+                    supported: UA.satisfies(ua, check.condition)
+                }));
+                
+                const isModern = UA.isModern(ua);
+                
+                const resultsHtml = results.map(result => 
+                    `<p><strong>${result.name}:</strong> ${result.supported ? '✅ 兼容' : '❌ 不兼容'}</p>`
+                ).join('');
+                
+                document.getElementById('uaResult').innerHTML = `
+                    <h4>浏览器兼容性检查:</h4>
+                    <div class="info-item">
+                        <p><strong>现代浏览器:</strong> ${isModern ? '✅ 是' : '❌ 否'}</p>
+                        ${resultsHtml}
+                    </div>
+                `;
+            } catch (error) {
+                window.showStatus('uaResult', `兼容性检查失败: ${error.message}`, 'error');
+            }
+        };
+
+        window.generateUA = function() {
+            try {
+                const customUA = UA.stringify({
+                    browser: {
+                        name: 'CustomBrowser',
+                        version: '1.0.0'
+                    },
+                    os: {
+                        name: 'CustomOS',
+                        version: '2.0'
+                    },
+                    device: {
+                        type: 'mobile',
+                        model: 'CustomPhone'
+                    }
+                });
+                
+                document.getElementById('uaResult').innerHTML = `
+                    <h4>生成的 User Agent:</h4>
+                    <div class="info-item">
+                        <p style="word-break: break-all; font-family: monospace; background: #f5f5f5; padding: 10px; border-radius: 4px;">
+                            ${customUA}
+                        </p>
+                    </div>
+                `;
+            } catch (error) {
+                window.showStatus('uaResult', `UA 生成失败: ${error.message}`, 'error');
+            }
+        };
+
+        // 文件处理功能
+        window.processFile = async function() {
+            try {
+                const fileInput = document.getElementById('fileInput');
+                const file = fileInput.files[0];
+                
+                if (!file) {
+                    window.showStatus('fileResult', '请先选择一个文件', 'error');
+                    return;
+                }
+                
+                const result = await window.managers.file.readFile(file);
+                
+                document.getElementById('fileResult').innerHTML = `
+                    <h4>文件处理结果:</h4>
+                    <div class="info-item">
+                        <p><strong>文件名:</strong> ${file.name}</p>
+                        <p><strong>文件大小:</strong> ${result.size} 字节</p>
+                        <p><strong>文件类型:</strong> ${result.type}</p>
+                        <p><strong>最后修改:</strong> ${new Date(result.lastModified).toLocaleString()}</p>
+                        <p><strong>内容长度:</strong> ${result.content.length} 字符</p>
+                    </div>
+                `;
+            } catch (error) {
+                window.showStatus('fileResult', `文件处理失败: ${error.message}`, 'error');
+            }
+        };
+
+        window.convertToBase64 = async function() {
+            try {
+                const fileInput = document.getElementById('fileInput');
+                const file = fileInput.files[0];
+                
+                if (!file) {
+                    window.showStatus('fileResult', '请先选择一个文件', 'error');
+                    return;
+                }
+                
+                const result = await window.managers.file.fileToBase64(file);
+                
+                if (result.success) {
+                    const preview = result.data.substring(0, 100) + '...';
+                    
+                    document.getElementById('fileResult').innerHTML = `
+                        <h4>Base64 转换结果:</h4>
+                        <div class="info-item">
+                            <p><strong>原始大小:</strong> ${file.size} 字节</p>
+                            <p><strong>Base64 大小:</strong> ${result.data.length} 字符</p>
+                            <p><strong>MIME 类型:</strong> ${result.mimeType}</p>
+                            <p><strong>预览:</strong></p>
+                            <pre style="background: #f5f5f5; padding: 10px; border-radius: 4px; overflow-x: auto; font-size: 12px;">${preview}</pre>
+                        </div>
+                    `;
+                } else {
+                    window.showStatus('fileResult', `Base64 转换失败: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                window.showStatus('fileResult', `Base64 转换失败: ${error.message}`, 'error');
+            }
+        };
+
+        // 网络状态功能
+        window.checkNetworkStatus = function() {
+            const isOnline = navigator.onLine;
+            const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+            
+            let networkInfo = `
+                <h4>网络状态:</h4>
+                <div class="info-item">
+                    <p><strong>在线状态:</strong> ${isOnline ? '✅ 在线' : '❌ 离线'}</p>
+            `;
+            
+            if (connection) {
+                networkInfo += `
+                    <p><strong>连接类型:</strong> ${connection.effectiveType || '未知'}</p>
+                    <p><strong>下行速度:</strong> ${connection.downlink || '未知'} Mbps</p>
+                    <p><strong>往返时间:</strong> ${connection.rtt || '未知'} ms</p>
+                    <p><strong>省流量模式:</strong> ${connection.saveData ? '✅ 开启' : '❌ 关闭'}</p>
+                `;
+            } else {
+                networkInfo += '<p><em>详细网络信息不可用</em></p>';
+            }
+            
+            networkInfo += '</div>';
+            
+            document.getElementById('networkStatus').innerHTML = networkInfo;
+        };
+
+        window.monitorNetwork = function() {
+            let monitoring = false;
+            
+            function updateNetworkStatus() {
+                const status = navigator.onLine ? '在线' : '离线';
+                const timestamp = new Date().toLocaleTimeString();
+                
+                const statusElement = document.getElementById('networkStatus');
+                statusElement.innerHTML += `<p><strong>${timestamp}:</strong> 网络状态变为 ${status}</p>`;
+            }
+            
+            if (!monitoring) {
+                window.addEventListener('online', updateNetworkStatus);
+                window.addEventListener('offline', updateNetworkStatus);
+                monitoring = true;
+                
+                document.getElementById('networkStatus').innerHTML = `
+                    <h4>网络监控已启动</h4>
+                    <p>网络状态变化将在下方显示...</p>
+                `;
+            }
+        };
+
+        // 性能监控功能
+        window.runPerformanceTest = async function() {
+            const startTime = performance.now();
+            
+            // 模拟一些操作
+            const operations = [];
+            
+            // 测试剪贴板操作
+            try {
+                const clipboardStart = performance.now();
+                await window.managers.clipboard.copyText('performance test');
+                const clipboardEnd = performance.now();
+                operations.push({
+                    name: '剪贴板复制',
+                    duration: clipboardEnd - clipboardStart,
+                    success: true
+                });
+            } catch (error) {
+                operations.push({
+                    name: '剪贴板复制',
+                    duration: 0,
+                    success: false,
+                    error: error.message
+                });
+            }
+            
+            // 测试设备检测
+            try {
+                const deviceStart = performance.now();
+                await window.managers.device.getDeviceInfo();
+                const deviceEnd = performance.now();
+                operations.push({
+                    name: '设备检测',
+                    duration: deviceEnd - deviceStart,
+                    success: true
+                });
+            } catch (error) {
+                operations.push({
+                    name: '设备检测',
+                    duration: 0,
+                    success: false,
+                    error: error.message
+                });
+            }
+            
+            // 测试字体检查
+            try {
+                const fontStart = performance.now();
+                await window.managers.font.check(['Arial', 'Helvetica']);
+                const fontEnd = performance.now();
+                operations.push({
+                    name: '字体检查',
+                    duration: fontEnd - fontStart,
+                    success: true
+                });
+            } catch (error) {
+                operations.push({
+                    name: '字体检查',
+                    duration: 0,
+                    success: false,
+                    error: error.message
+                });
+            }
+            
+            const totalTime = performance.now() - startTime;
+            
+            const resultsHtml = operations.map(op => `
+                <p>
+                    <strong>${op.name}:</strong> 
+                    ${op.success ? `✅ ${op.duration.toFixed(2)}ms` : `❌ ${op.error}`}
+                </p>
+            `).join('');
+            
+            document.getElementById('performanceResult').innerHTML = `
+                <h4>性能测试结果:</h4>
+                <div class="info-item">
+                    ${resultsHtml}
+                    <p><strong>总耗时:</strong> ${totalTime.toFixed(2)}ms</p>
+                </div>
+            `;
+        };
+
+        window.getMemoryInfo = function() {
+            const memory = performance.memory;
+            
+            if (memory) {
+                const formatBytes = (bytes) => {
+                    const mb = bytes / (1024 * 1024);
+                    return `${mb.toFixed(2)} MB`;
+                };
+                
+                document.getElementById('performanceResult').innerHTML = `
+                    <h4>内存使用情况:</h4>
+                    <div class="info-item">
+                        <p><strong>已使用 JS 堆内存:</strong> ${formatBytes(memory.usedJSHeapSize)}</p>
+                        <p><strong>总 JS 堆内存:</strong> ${formatBytes(memory.totalJSHeapSize)}</p>
+                        <p><strong>JS 堆内存限制:</strong> ${formatBytes(memory.jsHeapSizeLimit)}</p>
+                        <p><strong>使用率:</strong> ${((memory.usedJSHeapSize / memory.jsHeapSizeLimit) * 100).toFixed(2)}%</p>
+                    </div>
+                `;
+            } else {
+                document.getElementById('performanceResult').innerHTML = `
+                    <div class="info-item">
+                        <p>内存信息不可用（需要 Chrome 浏览器）</p>
+                    </div>
+                `;
+            }
+        };
+
+        // 页面加载完成后自动检测设备信息
+        window.addEventListener('load', () => {
+            window.detectDevice();
+            window.checkNetworkStatus();
+        });
+
+        // 响应式处理
+        function handleResponsive() {
+            const isMobile = window.innerWidth <= 768;
+            document.body.classList.toggle('mobile-layout', isMobile);
+        }
+
+        window.addEventListener('resize', handleResponsive);
+        handleResponsive();
+    </script>
+</body>
+</html>
