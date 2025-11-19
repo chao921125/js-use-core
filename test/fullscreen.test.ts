@@ -246,8 +246,10 @@ describe('FullscreenManager', () => {
   describe('Lifecycle management', () => {
     it('should initialize properly', async () => {
       const newManager = new FullscreenManager();
-      expect(newManager.getStatus().initialized).toBe(false);
+      // With auto-initialization (v1.3.0+), managers are automatically initialized
+      expect(newManager.getStatus().initialized).toBe(true);
       
+      // ready() should still work and resolve immediately for already initialized managers
       await newManager.ready();
       expect(newManager.getStatus().initialized).toBe(true);
       

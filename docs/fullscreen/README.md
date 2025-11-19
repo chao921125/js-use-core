@@ -17,6 +17,7 @@
 - 📊 **性能监控** - 内置性能监控和缓存机制
 - 📱 **移动端支持** - 兼容主流移动浏览器
 - 🔌 **事件系统** - 完善的事件管理和监听
+- ⚡ **自动初始化** - v1.3.0+ 支持自动初始化，无需手动调用 initialize()
 
 ## 🚀 功能
 
@@ -27,6 +28,7 @@
 - 统一的错误处理
 - 事件驱动的状态管理
 - 自动前缀检测和处理
+- 自动初始化支持 (v1.3.0+)
 
 ## 📦 安装
 
@@ -64,7 +66,33 @@ const { FullscreenManager } = require('js-use-core');
 const { fullscreen } = require('js-use-core');
 ```
 
-### 基本用法
+### 基本用法 (自动初始化 - v1.3.0+)
+
+```javascript
+import { FullscreenManager } from 'js-use-core';
+
+// 创建全屏管理器实例（自动初始化）
+const fullscreen = new FullscreenManager({
+  enablePerformanceMonitoring: true,
+  timeout: 5000,
+  debug: false
+});
+
+// 直接使用，无需手动初始化
+// 检查是否支持全屏
+if (fullscreen.isSupported && fullscreen.isEnabled) {
+  // 页面全屏
+  await fullscreen.request();
+  
+  // 退出全屏
+  await fullscreen.exit();
+  
+  // 切换全屏状态
+  await fullscreen.toggle();
+}
+```
+
+### 手动初始化 (兼容旧版本)
 
 ```javascript
 import { FullscreenManager } from 'js-use-core';
@@ -76,7 +104,7 @@ const fullscreen = new FullscreenManager({
   debug: false
 });
 
-// 初始化管理器
+// 手动初始化（v1.3.0+ 中可选）
 await fullscreen.initialize();
 
 // 检查是否支持全屏
@@ -159,10 +187,11 @@ interface FullscreenOptions extends BaseOptions {
 
 ##### `initialize(): Promise<void>`
 
-初始化全屏管理器。
+初始化全屏管理器。v1.3.0+ 版本支持自动初始化。
 
 ```javascript
 const fullscreen = new FullscreenManager();
+// v1.3.0+ 中可选，管理器会自动初始化
 await fullscreen.initialize();
 ```
 
@@ -340,9 +369,49 @@ interface FullscreenPerformanceMetrics {
 type FullscreenEventType = 'change' | 'error' | 'request' | 'exit' | 'initialized';
 ```
 
-# 示例
+## 🚀 自动初始化功能 (v1.3.0+)
 
-## Vue.js 中使用
+从 v1.3.0 版本开始，FullscreenManager 支持自动初始化功能，无需手动调用 `initialize()` 方法。
+
+### 优势
+
+1. **简化使用** - 直接创建实例即可使用所有功能
+2. **向后兼容** - 仍然支持手动初始化
+3. **性能优化** - 初始化过程不阻塞构造函数执行
+4. **错误处理** - 初始化错误在使用时抛出，提供更好的调试体验
+
+### 使用方式
+
+```javascript
+import { FullscreenManager } from 'js-use-core';
+
+// 创建实例（自动开始初始化）
+const fullscreen = new FullscreenManager();
+
+// 直接使用，无需等待初始化
+await fullscreen.request(); // 自动处理初始化
+
+// 如果需要确保初始化完成，可以使用 ready() 方法
+await fullscreen.ready(); // 等待初始化完成
+```
+
+### 等待初始化完成
+
+虽然可以立即使用功能，但如果需要确保初始化完成，可以使用 `ready()` 方法：
+
+```javascript
+const fullscreen = new FullscreenManager();
+
+// 等待初始化完成
+await fullscreen.ready();
+
+// 现在可以安全使用所有功能
+console.log('Fullscreen manager is ready');
+```
+
+## 示例
+
+### Vue.js 中使用
 
 ```vue
 <template>
@@ -389,7 +458,7 @@ export default {
 </script>
 ```
 
-## React 中使用
+### React 中使用
 
 ```jsx
 import React, { useEffect, useCallback } from 'react';
@@ -429,7 +498,7 @@ function FullscreenComponent() {
 }
 ```
 
-## 原生 JavaScript 中使用
+### 原生 JavaScript 中使用
 
 ```html
 <!DOCTYPE html>
@@ -474,7 +543,7 @@ function FullscreenComponent() {
 </html>
 ```
 
-# 浏览器兼容性
+## 浏览器兼容性
 
 | 浏览器 | 版本 | 支持 |
 |--------|------|------|
@@ -486,14 +555,14 @@ function FullscreenComponent() {
 
 **注意：** Safari 在 iPhone 上不支持全屏功能。
 
-# 贡献指南
+## 贡献指南
 
 欢迎贡献代码！请查看 [CONTRIBUTING.md](./CONTRIBUTING.md) 了解详情。
 
-# 安全
+## 安全
 
 如果您发现安全漏洞，请发送邮件到 security@example.com。
 
-# 许可证
+## 许可证
 
-MIT License - 详见 [LICENSE](../../LICENSE) 文件 
+MIT License - 详见 [LICENSE](../../LICENSE) 文件

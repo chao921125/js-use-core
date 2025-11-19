@@ -82,7 +82,9 @@ export class FullscreenManager extends BaseManager<FullscreenOptions> {
 
     this.currentState = {
       isFullscreen: false,
-      element: null
+      element: null,
+      startTime: undefined,
+      duration: undefined
     };
 
     this.performanceMetrics = {
@@ -560,30 +562,44 @@ export class FullscreenManager extends BaseManager<FullscreenOptions> {
    * 更新当前状态
    */
   private updateCurrentState(): void {
-    // 检查各种浏览器的全屏元素属性
-    const currentElement = (document as any).fullscreenElement ||
-                          (document as any).webkitFullscreenElement ||
-                          (document as any).mozFullScreenElement ||
-                          (document as any).msFullscreenElement ||
-                          null;
-    
-    const isCurrentlyFullscreen = !!currentElement;
+    try {
+      // 检查各种浏览器的全屏元素属性
+      const currentElement = (document as any).fullscreenElement ||
+                            (document as any).webkitFullscreenElement ||
+                            (document as any).mozFullScreenElement ||
+                            (document as any).msFullscreenElement ||
+                            null;
+      
+      const isCurrentlyFullscreen = !!currentElement;
 
-    // 如果状态发生变化
-    if (isCurrentlyFullscreen !== this.currentState.isFullscreen) {
-      if (isCurrentlyFullscreen) {
-        // 进入全屏
-        this.currentState = {
-          isFullscreen: true,
-          element: currentElement,
-          startTime: Date.now()
-        };
-      } else {
-        // 退出全屏
+      // 如果状态发生变化
+      if (isCurrentlyFullscreen !== this.currentState.isFullscreen) {
+        if (isCurrentlyFullscreen) {
+          // 进入全屏
+          this.currentState = {
+            isFullscreen: true,
+            element: currentElement,
+            startTime: Date.now()
+          };
+        } else {
+          // 退出全屏
+          this.currentState = {
+            isFullscreen: false,
+            element: null,
+            duration: this.currentState.startTime ? Date.now() - this.currentState.startTime : undefined
+          };
+        }
+      }
+    } catch (error) {
+      // 如果出现错误，记录日志但不中断程序
+      this.logger.error('Error updating fullscreen state:', error);
+      // 确保 currentState 至少有一个默认值
+      if (!this.currentState) {
         this.currentState = {
           isFullscreen: false,
           element: null,
-          duration: this.currentState.startTime ? Date.now() - this.currentState.startTime : undefined
+          startTime: undefined,
+          duration: undefined
         };
       }
     }
