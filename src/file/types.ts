@@ -6,11 +6,6 @@
  * @date 2024-07-17
  */
 
-// 全局类型声明
-declare global {
-  var global: any;
-}
-
 // 图片格式类型
 export type ImageFormat = 'jpeg' | 'jpg' | 'png' | 'webp' | 'gif';
 
