@@ -1463,6 +1463,10 @@ packages:
     resolution: {integrity: sha512-uUhTRDPXamakPyghwrUcjaGvvBqGrWvBHReoiULMIpOJVM9IYzQh83Xk2Onx5HlGI2o10NNCzcs9TG/S3TkwrQ==}
     hasBin: true
 
+  baseline-browser-mapping@2.8.31:
+    resolution: {integrity: sha512-a28v2eWrrRWPpJSzxc+mKwm0ZtVx/G8SepdQZDArnXYU/XS+IF6mp8aB/4E+hH1tyGCoDo3KlUCdlSxGDsRkAw==}
+    hasBin: true
+
   bl@4.1.0:
     resolution: {integrity: sha512-1W07cM9gS6DcLperZfFSj+bWLtaPGSOHWhPiGzXmvVJbRLdG82sH/Kn8EtW1VqWVA54AKf2h5k5BbnIbwF3h6w==}
 
@@ -1482,6 +1486,11 @@ packages:
 
   browserslist@4.27.0:
     resolution: {integrity: sha512-AXVQwdhot1eqLihwasPElhX2tAZiBjWdJ9i/Zcj2S6QYIjkx62OKSfnobkriB81C3l4w0rVy3Nt4jaTBltYEpw==}
+    engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
+    hasBin: true
+
+  browserslist@4.28.0:
+    resolution: {integrity: sha512-tbydkR/CxfMwelN0vwdP/pLkDwyAASZ+VfWm4EOwlB6SWhx1sYnWLqo8N5j0rAzPfzfRaxt0mM/4wPU/Su84RQ==}
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
 
@@ -1536,6 +1545,9 @@ packages:
 
   caniuse-lite@1.0.30001753:
     resolution: {integrity: sha512-Bj5H35MD/ebaOV4iDLqPEtiliTN29qkGtEHCwawWn4cYm+bPJM2NsaP30vtZcnERClMzp52J4+aw2UNbK4o+zw==}
+
+  caniuse-lite@1.0.30001757:
+    resolution: {integrity: sha512-r0nnL/I28Zi/yjk1el6ilj27tKcdjLsNqAOZr0yVjWPrSQyHgKI2INaEWw21bAQSv2LXRt1XuCS/GomNpWOxsQ==}
 
   chalk@2.1.0:
     resolution: {integrity: sha512-LUHGS/dge4ujbXMJrnihYMcL4AoOweGnw9Tp3kQuqy1Kx5c1qKjqvMJZ6nVJPMWJtKCTN72ZogH3oeSO9g9rXQ==}
@@ -1708,6 +1720,9 @@ packages:
 
   electron-to-chromium@1.5.245:
     resolution: {integrity: sha512-rdmGfW47ZhL/oWEJAY4qxRtdly2B98ooTJ0pdEI4jhVLZ6tNf8fPtov2wS1IRKwFJT92le3x4Knxiwzl7cPPpQ==}
+
+  electron-to-chromium@1.5.260:
+    resolution: {integrity: sha512-ov8rBoOBhVawpzdre+Cmz4FB+y66Eqrk6Gwqd8NGxuhv99GQ8XqMAr351KEkOt7gukXWDg6gJWEMKgL2RLMPtA==}
 
   emittery@0.13.1:
     resolution: {integrity: sha512-DeWwawk6r5yR9jFgnDKYt4sLS0LmHJJi3ZOnb5/JdbYwj3nW+FxQnHIjhBKz8YLC7oRNPVM9NQ47I3CVx34eqQ==}
@@ -3247,7 +3262,7 @@ snapshots:
     dependencies:
       '@babel/compat-data': 7.28.5
       '@babel/helper-validator-option': 7.27.1
-      browserslist: 4.27.0
+      browserslist: 4.28.0
       lru-cache: 5.1.1
       semver: 6.3.1
 
@@ -4836,6 +4851,8 @@ snapshots:
 
   baseline-browser-mapping@2.8.24: {}
 
+  baseline-browser-mapping@2.8.31: {}
+
   bl@4.1.0:
     dependencies:
       buffer: 5.7.1
@@ -4867,6 +4884,14 @@ snapshots:
       electron-to-chromium: 1.5.245
       node-releases: 2.0.27
       update-browserslist-db: 1.1.4(browserslist@4.27.0)
+
+  browserslist@4.28.0:
+    dependencies:
+      baseline-browser-mapping: 2.8.31
+      caniuse-lite: 1.0.30001757
+      electron-to-chromium: 1.5.260
+      node-releases: 2.0.27
+      update-browserslist-db: 1.1.4(browserslist@4.28.0)
 
   bs-logger@0.2.6:
     dependencies:
@@ -4922,6 +4947,8 @@ snapshots:
   camelcase@6.3.0: {}
 
   caniuse-lite@1.0.30001753: {}
+
+  caniuse-lite@1.0.30001757: {}
 
   chalk@2.1.0:
     dependencies:
@@ -5056,6 +5083,8 @@ snapshots:
   eastasianwidth@0.2.0: {}
 
   electron-to-chromium@1.5.245: {}
+
+  electron-to-chromium@1.5.260: {}
 
   emittery@0.13.1: {}
 
@@ -6626,6 +6655,12 @@ snapshots:
   update-browserslist-db@1.1.4(browserslist@4.27.0):
     dependencies:
       browserslist: 4.27.0
+      escalade: 3.2.0
+      picocolors: 1.1.1
+
+  update-browserslist-db@1.1.4(browserslist@4.28.0):
+    dependencies:
+      browserslist: 4.28.0
       escalade: 3.2.0
       picocolors: 1.1.1
 
