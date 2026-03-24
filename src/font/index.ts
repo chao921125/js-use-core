@@ -6,6 +6,8 @@
 import { BaseManager } from '../core/BaseManager';
 import { BaseOptions } from '../types/core';
 import { ErrorType } from '../types/errors';
+import { TimingController } from './TimingController';
+import { FontLoadingStateManager, FontLoadingState } from './FontLoadingStateManager';
 
 export interface FontCheckResult {
   name: string;
@@ -22,6 +24,19 @@ export interface FontLoadResult {
   totalLoadTime?: number;
 }
 
+export interface FontDetectionOptions {
+  /** Wait for fonts to load before detection */
+  waitForLoad?: boolean;
+  /** Maximum wait time in milliseconds */
+  timeout?: number;
+  /** Number of retry attempts */
+  retries?: number;
+  /** Skip waiting for immediate results */
+  immediate?: boolean;
+  /** Detection strategy to use */
+  strategy?: 'comprehensive' | 'fast' | 'system-only';
+}
+
 export interface FontOptions extends BaseOptions {
   /** 字体检测超时时间（毫秒），默认3000ms */
   timeout?: number;
@@ -33,6 +48,8 @@ export interface FontOptions extends BaseOptions {
   concurrency?: number;
   /** 字体检测精度阈值（百分比），默认2% */
   detectionThreshold?: number;
+  /** Enhanced font detection options */
+  detection?: FontDetectionOptions;
 }
 
 export interface FontLoadState {
@@ -63,9 +80,50 @@ class FontManager extends BaseManager<FontOptions> {
     'Verdana', 'Georgia', 'Palatino', 'Garamond', 'Bookman', 'Tahoma', 
     'Trebuchet MS', 'Arial Black', 'Impact', 'Comic Sans MS', 'sans-serif', 'serif', 'monospace'
   ]);
+  private timingController: TimingController;
+  private stateManager: FontLoadingStateManager;
+  private detectionOptions: FontDetectionOptions;
 
   constructor(options: FontOptions = {}) {
     super(options, 'FontManager');
+    this.timingController = new TimingController({
+      timeout: options.timeout,
+      maxRetries: options.retries
+    });
+    this.stateManager = new FontLoadingStateManager();
+    
+    // Initialize detection options with defaults
+    this.detectionOptions = {
+      waitForLoad: options.detection?.waitForLoad ?? true,
+      timeout: options.detection?.timeout ?? options.timeout ?? 3000,
+      retries: options.detection?.retries ?? options.retries ?? 2,
+      immediate: options.detection?.immediate ?? false,
+      strategy: options.detection?.strategy ?? 'comprehensive'
+    };
+  }
+
+  /**
+   * Get current detection options
+   */
+  getDetectionOptions(): FontDetectionOptions {
+    return { ...this.detectionOptions };
+  }
+
+  /**
+   * Update detection options
+   */
+  updateDetectionOptions(options: Partial<FontDetectionOptions>): void {
+    this.detectionOptions = { ...this.detectionOptions, ...options };
+    
+    // Update timing controller if timeout or retries changed
+    if (options.timeout || options.retries) {
+      this.timingController = new TimingController({
+        timeout: options.timeout ?? this.detectionOptions.timeout,
+        maxRetries: options.retries ?? this.detectionOptions.retries
+      });
+    }
+    
+    this.emit('detectionOptionsUpdated', { options: this.detectionOptions });
   }
 
   /**
@@ -79,7 +137,14 @@ class FontManager extends BaseManager<FontOptions> {
       cache: true,
       cacheTTL: 300000, // 5分钟
       concurrency: 5,
-      detectionThreshold: 2
+      detectionThreshold: 2,
+      detection: {
+        waitForLoad: true,
+        timeout: 3000,
+        retries: 2,
+        immediate: false,
+        strategy: 'comprehensive'
+      }
     };
   }
 
@@ -517,10 +582,11 @@ class FontManager extends BaseManager<FontOptions> {
    */
   private async performFontCheck(fontName: string, isSystemFont: boolean): Promise<FontCheckResult> {
     try {
-      // 等待字体就绪
-      if (document.fonts && document.fonts.ready) {
-        await document.fonts.ready;
-      }
+      // 使用 TimingController 等待字体就绪
+      await this.timingController.waitForDocumentFontsReady(this.options.timeout);
+      
+      // 跟踪字体加载状态
+      this.stateManager.trackFont(fontName, isSystemFont ? 'system' : 'web');
       
       // 使用 document.fonts.check 进行初步检测
       const basicCheck = document.fonts && document.fonts.check(`12px '${fontName}'`);
@@ -542,6 +608,12 @@ class FontManager extends BaseManager<FontOptions> {
             // 进行精确的字体检测测试
             const isTrulyLoaded = await this.performFontDetectionTest(fontName);
             if (!isTrulyLoaded) {
+              // 更新状态为不可用
+              this.stateManager.updateFontState(fontName, { 
+                status: 'error', 
+                endTime: Date.now(),
+                error: new Error('Font not available')
+              });
               return {
                 name: fontName,
                 loaded: false,
@@ -550,6 +622,12 @@ class FontManager extends BaseManager<FontOptions> {
             }
           }
         }
+        
+        // 更新状态为已加载
+        this.stateManager.updateFontState(fontName, { 
+          status: 'loaded', 
+          endTime: Date.now() 
+        });
         
         return {
           name: fontName,
@@ -563,6 +641,13 @@ class FontManager extends BaseManager<FontOptions> {
         return await this.checkWithFontFaceAPI(fontName, isSystemFont);
       }
 
+      // 更新状态为未加载
+      this.stateManager.updateFontState(fontName, { 
+        status: 'error', 
+        endTime: Date.now(),
+        error: new Error('Font detection failed')
+      });
+
       // 最后回退到基础检测结果
       return {
         name: fontName,
@@ -570,6 +655,13 @@ class FontManager extends BaseManager<FontOptions> {
         status: 'unloaded'
       };
     } catch (error) {
+      // 更新状态为错误
+      this.stateManager.updateFontState(fontName, { 
+        status: 'error', 
+        endTime: Date.now(),
+        error: error as Error
+      });
+      
       this.logger.warn(`Font check failed for ${fontName}`, { error: (error as Error).message });
       return {
         name: fontName,
@@ -590,10 +682,11 @@ class FontManager extends BaseManager<FontOptions> {
     try {
       const fontFace = new FontFace(fontName, `local(${fontName})`);
       
-      // 设置超时
-      const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error('Font load timeout')), this.options.timeout);
-      });
+      // 更新状态为加载中
+      this.stateManager.updateFontState(fontName, { status: 'loading' });
+      
+      // 使用 TimingController 创建超时
+      const timeoutPromise = this.timingController.createFontLoadTimeout(fontName, this.options.timeout);
       
       // 尝试加载字体
       const loadedFont = await Promise.race([
@@ -606,6 +699,11 @@ class FontManager extends BaseManager<FontOptions> {
         if (!isSystemFont) {
           const isTrulyLoaded = await this.performFontDetectionTest(fontName);
           if (!isTrulyLoaded) {
+            this.stateManager.updateFontState(fontName, { 
+              status: 'error', 
+              endTime: Date.now(),
+              error: new Error('Fallback font detected')
+            });
             return {
               name: fontName,
               loaded: false,
@@ -613,6 +711,12 @@ class FontManager extends BaseManager<FontOptions> {
             };
           }
         }
+        
+        // 更新状态为已加载
+        this.stateManager.updateFontState(fontName, { 
+          status: 'loaded', 
+          endTime: Date.now() 
+        });
         
         return {
           name: fontName,
@@ -623,6 +727,10 @@ class FontManager extends BaseManager<FontOptions> {
 
       // 如果 FontFace 加载失败，但基础检测通过且是系统字体，则认为已加载
       if (document.fonts && document.fonts.check(`12px '${fontName}'`) && isSystemFont) {
+        this.stateManager.updateFontState(fontName, { 
+          status: 'loaded', 
+          endTime: Date.now() 
+        });
         return {
           name: fontName,
           loaded: true,
@@ -630,12 +738,26 @@ class FontManager extends BaseManager<FontOptions> {
         };
       }
 
+      // 更新状态为错误
+      this.stateManager.updateFontState(fontName, { 
+        status: 'error', 
+        endTime: Date.now(),
+        error: new Error('Font loading failed')
+      });
+
       return {
         name: fontName,
         loaded: false,
         status: 'error'
       };
     } catch (error) {
+      // 更新状态为错误
+      this.stateManager.updateFontState(fontName, { 
+        status: 'error', 
+        endTime: Date.now(),
+        error: error as Error
+      });
+      
       // 回退到基础检测
       const isLoaded = document.fonts && document.fonts.check(`12px '${fontName}'`);
       
@@ -1157,3 +1279,6 @@ export { FontManager as Font };
 
 // 导出工具函数
 export * from './utils';
+
+// 导出增强的字体加载基础设施
+export * from './enhanced';
